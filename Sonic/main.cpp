@@ -61,6 +61,7 @@ int main()
         {
             sonic.move(0,1);
         }
+
         animeIndicator %= 9;
         sonic.setTextureRect(IntRect(animeIndicator * 102, 0, 102, 105));
 
