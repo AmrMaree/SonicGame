@@ -1,9 +1,11 @@
 #include <SFML/Graphics.hpp>
+#include <iostream>
+#include <vector>
 using namespace sf;
-
+using namespace std;
 int main()
 {
-    RenderWindow window(VideoMode(1920, 1080), "Sonic 2D Game");
+    RenderWindow window(VideoMode(1920, 1080), "Sonic Game");
 
     // Load the sprite sheet
     Texture sonictexture;
@@ -14,7 +16,20 @@ int main()
     sonic.setTextureRect(IntRect(0, 0, 102, 105));
     sonic.setPosition(0, 720);
 
+    //Variables
     int animeIndicator = 0;
+    int coinCount = 0;
+    int coinAnimationIndicator = 0;
+
+    // Set up coins
+    Texture coinsTextures;
+    coinsTextures.loadFromFile("sonicRingsprite.png");
+    Sprite coin(coinsTextures);
+    coin.setPosition(500, 500);
+    coin.setTextureRect(IntRect(0, 0, 134, 134));
+    coin.setScale(0.4f, 0.4f);
+   
+
     while (window.isOpen())
     {
         Event event;
@@ -49,10 +64,14 @@ int main()
         animeIndicator %= 9;
         sonic.setTextureRect(IntRect(animeIndicator * 102, 0, 102, 105));
 
+        coin.setTextureRect(IntRect(coinAnimationIndicator * 134, 0, 134, 134));
+        coinAnimationIndicator++;
+        coinAnimationIndicator %= 9;
 
         // Draw the sprite
         window.clear();
         window.draw(sonic);
+        window.draw(coin);
         window.display();
     }
 
