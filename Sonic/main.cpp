@@ -3,7 +3,7 @@ using namespace sf;
 
 int main()
 {
-    RenderWindow window(VideoMode(1920, 1080), "SFML Animation");
+    RenderWindow window(VideoMode(1920, 1080), "Sonic Game");
 
     // Load the sprite sheet
     Texture sonictexture;
@@ -28,7 +28,7 @@ int main()
             sonic.move(-1, 0);
             animeIndicator++;
             sonic.setOrigin(sonic.getLocalBounds().width, 0);
-            sonic.setScale(-1, 2);
+            sonic.setScale(-1, 1);
 
         }
         else if (Keyboard::isKeyPressed(Keyboard::Right))
