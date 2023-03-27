@@ -28,7 +28,7 @@ int main()
             sonic.move(-1, 0);
             animeIndicator++;
             sonic.setOrigin(sonic.getLocalBounds().width, 0);
-            sonic.setScale(-1, 1);
+            sonic.setScale(-1, 2);
 
         }
         else if (Keyboard::isKeyPressed(Keyboard::Right))
