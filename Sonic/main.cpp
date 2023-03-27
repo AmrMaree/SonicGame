@@ -3,7 +3,7 @@ using namespace sf;
 
 int main()
 {
-    RenderWindow window(VideoMode(1920, 1080), "Sonic 2D Game");
+    RenderWindow window(VideoMode(1920, 1080), "Sonic Game");
 
     // Load the sprite sheet
     Texture sonictexture;
