@@ -20,6 +20,7 @@ int main()
     int animeIndicator = 0;
     int coinCount = 0;
     int coinAnimationIndicator = 0;
+    bool isCoinVisible = true;
 
     // Set up coins
     Texture coinsTextures;
@@ -28,7 +29,7 @@ int main()
     coin.setPosition(500, 500);
     coin.setTextureRect(IntRect(0, 0, 134, 134));
     coin.setScale(0.4f, 0.4f);
-   
+
 
     while (window.isOpen())
     {
@@ -55,22 +56,24 @@ int main()
         }
         else if (Keyboard::isKeyPressed(Keyboard::Up))
         {
-            sonic.move(0,-1);
+            sonic.move(0, -1);
         }
         else if (Keyboard::isKeyPressed(Keyboard::Down))
         {
-            sonic.move(0,1);
+            sonic.move(0, 1);
         }
         animeIndicator %= 9;
         sonic.setTextureRect(IntRect(animeIndicator * 102, 0, 102, 105));
-
+        if (sonic.getGlobalBounds().intersects(coin.getGlobalBounds()))
+            isCoinVisible = false;
         coin.setTextureRect(IntRect(coinAnimationIndicator * 134, 0, 134, 134));
         coinAnimationIndicator++;
         coinAnimationIndicator %= 9;
-
+        
         // Draw the sprite
         window.clear();
         window.draw(sonic);
+        if(isCoinVisible)
         window.draw(coin);
         window.display();
     }
