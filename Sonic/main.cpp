@@ -34,7 +34,6 @@ int main()
     coin.setTextureRect(IntRect(0, 0, 134, 134));
     coin.setScale(0.4f, 0.4f);
    
-
     while (window.isOpen())
     {
         Event event;
