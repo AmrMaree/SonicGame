@@ -4,18 +4,40 @@
 using namespace sf;
 using namespace std;
 
+const int MAP_WIDTH = 10;
+const int MAP_HEIGHT = 10;
+
+void drawMap(RenderWindow& window, Sprite& sprite,Sprite& sonic, Sprite& sprite2, int map[][MAP_HEIGHT], int mapWidth, int mapHeight, vector<Sprite>& blocks) {
+    bool collided = false; // flag to indicate if a collision occurred
+    for (int i = 0; i < mapWidth; i++) {
+        for (int j = 0; j < mapHeight; j++) {
+            if (map[i][j] == 1) {
+                sprite.setPosition(i * sprite.getGlobalBounds().width, j * sprite.getGlobalBounds().height);
+                blocks.push_back(sprite);
+                window.draw(sprite);
+            }
+            else if (map[i][j] == 2) {
+                sprite2.setPosition(i * sprite2.getGlobalBounds().width, j * sprite2.getGlobalBounds().height);
+                blocks.push_back(sprite2);
+                window.draw(sprite2);
+
+            }
+        }
+    }   
+}
+
 int main()
 {
     RenderWindow window(sf::VideoMode(1696,1024), "Sonic Game");
+    vector <Sprite> blocks;
+
     
-    //Load the sprite sheet
+    //Make sonic sprite
     Texture sonictexture;
     sonictexture.loadFromFile("sonicsprite.png");
-
-    //Create the sprite
     Sprite sonic(sonictexture);
     sonic.setTextureRect(IntRect(0, 0, 102, 105));
-    sonic.setPosition(200, 0);
+    sonic.setPosition(0, 0);
     
     
     //setting ground
@@ -23,10 +45,14 @@ int main()
     groundtexture.loadFromFile("ground1.png");
     Sprite ground(groundtexture);
     ground.setPosition(0, 980);
-    
-    /*RectangleShape ground(Vector2f(100000, 30));
-    ground.setPosition(-200, 900);
-    ground.setFillColor(Color::White);*/
+
+    //Making long and short blocks
+    Texture shortBlockTexture; //short block
+    shortBlockTexture.loadFromFile("shortBlock.png");
+    Sprite shortBlockSprite(shortBlockTexture);
+    Texture longBlockTexture; //long block
+    longBlockTexture.loadFromFile("longBlock.png");
+    Sprite longBlockSprite(longBlockTexture);
 
     //Variables
     int animeIndicator = 0;
@@ -67,9 +93,26 @@ int main()
     Clock clock;
     window.setFramerateLimit(60);
 
+    //Map array
+
+    int map[MAP_WIDTH][MAP_HEIGHT] = {
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 1, 2},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    };
    
     while (window.isOpen())
     {
+       /* Time deltatime = clock.restart();
+        float dt = deltatime.asSeconds();*/
+
         Event event;
         while (window.pollEvent(event))
         {
@@ -82,9 +125,7 @@ int main()
         float fps = 1.0f / (currentTime);
         cout << "fps:" << fps << endl;
 
-
         // Move the player using A,D and space keys
-
         if (Keyboard::isKeyPressed(Keyboard::A))
         {
             sonic.move(-10, 0);
@@ -101,7 +142,6 @@ int main()
             sonic.setOrigin(0, 0);
             sonic.setScale(1, 1);
         }
-
         //collision with rectangle and jumping 
 
         if (sonic.getGlobalBounds().intersects(ground.getGlobalBounds()))
@@ -116,7 +156,7 @@ int main()
             landed = false;
             velocityY -= 0.9f;
         }
-
+        
              
         // Check if Sonic is out of bounds
         if (sonic.getPosition().y < 0.f)
@@ -147,6 +187,7 @@ int main()
         window.clear();
         window.setView(view);
         window.draw(background[bgindex]);
+        drawMap(window, longBlockSprite, sonic, shortBlockSprite, map, MAP_WIDTH, MAP_HEIGHT, blocks);
         window.draw(sonic);
         window.draw(ground);
         sonic.move(0, -velocityY);
