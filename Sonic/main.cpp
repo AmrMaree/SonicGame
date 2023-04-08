@@ -22,7 +22,7 @@ int main()
     Texture groundtexture;
     groundtexture.loadFromFile("ground1.png");
     Sprite ground(groundtexture);
-    ground.setPosition(-120, 980);
+    ground.setPosition(0, 980);
     
     /*RectangleShape ground(Vector2f(100000, 30));
     ground.setPosition(-200, 900);
@@ -35,6 +35,8 @@ int main()
     bool isCoinVisible = true;
     bool landed = false;
     double velocityY = 0;
+    int positioncount = 1;
+    int bgindex = 0;
 
     // Set up coins
     Texture coinsTextures;
@@ -44,8 +46,20 @@ int main()
     coin.setTextureRect(IntRect(0, 0, 134, 134));
     coin.setScale(0.4f, 0.4f);
 
+    //background 
+    Texture backgroundtexture;
+    backgroundtexture.loadFromFile("lapper-bggreenhill1.jpg");
+    Sprite background[2];
+
+    for (int i = 0; i < 2; ++i)
+    {
+        background[i].setScale(2.5f, 2);
+        background[i].setTexture(backgroundtexture);
+        background[i].setPosition(Vector2f(i * 1696, 0));
+    }
+
     //2D camera
-    View view(Vector2f(0, 0), Vector2f(1920, 1080));
+    View view(Vector2f(0, 0), Vector2f(1696, 1024));
     view.setCenter(sonic.getPosition()); //update
     window.setView(view);
 
@@ -88,7 +102,6 @@ int main()
             sonic.setScale(1, 1);
         }
 
-
         //collision with rectangle and jumping 
 
         if (sonic.getGlobalBounds().intersects(ground.getGlobalBounds()))
@@ -119,10 +132,21 @@ int main()
         coinAnimationIndicator++;
         coinAnimationIndicator %= 9;
 
+        //background motion
+        if (sonic.getPosition().x > positioncount * 1696)
+        {
+            positioncount++;
+            background[bgindex].setPosition(Vector2f(positioncount * 1696, 0));
+            bgindex++;
+            if (bgindex > 1)
+                bgindex = 0;
+        }
+
         // Draw the sprite
         view.setCenter(Vector2f(sonic.getPosition().x + 848, 540));
         window.clear();
         window.setView(view);
+        window.draw(background[bgindex]);
         window.draw(sonic);
         window.draw(ground);
         sonic.move(0, -velocityY);
