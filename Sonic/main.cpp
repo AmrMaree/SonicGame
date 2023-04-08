@@ -15,7 +15,7 @@ int main()
     //Create the sprite
     Sprite sonic(sonictexture);
     sonic.setTextureRect(IntRect(0, 0, 102, 105));
-    sonic.setPosition(0, 0);
+    sonic.setPosition(200, 0);
     
     
     //setting ground
