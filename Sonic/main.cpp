@@ -147,6 +147,7 @@ int main()
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     };
    
+
     while (window.isOpen())
     {
         Time deltatime = clock.restart();
