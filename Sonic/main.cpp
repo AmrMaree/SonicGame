@@ -25,44 +25,7 @@ const int MAP_HEIGHT = 10;
 //        }
 //    }
 //}
-//void Player_Collision(vector<Sprite>& blocks, Sprite& sonic) {
-//    for (int i = 0; i < blocks.size(); i++)
-//    {
-//        FloatRect Player_Bounds = sonic.getGlobalBounds();
-//        FloatRect intersection;
-//        FloatRect Wall_bound = blocks[i].getGlobalBounds();
-//        if (Player_Bounds.intersects(Wall_bound))
-//        {
-//            Player_Bounds.intersects(Wall_bound, intersection);
-//            if (intersection.width < intersection.height)
-//            {
-//                if (Player_Bounds.left < Wall_bound.left)
-//                {
-//                    //sonic.move(-playerspeed * dt, 0);
-//                    sonic.setPosition(Wall_bound.left - Player_Bounds.width, Player_Bounds.top);
-//                }
-//                else
-//                {
-//                    //sonic.move(playerspeed * dt, 0);
-//                    sonic.setPosition(Wall_bound.left + Wall_bound.width, Player_Bounds.top);
-//                }
-//            }
-//            else
-//            {
-//                if (Player_Bounds.top < Wall_bound.top)
-//                {
-//                    //sonic.move(0, -playerspeed * dt);
-//                    sonic.setPosition(Player_Bounds.left, Wall_bound.top - Player_Bounds.height);
-//                }
-//                else
-//                {
-//                    //sonic.move(0, playerspeed * dt);
-//                    sonic.setPosition(Player_Bounds.left, Wall_bound.top + Wall_bound.height);
-//                }
-//            }
-//        }
-//    }
-//}
+
 
 
 int main()
@@ -120,10 +83,9 @@ int main()
     Texture backgroundtexture;
     backgroundtexture.loadFromFile("lapper-bggreenhill1.jpg");
     Sprite background[100];
-
     for (int i = 0; i < 100; ++i)
     {
-        background[i].setScale(1, 1);
+        //background[i].setScale(1, 1);
         background[i].setTexture(backgroundtexture);
         background[i].setPosition(Vector2f(i * 1696, 0));
     }
@@ -225,6 +187,9 @@ int main()
             sonic.setPosition(sonic.getPosition().x, 0.f);
         if (sonic.getPosition().x < 0.f)
             sonic.setPosition(0.f, sonic.getPosition().y);
+        if (sonic.getPosition().x >= 5408)
+            sonic.setPosition(5408-sonic.getGlobalBounds().width, 0.f);
+        
 
         animeIndicator %= 10;
         sonic.setTextureRect(IntRect(animeIndicator * 102, 0, 102, 105));
