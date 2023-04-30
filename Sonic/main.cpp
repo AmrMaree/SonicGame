@@ -9,6 +9,7 @@ const int MAP_HEIGHT = 10;
 
 void drawMap(RenderWindow& window, Sprite& sprite,Sprite& sonic, Sprite& sprite2, int map[][MAP_HEIGHT], int mapWidth, int mapHeight, vector<Sprite>& blocks) {
     bool collided = false; // flag to indicate if a collision occurred
+    double vY=0;
     for (int i = 0; i < mapWidth; i++) {
         for (int j = 0; j < mapHeight; j++) {
             if (map[i][j] == 1) {
@@ -20,12 +21,50 @@ void drawMap(RenderWindow& window, Sprite& sprite,Sprite& sonic, Sprite& sprite2
                 sprite2.setPosition(i * sprite2.getGlobalBounds().width, j * sprite2.getGlobalBounds().height);
                 blocks.push_back(sprite2);
                 window.draw(sprite2);
-
             }
         }
     }   
 }
+void Player_Collision(float dt, vector<Sprite>& blocks, Sprite& sonic) {
+    for (int i = 0; i < blocks.size(); i++)
+    {
+        FloatRect Player_Bounds = sonic.getGlobalBounds();
+        FloatRect intersection;
+        FloatRect Wall_bound = blocks[i].getGlobalBounds();
+        if (Player_Bounds.intersects(Wall_bound))
+        {
+            Player_Bounds.intersects(Wall_bound, intersection);
+            if (intersection.width < intersection.height)
+            {
+                if (Player_Bounds.left < Wall_bound.left)
+                {
+                    //sonic.move(-playerspeed * dt, 0);
+                    sonic.setPosition(Wall_bound.left - Player_Bounds.width, Player_Bounds.top);
+                }
+                else
+                {
+                    //sonic.move(playerspeed * dt, 0);
+                    sonic.setPosition(Wall_bound.left + Wall_bound.width, Player_Bounds.top);
+                }
+            }
+            else
+            {
+                if (Player_Bounds.top < Wall_bound.top)
+                {
+                    //sonic.move(0, -playerspeed * dt);
+                    sonic.setPosition(Player_Bounds.left, Wall_bound.top - Player_Bounds.height);
+                }
+                else
+                {
+                    //sonic.move(0, playerspeed * dt);
+                    sonic.setPosition(Player_Bounds.left, Wall_bound.top + Wall_bound.height);
+                }
+            }
+        }
+    }
+}
 
+ 
 int main()
 {
     RenderWindow window(sf::VideoMode(1696,1024), "Sonic Game");
@@ -110,8 +149,8 @@ int main()
    
     while (window.isOpen())
     {
-       /* Time deltatime = clock.restart();
-        float dt = deltatime.asSeconds();*/
+        Time deltatime = clock.restart();
+        float dt = deltatime.asSeconds();
 
         Event event;
         while (window.pollEvent(event))
@@ -142,8 +181,8 @@ int main()
             sonic.setOrigin(0, 0);
             sonic.setScale(1, 1);
         }
+        
         //collision with rectangle and jumping 
-
         if (sonic.getGlobalBounds().intersects(ground.getGlobalBounds()))
         {
             landed = true;
@@ -156,7 +195,7 @@ int main()
             landed = false;
             velocityY -= 0.9f;
         }
-        
+        sonic.move(0, -velocityY);
              
         // Check if Sonic is out of bounds
         if (sonic.getPosition().y < 0.f)
@@ -181,6 +220,7 @@ int main()
             if (bgindex > 1)
                 bgindex = 0;
         }
+        Player_Collision(dt, blocks, sonic);
 
         // Draw the sprite
         view.setCenter(Vector2f(sonic.getPosition().x + 848, 540));
@@ -190,7 +230,6 @@ int main()
         drawMap(window, longBlockSprite, sonic, shortBlockSprite, map, MAP_WIDTH, MAP_HEIGHT, blocks);
         window.draw(sonic);
         window.draw(ground);
-        sonic.move(0, -velocityY);
         if(isCoinVisible)
              window.draw(coin);
         window.display();
