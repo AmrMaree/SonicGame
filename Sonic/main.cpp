@@ -25,6 +25,44 @@ void drawMap(RenderWindow& window, Sprite& sprite, Sprite& sonic, Sprite& sprite
         }
     }
 }
+void Player_Collision(float dt, vector<Sprite>& blocks, Sprite& sonic) {
+    for (int i = 0; i < blocks.size(); i++)
+    {
+        FloatRect Player_Bounds = sonic.getGlobalBounds();
+        FloatRect intersection;
+        FloatRect Wall_bound = blocks[i].getGlobalBounds();
+        if (Player_Bounds.intersects(Wall_bound))
+        {
+            Player_Bounds.intersects(Wall_bound, intersection);
+            if (intersection.width < intersection.height)
+            {
+                if (Player_Bounds.left < Wall_bound.left)
+                {
+                    //sonic.move(-playerspeed * dt, 0);
+                    sonic.setPosition(Wall_bound.left - Player_Bounds.width, Player_Bounds.top);
+                }
+                else
+                {
+                    //sonic.move(playerspeed * dt, 0);
+                    sonic.setPosition(Wall_bound.left + Wall_bound.width, Player_Bounds.top);
+                }
+            }
+            else
+            {
+                if (Player_Bounds.top < Wall_bound.top)
+                {
+                    //sonic.move(0, -playerspeed * dt);
+                    sonic.setPosition(Player_Bounds.left, Wall_bound.top - Player_Bounds.height);
+                }
+                else
+                {
+                    //sonic.move(0, playerspeed * dt);
+                    sonic.setPosition(Player_Bounds.left, Wall_bound.top + Wall_bound.height);
+                }
+            }
+        }
+    }
+}
 
 int main()
 {
@@ -113,6 +151,7 @@ int main()
     {
          Time deltatime = clock.restart();
          float dt = deltatime.asSeconds();
+         window.setFramerateLimit(60);
 
         Event event;
         while (window.pollEvent(event))
@@ -143,8 +182,8 @@ int main()
             sonic.setOrigin(0, 0);
             sonic.setScale(1, 1);
         }
+       
         //collision with rectangle and jumping 
-
         if (sonic.getGlobalBounds().intersects(ground.getGlobalBounds()))
         {
             landed = true;
@@ -157,7 +196,7 @@ int main()
             landed = false;
             velocityY -= 0.9f;
         }
-
+        sonic.move(0, -velocityY);
 
         // Check if Sonic is out of bounds
         if (sonic.getPosition().y < 0.f)
@@ -174,22 +213,20 @@ int main()
         coinAnimationIndicator++;
         coinAnimationIndicator %= 9;
 
-    
-      
+        //player collision
+        Player_Collision(dt, blocks, sonic);
 
         // Draw the sprite
         view.setCenter(Vector2f(sonic.getPosition().x + 848, 540));
         window.clear();
         window.setView(view);
-        for(int i=0;i<100;++i)
+        for(int i = 0; i < 100; ++i)
         {
             window.draw(background[i]);
         }
-            
         drawMap(window, longBlockSprite, sonic, shortBlockSprite, map, MAP_WIDTH, MAP_HEIGHT, blocks);
         window.draw(sonic);
         window.draw(ground);
-        sonic.move(0, -velocityY);
         if (isCoinVisible)
             window.draw(coin);
         window.display();
