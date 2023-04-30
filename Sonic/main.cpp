@@ -7,62 +7,63 @@ using namespace std;
 const int MAP_WIDTH = 10;
 const int MAP_HEIGHT = 10;
 
-void drawMap(RenderWindow& window, Sprite& sprite, Sprite& sonic, Sprite& sprite2, int map[][MAP_HEIGHT], int mapWidth, int mapHeight, vector<Sprite>& blocks) {
-    bool collided = false; // flag to indicate if a collision occurred
-    for (int i = 0; i < mapWidth; i++) {
-        for (int j = 0; j < mapHeight; j++) {
-            if (map[i][j] == 1) {
-                sprite.setPosition(i * sprite.getGlobalBounds().width, j * sprite.getGlobalBounds().height);
-                blocks.push_back(sprite);
-                window.draw(sprite);
-            }
-            else if (map[i][j] == 2) {
-                sprite2.setPosition(i * sprite2.getGlobalBounds().width, j * sprite2.getGlobalBounds().height);
-                blocks.push_back(sprite2);
-                window.draw(sprite2);
+//void drawMap(RenderWindow& window, Sprite& sprite, Sprite& sonic, Sprite& sprite2, int map[][MAP_HEIGHT], int mapWidth, int mapHeight, vector<Sprite>& blocks) {
+//    bool collided = false; // flag to indicate if a collision occurred
+//    for (int i = 0; i < mapWidth; i++) {
+//        for (int j = 0; j < mapHeight; j++) {
+//            if (map[i][j] == 1) {
+//                sprite.setPosition(i * sprite.getGlobalBounds().width, j * sprite.getGlobalBounds().height);
+//                blocks.push_back(sprite);
+//                window.draw(sprite);
+//            }
+//            else if (map[i][j] == 2) {
+//                sprite2.setPosition(i * sprite2.getGlobalBounds().width, j * sprite2.getGlobalBounds().height);
+//                sprite2.setScale(2, 2);
+//                blocks.push_back(sprite2);
+//                window.draw(sprite2);
+//            }
+//        }
+//    }
+//}
+//void Player_Collision(vector<Sprite>& blocks, Sprite& sonic) {
+//    for (int i = 0; i < blocks.size(); i++)
+//    {
+//        FloatRect Player_Bounds = sonic.getGlobalBounds();
+//        FloatRect intersection;
+//        FloatRect Wall_bound = blocks[i].getGlobalBounds();
+//        if (Player_Bounds.intersects(Wall_bound))
+//        {
+//            Player_Bounds.intersects(Wall_bound, intersection);
+//            if (intersection.width < intersection.height)
+//            {
+//                if (Player_Bounds.left < Wall_bound.left)
+//                {
+//                    //sonic.move(-playerspeed * dt, 0);
+//                    sonic.setPosition(Wall_bound.left - Player_Bounds.width, Player_Bounds.top);
+//                }
+//                else
+//                {
+//                    //sonic.move(playerspeed * dt, 0);
+//                    sonic.setPosition(Wall_bound.left + Wall_bound.width, Player_Bounds.top);
+//                }
+//            }
+//            else
+//            {
+//                if (Player_Bounds.top < Wall_bound.top)
+//                {
+//                    //sonic.move(0, -playerspeed * dt);
+//                    sonic.setPosition(Player_Bounds.left, Wall_bound.top - Player_Bounds.height);
+//                }
+//                else
+//                {
+//                    //sonic.move(0, playerspeed * dt);
+//                    sonic.setPosition(Player_Bounds.left, Wall_bound.top + Wall_bound.height);
+//                }
+//            }
+//        }
+//    }
+//}
 
-            }
-        }
-    }
-}
-void Player_Collision(float dt, vector<Sprite>& blocks, Sprite& sonic) {
-    for (int i = 0; i < blocks.size(); i++)
-    {
-        FloatRect Player_Bounds = sonic.getGlobalBounds();
-        FloatRect intersection;
-        FloatRect Wall_bound = blocks[i].getGlobalBounds();
-        if (Player_Bounds.intersects(Wall_bound))
-        {
-            Player_Bounds.intersects(Wall_bound, intersection);
-            if (intersection.width < intersection.height)
-            {
-                if (Player_Bounds.left < Wall_bound.left)
-                {
-                    //sonic.move(-playerspeed * dt, 0);
-                    sonic.setPosition(Wall_bound.left - Player_Bounds.width, Player_Bounds.top);
-                }
-                else
-                {
-                    //sonic.move(playerspeed * dt, 0);
-                    sonic.setPosition(Wall_bound.left + Wall_bound.width, Player_Bounds.top);
-                }
-            }
-            else
-            {
-                if (Player_Bounds.top < Wall_bound.top)
-                {
-                    //sonic.move(0, -playerspeed * dt);
-                    sonic.setPosition(Player_Bounds.left, Wall_bound.top - Player_Bounds.height);
-                }
-                else
-                {
-                    //sonic.move(0, playerspeed * dt);
-                    sonic.setPosition(Player_Bounds.left, Wall_bound.top + Wall_bound.height);
-                }
-            }
-        }
-    }
-}
 
 int main()
 {
@@ -80,31 +81,38 @@ int main()
 
     //setting ground
     Texture groundtexture;
-    groundtexture.loadFromFile("ground1.png");
+    groundtexture.loadFromFile("map.png");
     Sprite ground(groundtexture);
-    ground.setPosition(0, 980);
+    ground.setPosition(0, 633);
+    ground.setScale(2.3f, 2.3f);
 
-    //Making long and short blocks
-    Texture shortBlockTexture; //short block
-    shortBlockTexture.loadFromFile("shortBlock.png");
-    Sprite shortBlockSprite(shortBlockTexture);
-    Texture longBlockTexture; //long block
-    longBlockTexture.loadFromFile("longBlock.png");
-    Sprite longBlockSprite(longBlockTexture);
+    //setting ground
+    Texture ground1texture;
+    ground1texture.loadFromFile("groundTextures/block89.png");
+    Sprite ground1[3];
+    for (int i = 0; i < 3;++i)
+    {
+        ground1[i].setScale(2.3f, 2.3f);
+        ground1[i].setTexture(ground1texture);
+        
+    }
+    ground1[0].setPosition(333, 430);
+    ground1[1].setPosition(833, 230);
+    ground1[2].setPosition(533, 111);
 
     //Variables
     int animeIndicator = 0;
     int coinCount = 0;
     int coinAnimationIndicator = 0;
-    bool isCoinVisible = true;  
+    bool isCoinVisible = true;
     bool landed = false;
     double velocityY = 0;
-  
+
     // Set up coins
     Texture coinsTextures;
     coinsTextures.loadFromFile("sonicRingsprite.png");
     Sprite coin(coinsTextures);
-    coin.setPosition(500, 800);
+    coin.setPosition(500, 568);
     coin.setTextureRect(IntRect(0, 0, 134, 134));
     coin.setScale(0.4f, 0.4f);
 
@@ -120,8 +128,6 @@ int main()
         background[i].setPosition(Vector2f(i * 1696, 0));
     }
 
-
-
     //2D camera
     View view(Vector2f(0, 0), Vector2f(1696, 1024));
     view.setCenter(sonic.getPosition()); //update
@@ -132,10 +138,9 @@ int main()
     window.setFramerateLimit(60);
 
     //Map array
-
     int map[MAP_WIDTH][MAP_HEIGHT] = {
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 2, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 0, 0, 1, 2},
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -149,9 +154,9 @@ int main()
 
     while (window.isOpen())
     {
-         Time deltatime = clock.restart();
-         float dt = deltatime.asSeconds();
-         window.setFramerateLimit(60);
+       Time deltatime = clock.restart();
+        float dt = deltatime.asSeconds();
+        window.setFramerateLimit(60);
 
         Event event;
         while (window.pollEvent(event))
@@ -182,22 +187,39 @@ int main()
             sonic.setOrigin(0, 0);
             sonic.setScale(1, 1);
         }
-       
-        //collision with rectangle and jumping 
-        if (sonic.getGlobalBounds().intersects(ground.getGlobalBounds()))
-        {
-            landed = true;
-            velocityY = 0;
-            if (Keyboard::isKeyPressed(Keyboard::Space))
-                velocityY = 18.5f;
-        }
-        else
-        {
-            landed = false;
-            velocityY -= 0.9f;
-        }
-        sonic.move(0, -velocityY);
 
+        //collision with rectangle and jumping 
+            if (sonic.getGlobalBounds().intersects(ground.getGlobalBounds()))
+            {
+                landed = true;
+                velocityY = 0;
+                if (Keyboard::isKeyPressed(Keyboard::Space))
+                    velocityY = 18.5f;
+            }
+            else
+            {
+                landed = false;
+                velocityY -= 0.9f;
+            }
+            sonic.move(0, -velocityY);
+
+            for (int i = 0; i < 3; ++i)
+            {
+                if (sonic.getGlobalBounds().intersects(ground1[i].getGlobalBounds()))
+                {
+                    landed = true;
+                    velocityY = 0;
+                    if (Keyboard::isKeyPressed(Keyboard::Space))
+                        velocityY = 18.5f;
+                }
+                else
+                {
+                    landed = false;
+                    velocityY -= 0.9f;
+                }
+
+           }
+       
         // Check if Sonic is out of bounds
         if (sonic.getPosition().y < 0.f)
             sonic.setPosition(sonic.getPosition().x, 0.f);
@@ -214,19 +236,22 @@ int main()
         coinAnimationIndicator %= 9;
 
         //player collision
-        Player_Collision(dt, blocks, sonic);
+       // Player_Collision(blocks, sonic);
 
         // Draw the sprite
         view.setCenter(Vector2f(sonic.getPosition().x + 848, 540));
         window.clear();
         window.setView(view);
-        for(int i = 0; i < 100; ++i)
+        for (int i = 0; i < 100; ++i)
         {
             window.draw(background[i]);
         }
-        drawMap(window, longBlockSprite, sonic, shortBlockSprite, map, MAP_WIDTH, MAP_HEIGHT, blocks);
+        //drawMap(window, longBlockSprite, sonic, shortBlockSprite, map, MAP_WIDTH, MAP_HEIGHT, blocks);
         window.draw(sonic);
         window.draw(ground);
+        for (int i = 0; i < 3; i++) {
+            window.draw(ground1[i]);
+        }
         if (isCoinVisible)
             window.draw(coin);
         window.display();
