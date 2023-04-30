@@ -7,8 +7,9 @@ using namespace std;
 const int MAP_WIDTH = 10;
 const int MAP_HEIGHT = 10;
 
-void drawMap(RenderWindow& window, Sprite& sprite, Sprite& sonic, Sprite& sprite2, int map[][MAP_HEIGHT], int mapWidth, int mapHeight, vector<Sprite>& blocks) {
+void drawMap(RenderWindow& window, Sprite& sprite,Sprite& sonic, Sprite& sprite2, int map[][MAP_HEIGHT], int mapWidth, int mapHeight, vector<Sprite>& blocks) {
     bool collided = false; // flag to indicate if a collision occurred
+    double vY=0;
     for (int i = 0; i < mapWidth; i++) {
         for (int j = 0; j < mapHeight; j++) {
             if (map[i][j] == 1) {
@@ -20,26 +21,64 @@ void drawMap(RenderWindow& window, Sprite& sprite, Sprite& sonic, Sprite& sprite
                 sprite2.setPosition(i * sprite2.getGlobalBounds().width, j * sprite2.getGlobalBounds().height);
                 blocks.push_back(sprite2);
                 window.draw(sprite2);
-
+            }
+        }
+    }   
+}
+void Player_Collision(float dt, vector<Sprite>& blocks, Sprite& sonic) {
+    for (int i = 0; i < blocks.size(); i++)
+    {
+        FloatRect Player_Bounds = sonic.getGlobalBounds();
+        FloatRect intersection;
+        FloatRect Wall_bound = blocks[i].getGlobalBounds();
+        if (Player_Bounds.intersects(Wall_bound))
+        {
+            Player_Bounds.intersects(Wall_bound, intersection);
+            if (intersection.width < intersection.height)
+            {
+                if (Player_Bounds.left < Wall_bound.left)
+                {
+                    //sonic.move(-playerspeed * dt, 0);
+                    sonic.setPosition(Wall_bound.left - Player_Bounds.width, Player_Bounds.top);
+                }
+                else
+                {
+                    //sonic.move(playerspeed * dt, 0);
+                    sonic.setPosition(Wall_bound.left + Wall_bound.width, Player_Bounds.top);
+                }
+            }
+            else
+            {
+                if (Player_Bounds.top < Wall_bound.top)
+                {
+                    //sonic.move(0, -playerspeed * dt);
+                    sonic.setPosition(Player_Bounds.left, Wall_bound.top - Player_Bounds.height);
+                }
+                else
+                {
+                    //sonic.move(0, playerspeed * dt);
+                    sonic.setPosition(Player_Bounds.left, Wall_bound.top + Wall_bound.height);
+                }
             }
         }
     }
 }
 
+ 
 int main()
 {
-    RenderWindow window(sf::VideoMode(1696, 1024), "Sonic Game");
+    RenderWindow window(sf::VideoMode(1696,1024), "Sonic Game");
     vector <Sprite> blocks;
 
-
+    
     //Make sonic sprite
     Texture sonictexture;
     sonictexture.loadFromFile("sonicsprite.png");
     Sprite sonic(sonictexture);
     sonic.setTextureRect(IntRect(0, 0, 102, 105));
     sonic.setPosition(0, 0);
-
-
+    
+    
     //setting ground
     Texture groundtexture;
     groundtexture.loadFromFile("ground1.png");
@@ -58,10 +97,12 @@ int main()
     int animeIndicator = 0;
     int coinCount = 0;
     int coinAnimationIndicator = 0;
-    bool isCoinVisible = true;  
+    bool isCoinVisible = true;
     bool landed = false;
     double velocityY = 0;
-  
+    int positioncount = 1;
+    int bgindex = 0;
+
     // Set up coins
     Texture coinsTextures;
     coinsTextures.loadFromFile("sonicRingsprite.png");
@@ -73,16 +114,14 @@ int main()
     //background 
     Texture backgroundtexture;
     backgroundtexture.loadFromFile("lapper-bggreenhill1.jpg");
-    Sprite background[100];
+    Sprite background[2];
 
-    for (int i = 0; i < 100; ++i)
+    for (int i = 0; i < 2; ++i)
     {
-        background[i].setScale(1, 1);
+        background[i].setScale(2.5f, 2);
         background[i].setTexture(backgroundtexture);
         background[i].setPosition(Vector2f(i * 1696, 0));
     }
-
-
 
     //2D camera
     View view(Vector2f(0, 0), Vector2f(1696, 1024));
@@ -99,19 +138,19 @@ int main()
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 1, 2},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 1, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 2, 0},
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     };
-
+   
     while (window.isOpen())
     {
-         Time deltatime = clock.restart();
-         float dt = deltatime.asSeconds();
+        Time deltatime = clock.restart();
+        float dt = deltatime.asSeconds();
 
         Event event;
         while (window.pollEvent(event))
@@ -119,7 +158,7 @@ int main()
             if (event.type == Event::Closed)
                 window.close();
         }
-
+        
         // set frames 
         float currentTime = clock.restart().asSeconds();
         float fps = 1.0f / (currentTime);
@@ -142,13 +181,13 @@ int main()
             sonic.setOrigin(0, 0);
             sonic.setScale(1, 1);
         }
+        
         //collision with rectangle and jumping 
-
         if (sonic.getGlobalBounds().intersects(ground.getGlobalBounds()))
         {
             landed = true;
             velocityY = 0;
-            if (Keyboard::isKeyPressed(Keyboard::Space))
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
                 velocityY = 18.5f;
         }
         else
@@ -156,8 +195,8 @@ int main()
             landed = false;
             velocityY -= 0.9f;
         }
-
-
+        sonic.move(0, -velocityY);
+             
         // Check if Sonic is out of bounds
         if (sonic.getPosition().y < 0.f)
             sonic.setPosition(sonic.getPosition().x, 0.f);
@@ -169,28 +208,30 @@ int main()
         if (sonic.getGlobalBounds().intersects(coin.getGlobalBounds()))
             isCoinVisible = false;
         coin.setTextureRect(IntRect(coinAnimationIndicator * 134, 0, 134, 134));
-
         coinAnimationIndicator++;
         coinAnimationIndicator %= 9;
 
-    
-      
+        //background motion
+        if (sonic.getPosition().x > positioncount * 1696)
+        {
+            positioncount++;
+            background[bgindex].setPosition(Vector2f(positioncount * 1696, 0));
+            bgindex++;
+            if (bgindex > 1)
+                bgindex = 0;
+        }
+        Player_Collision(dt, blocks, sonic);
 
         // Draw the sprite
         view.setCenter(Vector2f(sonic.getPosition().x + 848, 540));
         window.clear();
         window.setView(view);
-        for(int i=0;i<100;++i)
-        {
-            window.draw(background[i]);
-        }
-            
+        window.draw(background[bgindex]);
         drawMap(window, longBlockSprite, sonic, shortBlockSprite, map, MAP_WIDTH, MAP_HEIGHT, blocks);
         window.draw(sonic);
         window.draw(ground);
-        sonic.move(0, -velocityY);
-        if (isCoinVisible)
-            window.draw(coin);
+        if(isCoinVisible)
+             window.draw(coin);
         window.display();
     }
 
