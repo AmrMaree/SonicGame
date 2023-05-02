@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <SFML/Audio.hpp>
 using namespace sf;
 using namespace std;
 
@@ -45,10 +46,10 @@ struct player
         currentframe = 0;
         last_key_pressed = 1;
     }
-    void update(float time,View &view)
+    void update(float time, View& view)
     {
         rect.left += move_X * time;
-        view.move(move_X * time,0);
+        view.move(move_X * time, 0);
         if (!onground) {
             move_Y += (0.005 * time);
         }
@@ -63,7 +64,7 @@ struct player
             move_Y = 0;
             onground = true;
         }
-        currentframe +=  0.015 * time;
+        currentframe += 0.015 * time;
         if (currentframe > 10)
             currentframe -= 10;
 
@@ -73,7 +74,7 @@ struct player
         if (move_X < 0) {
             sprite.setTextureRect(IntRect(int(currentframe) * 102, 0, 102, 105));
         }
-        cout << rect.left << "  " << rect.top<<"  "<<currentframe << endl;
+        cout << rect.left << "  " << rect.top << "  " << currentframe << endl;
         sprite.setPosition(rect.left, rect.top);
         move_X = 0;
     }
@@ -102,7 +103,7 @@ void Setdrops() {
     Drops[0].setScale(2.5, 2.5);
     Drops[1].setScale(3, 3);
     Drops[2].setScale(0.13, 0.13);
-    Drops[3].setScale(2, 2);
+    Drops[3].setScale(3, 3);
 }
 
 void dropADrop() {
@@ -113,7 +114,7 @@ void dropADrop() {
     }
 }
 void chooseDrop(Sprite ground1[], Clock& timerAdd, Clock& timerDelete) {
-    if (timerAdd.getElapsedTime().asSeconds() >= 2) {
+    if (timerAdd.getElapsedTime().asSeconds() >= 1) {
         int indexDrop = rand() % 4;
         int indexBlock = rand() % 18;
         Help help;
@@ -152,9 +153,9 @@ void checkDrop(player& player) {
             Bullet bullet;
             bullet.bulletSprite.setTexture(DropsTex[4]);
             bullet.bulletSprite.setScale(2, 2);
-            bullet.speed = 5;
-            bullet.cooldownUse = 50;
-            bullet.magazine = 3;
+            bullet.speed = 8;
+            bullet.cooldownUse = 20;
+            bullet.magazine = 5;
             player.canShoot = 1;
             for (int i = 0; i < bullet.magazine; i++)
             {
@@ -166,9 +167,9 @@ void checkDrop(player& player) {
             Bullet bullet;
             bullet.bulletSprite.setTexture(DropsTex[5]);
             bullet.bulletSprite.setScale(2, 2);
-            bullet.speed = 9;
-            bullet.cooldownUse = 30;
-            bullet.magazine = 7;
+            bullet.speed = 12;
+            bullet.cooldownUse = 10;
+            bullet.magazine = 10;
             player.canShoot = 1;
             for (int i = 0; i < bullet.magazine; i++)
             {
@@ -217,7 +218,7 @@ void moveBullets(vector<Bullet>& bullet) {
             bullet[i].bulletSprite.move(1 * bullet[i].speed, 0);
 
         }
-        if (bullet[i].bulletSprite.getPosition().x >= 1750 ||
+        if (bullet[i].bulletSprite.getPosition().x >= 10500 ||
             bullet[i].bulletSprite.getPosition().x <= -100) {
             bullet.erase(bullet.begin() + i);
         }
@@ -226,31 +227,82 @@ void moveBullets(vector<Bullet>& bullet) {
 }
 
 
-void drawCoins(RenderWindow& window,player& sonic, Sprite& coin, int map[][MAP_HEIGHT], int mapWidth, int mapHeight, int coinAnimationIndicator, vector<Sprite>& coinslist,int& score,Text& text) {
-    
+void drawCoins(RenderWindow& window, player& sonic, Sprite& coin, int map[][MAP_HEIGHT], int mapWidth, int mapHeight, int coinAnimationIndicator, vector<Sprite>& coinslist, int score, Text& text, Sound& coinSound) {
+
     for (int i = 0; i < mapWidth; i++) {
         for (int j = 0; j < mapHeight; j++) {
             if (map[i][j] == 1) {
-                coin.setPosition(i * coin.getGlobalBounds().width*10, j * coin.getGlobalBounds().height*10);
+                coin.setPosition(i * coin.getGlobalBounds().width * 5, j * coin.getGlobalBounds().height * 10);
                 if (sonic.sprite.getGlobalBounds().intersects(coin.getGlobalBounds())) {
+                    coinSound.play(); // Play the sound effect
                     map[i][j] = 0;
                     score++;
                     text.setString(" Score " + to_string(score));
-                } 
+                }
+
                 window.draw(coin);
                 coin.setTextureRect(IntRect(coinAnimationIndicator * 134, 0, 134, 134));
                 coinAnimationIndicator++;
                 coinAnimationIndicator %= 9;
-               // coinslist.push_back(coin);
+                coinslist.push_back(coin);
             }
         }
     }
 }
-
+void block(Sprite ground1[])
+{
+    ground1[0].setPosition(560, 450);
+    ground1[0].setScale(1.2f, 1.5f);    //small
+    ground1[1].setPosition(950, 350);
+    ground1[1].setScale(1.2f, 1.5f);    //small
+    ground1[2].setPosition(1420, 200);
+    ground1[2].setScale(1.2f, 1.5f);    //small
+    ground1[3].setPosition(1800, 300);
+    ground1[3].setScale(1.5f, 1.5f);
+    ground1[4].setPosition(2300, 400);
+    ground1[4].setScale(1.5f, 1.5f);
+    ground1[5].setPosition(2900, 350);
+    ground1[5].setScale(1.2f, 1.5f);    //small
+    ground1[6].setPosition(3400, 250);
+    ground1[6].setScale(1.5f, 1.5f);
+    ground1[7].setPosition(9700, 290);
+    ground1[7].setScale(1.5f, 1.5f);
+    ground1[8].setPosition(3700, 380);
+    ground1[8].setScale(1.5f, 1.5f);
+    ground1[9].setPosition(3700, 380);
+    ground1[9].setScale(1.5f, 1.5f);
+    ground1[10].setPosition(4100, 200);
+    ground1[10].setScale(1.5f, 1.5f);
+    ground1[11].setPosition(4580, 300);
+    ground1[11].setScale(1.5f, 1.5f);
+    ground1[12].setPosition(4900, 400);
+    ground1[12].setScale(1.2f, 1.5f);     //small
+    ground1[13].setPosition(5400, 300);
+    ground1[13].setScale(1.5f, 1.5f);
+    ground1[14].setPosition(5800, 400);
+    ground1[14].setScale(1.5f, 1.5f);
+    ground1[15].setPosition(6300, 290);
+    ground1[15].setScale(1.5f, 1.5f);
+    ground1[16].setPosition(6700, 400);
+    ground1[16].setScale(1.2f, 1.5f);     //small
+    ground1[17].setPosition(7100, 300);
+    ground1[17].setScale(1.5f, 1.5f);
+    ground1[18].setPosition(7500, 400);
+    ground1[18].setScale(1.5f, 1.5f);
+    ground1[19].setPosition(7900, 300);
+    ground1[19].setScale(1.5f, 1.5f);
+    ground1[20].setPosition(8350, 200);
+    ground1[20].setScale(1.2f, 1.5f);         //small
+    ground1[21].setPosition(8700, 300);
+    ground1[21].setScale(1.5f, 1.5f);
+    ground1[22].setPosition(9200, 400);
+    ground1[22].setScale(1.2f, 1.5f);  //small
+}
 int main()
 {
     srand(static_cast<unsigned>(time(NULL)));
     RenderWindow window(sf::VideoMode(1696, 1024), "Sonic Game");
+    window.setFramerateLimit(60);
     vector <Sprite> coinslist(50);
     Clock timerAdd, timerDelete;
 
@@ -275,15 +327,12 @@ int main()
     //setting ground
     Texture ground1texture;
     ground1texture.loadFromFile("groundTextures/block89.png");
-    Sprite ground1[3];
-    for (int i = 0; i < 3; ++i)
+    Sprite ground1[23];
+    block(ground1);
+    for (int i = 0; i < 23; ++i)
     {
-        ground1[i].setScale(2.3f, 2.3f);
         ground1[i].setTexture(ground1texture);
     }
-    ground1[0].setPosition(333, 430);
-    ground1[1].setPosition(833, 230);
-    ground1[2].setPosition(1283, 211);
 
     //Variables
     int coinCount = 0;
@@ -338,12 +387,18 @@ int main()
         {0, 1, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 1, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 1, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 1, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 1, 0, 0, 0, 0, 0, 0, 0, 0},
     };
 
     //powerups
     Setdrops();
+
+    // load the sound 
+    SoundBuffer coinBuffer;
+    coinBuffer.loadFromFile("coinsound.wav");
+    Sound coinSound(coinBuffer);
+
 
     while (window.isOpen())
     {
@@ -402,7 +457,7 @@ int main()
                 sonic.onground = false;
             }
         }
-         if (Keyboard::isKeyPressed(Keyboard::G) && sonic.index >= 0 && sonic.canShoot) {
+        if (Mouse::isButtonPressed(Mouse::Left) && sonic.index >= 0 && sonic.canShoot) {
             sonic.bullet[sonic.index].bulletSprite.setPosition(sonic.sprite.getPosition().x, sonic.sprite.getPosition().y);
             sonic.shootCooldown = sonic.bullet[sonic.index].cooldownUse;
             sonic.bullet[sonic.index].moveTo = sonic.last_key_pressed;
@@ -410,7 +465,7 @@ int main()
             sonic.canShoot = 0;
         }
 
-       // text.setPosition(sonic.sprite.getPosition().x + 20, 65);
+        //text.setPosition(sonic.sprite.getPosition().x + 20, 65);
 
         //animation of coins
         for (int i = 0; i < coinslist.size(); i++) {
@@ -434,19 +489,100 @@ int main()
         }
 
         //To draw the coins and increase the score 
-        drawCoins(window,sonic, coins, map, MAP_WIDTH, MAP_HEIGHT, coinAnimationIndicator, coinslist,score,text);
+        drawCoins(window, sonic, coins, map, MAP_WIDTH, MAP_HEIGHT, coinAnimationIndicator, coinslist, score, text, coinSound);
+        //for (int i = 0; i < coinslist.size(); i++)
+        //{
+        //    if (sonic.sprite.getGlobalBounds().intersects(coinslist[i].getGlobalBounds()))
+        //    {
+        //        coinslist[i].setScale(0, 0);
+        //        score++;
+        //        text.setString(" Score " + to_string(score));
+        //        // sound.play();
+        //        //music.pause();
+        //    }
+        //}
+
+
+
         window.draw(ground);
         for (int i = 0; i < sonic.bullet.size(); i++)
         {
             window.draw(sonic.bullet[i].bulletSprite);
         }
+        //collision with blocks  
+        for (int i = 0; i < 23; i++)
+        {
+            if (sonic.sprite.getGlobalBounds().intersects(ground1[i].getGlobalBounds()))
+
+            {
+                if (i != 0 && i != 1 && i != 2 && i != 5 && i != 12 && i != 16 && i != 20 && i != 22)
+
+                {
+                    if (((sonic.rect.left >= ground1[i].getPosition().x + 238) || (sonic.rect.left >= ground1[i].getPosition().x + 238.5)))
+                    {
+                        sonic.rect.left = ground1[i].getPosition().x + 238;
+                    }
+
+                    else if ((sonic.rect.left + 72 <= ground1[i].getPosition().x) || (sonic.rect.left + 72.5 <= ground1[i].getPosition().x))
+                    {
+                        sonic.rect.left = ground1[i].getPosition().x - 72;
+                    }
+
+                    else
+                    {
+                        sonic.move_Y = 0;
+                        sonic.onground = 1;
+                        if (sonic.rect.top > ground1[i].getPosition().y + 47)
+                        {
+                            sonic.onground = false;
+                        }
+
+                        else
+                        {
+                            sonic.rect.top = ground1[i].getPosition().y - 100;
+                            sonic.onground = 1;
+                        }
+                    }
+
+                }
+                else
+                {
+                    if (((sonic.rect.left >= ground1[i].getPosition().x + 192) || (sonic.rect.left >= ground1[i].getPosition().x + 192.5)))
+                    {
+                        sonic.rect.left = ground1[i].getPosition().x + 192;
+                    }
+                    else if ((sonic.rect.left + 72 <= ground1[i].getPosition().x) || (sonic.rect.left + 72.5 <= ground1[i].getPosition().x))
+                    {
+                        sonic.rect.left = ground1[i].getPosition().x - 72;
+                    }
+                    else
+                    {
+                        sonic.move_Y = 0;
+                        sonic.onground = 1;
+                        if (sonic.rect.top > ground1[i].getPosition().y + 47)
+                        {
+                            sonic.onground = false;
+                        }
+                        else
+                        {
+                            sonic.rect.top = ground1[i].getPosition().y - 100;
+                            sonic.onground = 1;
+                        }
+                    }
+                }
+            }
+
+        }
+
+
+
 
         for (int i = 0; i < dropBag.size(); i++) {
             window.draw(dropBag[i].dropShape);
         }
 
         window.draw(sonic.sprite);
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 23; i++) {
             window.draw(ground1[i]);
         }
         window.draw(text);
