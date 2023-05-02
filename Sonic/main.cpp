@@ -226,7 +226,7 @@ void moveBullets(vector<Bullet>& bullet) {
 }
 
 
-void drawCoins(RenderWindow& window,player& sonic, Sprite& coin, int map[][MAP_HEIGHT], int mapWidth, int mapHeight, int coinAnimationIndicator, vector<Sprite>& coinslist,int score,Text& text) {
+void drawCoins(RenderWindow& window,player& sonic, Sprite& coin, int map[][MAP_HEIGHT], int mapWidth, int mapHeight, int coinAnimationIndicator, vector<Sprite>& coinslist,int& score,Text& text) {
     
     for (int i = 0; i < mapWidth; i++) {
         for (int j = 0; j < mapHeight; j++) {
@@ -236,13 +236,12 @@ void drawCoins(RenderWindow& window,player& sonic, Sprite& coin, int map[][MAP_H
                     map[i][j] = 0;
                     score++;
                     text.setString(" Score " + to_string(score));
-                }
-                
-                     window.draw(coin);
+                } 
+                window.draw(coin);
                 coin.setTextureRect(IntRect(coinAnimationIndicator * 134, 0, 134, 134));
                 coinAnimationIndicator++;
                 coinAnimationIndicator %= 9;
-                coinslist.push_back(coin);
+               // coinslist.push_back(coin);
             }
         }
     }
@@ -338,7 +337,7 @@ int main()
         {0, 1, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 1, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 1, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 1, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     };
@@ -411,7 +410,7 @@ int main()
             sonic.canShoot = 0;
         }
 
-        //text.setPosition(sonic.sprite.getPosition().x + 20, 65);
+       // text.setPosition(sonic.sprite.getPosition().x + 20, 65);
 
         //animation of coins
         for (int i = 0; i < coinslist.size(); i++) {
@@ -436,18 +435,6 @@ int main()
 
         //To draw the coins and increase the score 
         drawCoins(window,sonic, coins, map, MAP_WIDTH, MAP_HEIGHT, coinAnimationIndicator, coinslist,score,text);
-        //for (int i = 0; i < coinslist.size(); i++)
-        //{
-        //    if (sonic.sprite.getGlobalBounds().intersects(coinslist[i].getGlobalBounds()))
-        //    {
-        //        coinslist[i].setScale(0, 0);
-        //        score++;
-        //        text.setString(" Score " + to_string(score));
-        //        // sound.play();
-        //        //music.pause();
-        //    }
-        //}
-
         window.draw(ground);
         for (int i = 0; i < sonic.bullet.size(); i++)
         {
