@@ -11,7 +11,6 @@ using namespace std;
 const int MAP_WIDTH = 10;
 const int MAP_HEIGHT = 10;
 
-//bullet 
 struct Bullet {
     float speed;
     int moveTo;
@@ -19,67 +18,140 @@ struct Bullet {
     int magazine;
     float cooldownUse;
 };
-
 struct player
 {
     Sprite sprite;
     float currentframe;
-    float move_X, move_Y;
-    FloatRect rect;
+    Vector2f velocity;
+    Vector2f acceleration;
     bool onground;
+    const float gravity = 500.0f;
+    const float moveSpeed = 270.0f;
+    const float jumpHeight = 250.0f;
+    const float groundHeight = 633.0f;
     int last_key_pressed;
-    int health = 10;
-    int index = -1;
-    int droptype = -1;
+    int health;
+    int index;
+    int droptype;
     int shootCooldown;
-    float speed = 1;
-    float addSpeed = 0.0;
+    float speed;
+    float addSpeed;
     vector<Bullet>bullet;
-    bool canShoot = 0;
+    bool canShoot;
 
 
     void sp(Texture& sonicTexture)
     {
         sprite.setTexture(sonicTexture);
-        move_X = 0;
-        move_Y = 0;
         currentframe = 0;
         last_key_pressed = 1;
+        health = 10;
+        index = -1;
+        droptype = -1;
+        speed = 1;
+        addSpeed = 0.0;
+        sprite.setOrigin(51, 0);
     }
-    void update(float time, View& view)
+    void update(float time,float deltaTime, Sprite block[])
     {
-        rect.left += move_X * time;
-        view.move(move_X * time, 0);
-        if (!onground) {
-            move_Y += (0.005 * time);
+        acceleration = Vector2f(0.0f, 0.0f);
+
+        // Update velocity and acceleration based on player input
+        if (Keyboard::isKeyPressed(Keyboard::Space) && onground) {
+            velocity.y = -sqrtf(2.0f * jumpHeight * gravity);
+            onground = false;
         }
-        rect.top += move_Y * time;
-        onground = false;
-        if (rect.left < 0) {
-            rect.left = 0;
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+            acceleration.x = -moveSpeed;
+            sprite.setScale(-1.0f, 1.0f); // Flip the sprite to face left
         }
-        //I can add a limit from right
-        if (rect.top > 529) {
-            rect.top = 529;
-            move_Y = 0;
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
+            acceleration.x = moveSpeed;
+            sprite.setScale(1.0f, 1.0f); // Flip the sprite to face right
+        }
+        else {
+            acceleration.x = 0.0f;
+            if (velocity.x > 0) {
+                while (velocity.x > 0) {
+                    velocity.x -= 0.01;
+                }
+            }
+            else {
+                while (velocity.x < 0) {
+                    velocity.x += 0.01;
+                }
+            }
+            while (velocity.y < 0) {
+                velocity.y += 20;
+            }
+            sprite.setTextureRect(IntRect(0, 0, 102, 105));
+        }
+
+        cout << velocity.x << "   " << velocity.y << endl;
+        // Apply gravity to the character
+        velocity.y += gravity * deltaTime;
+
+        // Apply acceleration to the velocity
+        if (velocity.x <= 700) 
+            velocity.x += acceleration.x * deltaTime;
+
+
+        // Update the character's position
+        sprite.setPosition(sprite.getPosition().x + velocity.x * deltaTime, sprite.getPosition().y + velocity.y * deltaTime);
+
+        // Check for collisions with the blocks
+        for (int i = 0; i < 23; i++) {
+            FloatRect blockBounds = block[i].getGlobalBounds();
+            FloatRect characterBounds(sprite.getGlobalBounds().left, sprite.getGlobalBounds().top, 64, sprite.getGlobalBounds().height);
+
+            if (characterBounds.intersects(blockBounds)) {
+                // Collision detected
+                Vector2f characterPosition = sprite.getPosition();
+                Vector2f blockPosition = block[i].getPosition();
+
+                if (characterPosition.y + characterBounds.height <= blockPosition.y + 13.0f) {
+                    // Character is on top of the block
+                    sprite.setPosition(characterPosition.x, blockPosition.y - characterBounds.height);
+                    velocity.y = 0.0f;
+                    onground = true;
+                }
+                else if (characterPosition.x + characterBounds.width <= blockPosition.x + 30.0f) {
+                    // Character is colliding from the left
+                    sprite.setPosition(blockPosition.x - characterBounds.width, characterPosition.y);
+                    velocity.x = 0.0f;
+                }
+                else if (characterPosition.x >= blockPosition.x + blockBounds.width - 30.0f) {
+                    // Character is colliding from the right
+                    sprite.setPosition(blockPosition.x + blockBounds.width, characterPosition.y);
+                    velocity.x = 0.0f;
+                }
+                else {
+                    // Character is colliding from the bottom
+                    sprite.setPosition(characterPosition.x, blockPosition.y + blockBounds.height);
+                    velocity.y = 0.0f;
+                }
+            }
+        }
+
+        // Check for collisions with the ground
+        if (sprite.getPosition().y + sprite.getGlobalBounds().height >= groundHeight) {
+            sprite.setPosition(sprite.getPosition().x, groundHeight - sprite.getGlobalBounds().height);
+            velocity.y = 0.0f;
             onground = true;
         }
         currentframe += 0.015 * time;
         if (currentframe > 10)
             currentframe -= 10;
-
-        if (move_X > 0) {
+        if (acceleration.x != 0)
             sprite.setTextureRect(IntRect(int(currentframe) * 102, 0, 102, 105));
-        }
-        if (move_X < 0) {
-            sprite.setTextureRect(IntRect(int(currentframe) * 102, 0, 102, 105));
-        }
-        cout << rect.left << "  " << rect.top << "  " << currentframe << endl;
-        sprite.setPosition(rect.left, rect.top);
-        move_X = 0;
     }
 };
-
+struct Enemy {
+    Sprite sprite;
+    float speed;
+    float x;
+    float animation = 0;
+};
 struct Help {
     Sprite dropShape; //drop
     Sprite targetShape; // block
@@ -105,7 +177,6 @@ void Setdrops() {
     Drops[2].setScale(0.13, 0.13);
     Drops[3].setScale(3, 3);
 }
-
 void dropADrop() {
     for (int i = 0; i < dropBag.size(); i++) {
         dropBag[i].dropShape.move(0, 5);
@@ -199,7 +270,6 @@ void resetSpeed(player& player) {
         player.addSpeed -= 0.01;
     }
 }
-
 void bulletCooldown(player& player) {
     if (player.shootCooldown > 0) {
         player.shootCooldown -= 0.00001;
@@ -208,7 +278,6 @@ void bulletCooldown(player& player) {
         player.canShoot = 1;
     }
 }
-
 void moveBullets(vector<Bullet>& bullet) {
     for (int i = 0; i < bullet.size(); i++) {
         if (bullet[i].moveTo == 2) {
@@ -225,24 +294,23 @@ void moveBullets(vector<Bullet>& bullet) {
 
     }
 }
-
-
 void drawCoins(RenderWindow& window, player& sonic, Sprite& coin, int map[][MAP_HEIGHT], int mapWidth, int mapHeight, int coinAnimationIndicator, vector<Sprite>& coinslist, int score, Text& text, Sound& coinSound) {
 
     for (int i = 0; i < mapWidth; i++) {
         for (int j = 0; j < mapHeight; j++) {
             if (map[i][j] == 1) {
                 coin.setPosition(i * coin.getGlobalBounds().width * 5, j * coin.getGlobalBounds().height * 10);
+                window.draw(coin);
                 if (sonic.sprite.getGlobalBounds().intersects(coin.getGlobalBounds())) {
                     coinSound.play(); // Play the sound effect
                     map[i][j] = 0;
                     score++;
                     text.setString(" Score " + to_string(score));
                 }
-
-                window.draw(coin);
+                window.draw(text);
+                
                 coin.setTextureRect(IntRect(coinAnimationIndicator * 134, 0, 134, 134));
-                coinAnimationIndicator++;
+                coinAnimationIndicator+=0.8;
                 coinAnimationIndicator %= 9;
                 coinslist.push_back(coin);
             }
@@ -306,16 +374,23 @@ int main()
     vector <Sprite> coinslist(50);
     Clock timerAdd, timerDelete;
 
-    //Make sonic texture
+    //declaring sonic
     Texture sonictexture;
     sonictexture.loadFromFile("sonicsprite.png");
-
-    //declaring sonic
     player sonic;
     sonic.sprite.setTextureRect(IntRect(0, 0, 102, 105));
     sonic.sp(sonictexture);
-    sonic.rect.left = 50;
-    sonic.rect.top = 529;
+
+
+    //declaring enemy
+    Texture enemytexture;
+    enemytexture.loadFromFile("crabenemy.png");
+    Enemy enemy;
+    enemy.sprite.setTexture(enemytexture);
+    enemy.speed = 1.8;
+    enemy.sprite.setPosition(1700, 475);
+    enemy.sprite.setTextureRect(IntRect(0, 0, 70, 60));
+    enemy.sprite.setScale(-3.3, 3.3);
 
     //setting ground
     Texture groundtexture;
@@ -323,6 +398,7 @@ int main()
     Sprite ground(groundtexture);
     ground.setPosition(0, 633);
     ground.setScale(2.3f, 2.3f);
+    ground.setOrigin(200, 0);
 
     //setting ground
     Texture ground1texture;
@@ -358,6 +434,7 @@ int main()
     {
         background[i].setTexture(backgroundtexture);
         background[i].setPosition(Vector2f(i * 1696, 0));
+        background[i].setOrigin(200, 0);
     }
 
     //Score
@@ -372,9 +449,8 @@ int main()
 
     //2D camera
     View view(Vector2f(0, 0), Vector2f(1696, 1024));
-    view.setCenter(sonic.sprite.getPosition()); //update
+    view.setCenter(sonic.sprite.getPosition() - Vector2f(200.0f, 0)); //update
     window.setView(view);
-
 
 
     //Map array
@@ -409,7 +485,10 @@ int main()
         clock.restart();
         time *= 27.5;
 
-        //powerups 
+        //Clock clock1;
+        //float deltaTime = clock1.restart().asSeconds();
+
+          //powerups 
         chooseDrop(ground1, timerAdd, timerDelete);
         dropADrop();
         dropCollision(sonic);
@@ -435,27 +514,8 @@ int main()
             sonic.sprite.setTextureRect(IntRect(0, 0, 102, 105));
             sonic.sprite.setScale(-1, 1);
         }
-        if (Keyboard::isKeyPressed(Keyboard::A))
-        {
-            sonic.move_X = -0.73;
-            sonic.last_key_pressed = 2;
-            sonic.sprite.setOrigin(sonic.sprite.getLocalBounds().width, 0);
+        if (Keyboard::isKeyPressed(Keyboard::A)) {
             sonic.sprite.setScale(-1, 1);
-        }
-        if (Keyboard::isKeyPressed(Keyboard::D))
-        {
-            sonic.move_X = 0.73;
-            sonic.last_key_pressed = 1;
-            sonic.sprite.setOrigin(0, 0);
-            sonic.sprite.setScale(1, 1);
-        }
-        if (Keyboard::isKeyPressed(Keyboard::Space))
-        {
-            if (sonic.onground)
-            {
-                sonic.move_Y = -1.4;
-                sonic.onground = false;
-            }
         }
         if (Mouse::isButtonPressed(Mouse::Left) && sonic.index >= 0 && sonic.canShoot) {
             sonic.bullet[sonic.index].bulletSprite.setPosition(sonic.sprite.getPosition().x, sonic.sprite.getPosition().y);
@@ -464,23 +524,42 @@ int main()
             sonic.index--;
             sonic.canShoot = 0;
         }
+        text.setPosition(sonic.sprite.getPosition().x - 160, 65);
 
-        //text.setPosition(sonic.sprite.getPosition().x + 20, 65);
+        //collision between sonic and enemy
+        if (sonic.sprite.getGlobalBounds().intersects(enemy.sprite.getGlobalBounds()) || enemy.sprite.getPosition().x < (sonic.sprite.getPosition().x - 1000))
+        {
+            enemy.sprite.setPosition(sonic.sprite.getPosition().x + 2500, 475); // Respawn the enemy on the right side of the window 
+            sonic.health = 0;   //sonic dies
+        }
+
+        //sonic limits
+        if (sonic.sprite.getPosition().x < 0) {
+            sonic.sprite.setPosition(0, 566);
+        }
+        if (sonic.sprite.getPosition().y < 0) {
+            sonic.sprite.setPosition(sonic.sprite.getPosition().x, 0);
+        }
 
         //animation of coins
         for (int i = 0; i < coinslist.size(); i++) {
-            coinslist[i].setTextureRect(IntRect(coinAnimationIndicator * 134, 0, 134, 134));
-            coinAnimationIndicator++;
-            coinAnimationIndicator %= 9;
+            coinAnimationIndicator += 0.08 * time;
+            if (coinAnimationIndicator > 9)
+                coinAnimationIndicator -= 9;
+            coinslist[i].setTextureRect(IntRect(int(coinAnimationIndicator) * 134, 0, 134, 134));
         }
 
-        //player collision
-      // Player_Collision(blocks, sonic);
-
-
         // Draw the sprite
-        view.setCenter(Vector2f(sonic.sprite.getPosition().x + 848, 540));
-        sonic.update(time, view);
+        view.setCenter(Vector2f(sonic.sprite.getPosition().x + 648, 540));
+        sonic.update(time, 1.0f / 70.f, ground1);
+
+        //enemy animation
+        enemy.sprite.move(-enemy.speed, 0);
+        enemy.sprite.setTextureRect(IntRect(int(enemy.animation) * 68, 0, 69, 60));
+        enemy.animation += 0.1;
+        if (enemy.animation > 9)
+            enemy.animation = 0;
+
         window.clear();
         window.setView(view);
         for (int i = 0; i < 100; ++i)
@@ -490,92 +569,12 @@ int main()
 
         //To draw the coins and increase the score 
         drawCoins(window, sonic, coins, map, MAP_WIDTH, MAP_HEIGHT, coinAnimationIndicator, coinslist, score, text, coinSound);
-        //for (int i = 0; i < coinslist.size(); i++)
-        //{
-        //    if (sonic.sprite.getGlobalBounds().intersects(coinslist[i].getGlobalBounds()))
-        //    {
-        //        coinslist[i].setScale(0, 0);
-        //        score++;
-        //        text.setString(" Score " + to_string(score));
-        //        // sound.play();
-        //        //music.pause();
-        //    }
-        //}
-
-
-
+        window.draw(enemy.sprite);
         window.draw(ground);
         for (int i = 0; i < sonic.bullet.size(); i++)
         {
             window.draw(sonic.bullet[i].bulletSprite);
         }
-        //collision with blocks  
-        for (int i = 0; i < 23; i++)
-        {
-            if (sonic.sprite.getGlobalBounds().intersects(ground1[i].getGlobalBounds()))
-
-            {
-                if (i != 0 && i != 1 && i != 2 && i != 5 && i != 12 && i != 16 && i != 20 && i != 22)
-
-                {
-                    if (((sonic.rect.left >= ground1[i].getPosition().x + 238) || (sonic.rect.left >= ground1[i].getPosition().x + 238.5)))
-                    {
-                        sonic.rect.left = ground1[i].getPosition().x + 238;
-                    }
-
-                    else if ((sonic.rect.left + 72 <= ground1[i].getPosition().x) || (sonic.rect.left + 72.5 <= ground1[i].getPosition().x))
-                    {
-                        sonic.rect.left = ground1[i].getPosition().x - 72;
-                    }
-
-                    else
-                    {
-                        sonic.move_Y = 0;
-                        sonic.onground = 1;
-                        if (sonic.rect.top > ground1[i].getPosition().y + 47)
-                        {
-                            sonic.onground = false;
-                        }
-
-                        else
-                        {
-                            sonic.rect.top = ground1[i].getPosition().y - 100;
-                            sonic.onground = 1;
-                        }
-                    }
-
-                }
-                else
-                {
-                    if (((sonic.rect.left >= ground1[i].getPosition().x + 192) || (sonic.rect.left >= ground1[i].getPosition().x + 192.5)))
-                    {
-                        sonic.rect.left = ground1[i].getPosition().x + 192;
-                    }
-                    else if ((sonic.rect.left + 72 <= ground1[i].getPosition().x) || (sonic.rect.left + 72.5 <= ground1[i].getPosition().x))
-                    {
-                        sonic.rect.left = ground1[i].getPosition().x - 72;
-                    }
-                    else
-                    {
-                        sonic.move_Y = 0;
-                        sonic.onground = 1;
-                        if (sonic.rect.top > ground1[i].getPosition().y + 47)
-                        {
-                            sonic.onground = false;
-                        }
-                        else
-                        {
-                            sonic.rect.top = ground1[i].getPosition().y - 100;
-                            sonic.onground = 1;
-                        }
-                    }
-                }
-            }
-
-        }
-
-
-
 
         for (int i = 0; i < dropBag.size(); i++) {
             window.draw(dropBag[i].dropShape);
@@ -585,7 +584,7 @@ int main()
         for (int i = 0; i < 23; i++) {
             window.draw(ground1[i]);
         }
-        window.draw(text);
+        //window.draw(text);
         window.display();
     }
     return 0;
