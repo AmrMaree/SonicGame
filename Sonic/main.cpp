@@ -1,15 +1,24 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
-#include <iostream>
 #include <vector>
 #include <string>
-#include <SFML/Audio.hpp>
+#include<iostream>
+#include<SFML/Audio.hpp>
+#include<sstream>
+#include<stdio.h>
+#include<stdlib.h>
+#include<time.h>
+#include<ctime>
+#include<random>
+#include<iomanip>
+
 using namespace sf;
 using namespace std;
 
 const int MAP_WIDTH = 10;
 const int MAP_HEIGHT = 10;
+
 
 struct Bullet {
     float speed;
@@ -52,7 +61,7 @@ struct player
         addSpeed = 0.0;
         sprite.setOrigin(51, 0);
     }
-    void update(float time,float deltaTime, Sprite block[])
+    void update(float time, float deltaTime, Sprite block[])
     {
         acceleration = Vector2f(0.0f, 0.0f);
 
@@ -92,7 +101,7 @@ struct player
         velocity.y += gravity * deltaTime;
 
         // Apply acceleration to the velocity
-        if (velocity.x <= 700) 
+        if (velocity.x <= 700)
             velocity.x += acceleration.x * deltaTime;
 
 
@@ -307,10 +316,8 @@ void drawCoins(RenderWindow& window, player& sonic, Sprite& coin, int map[][MAP_
                     score++;
                     text.setString(" Score " + to_string(score));
                 }
-                window.draw(text);
-                
                 coin.setTextureRect(IntRect(coinAnimationIndicator * 134, 0, 134, 134));
-                coinAnimationIndicator+=0.8;
+                coinAnimationIndicator += 0.8;
                 coinAnimationIndicator %= 9;
                 coinslist.push_back(coin);
             }
@@ -389,7 +396,7 @@ int main()
     enemy.sprite.setTexture(enemytexture);
     enemy.speed = 1.8;
     enemy.sprite.setPosition(1700, 475);
-    enemy.sprite.setTextureRect(IntRect(0, 0, 70, 60));
+    enemy.sprite.setTextureRect(IntRect(0, 0, 51, 40));
     enemy.sprite.setScale(-3.3, 3.3);
 
     //setting ground
@@ -478,6 +485,7 @@ int main()
 
     while (window.isOpen())
     {
+
         //setting time 
         Clock clock;
         window.setFramerateLimit(60);
@@ -555,9 +563,9 @@ int main()
 
         //enemy animation
         enemy.sprite.move(-enemy.speed, 0);
-        enemy.sprite.setTextureRect(IntRect(int(enemy.animation) * 68, 0, 69, 60));
+        enemy.sprite.setTextureRect(IntRect(int(enemy.animation) * 52, 0, 52, 40));
         enemy.animation += 0.1;
-        if (enemy.animation > 9)
+        if (enemy.animation > 4)
             enemy.animation = 0;
 
         window.clear();
@@ -584,7 +592,7 @@ int main()
         for (int i = 0; i < 23; i++) {
             window.draw(ground1[i]);
         }
-        //window.draw(text);
+        window.draw(text);
         window.display();
     }
     return 0;
