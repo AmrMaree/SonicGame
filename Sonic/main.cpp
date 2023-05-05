@@ -71,33 +71,47 @@ struct player
             onground = false;
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+            if(velocity.x >0){
+                while (velocity.x > 0) {
+                velocity.x -= 0.01;
+                }
+        }
+        else
             acceleration.x = -moveSpeed;
             sprite.setScale(-1.0f, 1.0f); // Flip the sprite to face left
         }
         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
-            acceleration.x = moveSpeed;
-            sprite.setScale(1.0f, 1.0f); // Flip the sprite to face right
-        }
-        else {
-            acceleration.x = 0.0f;
-            if (velocity.x > 0) {
-                while (velocity.x > 0) {
-                    velocity.x -= 0.01;
-                }
-            }
-            else {
+            if (velocity.x < 0) {
                 while (velocity.x < 0) {
                     velocity.x += 0.01;
                 }
             }
-            while (velocity.y < 0) {
-                velocity.y += 20;
+            else
+                acceleration.x = moveSpeed;
+            sprite.setScale(1.0f, 1.0f); // Flip the sprite to face right
+        }
+        else {
+            acceleration.x = 0.0f;
+            if (onground) {
+                if (velocity.x > 0) {
+                    while (velocity.x > 0) {
+                        velocity.x -= 0.01;
+                    }
+                }
+                else {
+                    while (velocity.x < 0) {
+                        velocity.x += 0.01;
+                    }
+                }
+                while (velocity.y < 0) {
+                    velocity.y += 20;
+                }
             }
             sprite.setTextureRect(IntRect(0, 0, 102, 105));
         }
 
-        cout << velocity.x << "   " << velocity.y << endl;
-        // Apply gravity to the character
+        // cout << velocity.x << "   " << velocity.y << endl;
+         // Apply gravity to the character
         velocity.y += gravity * deltaTime;
 
         // Apply acceleration to the velocity
@@ -160,7 +174,9 @@ struct Enemy {
     float speed;
     float x;
     float animation = 0;
+    int health = 3 * 19;
 };
+
 struct Help {
     Sprite dropShape; //drop
     Sprite targetShape; // block
@@ -171,20 +187,20 @@ vector<Help>dropBag;
 Sprite Drops[4]; // 0 pistol, 1 rifle, 2 health, 3 speed
 Texture DropsTex[6];
 void Setdrops() {
-    DropsTex[0].loadFromFile("pistol.png");
-    DropsTex[1].loadFromFile("Rifle.png");
-    DropsTex[2].loadFromFile("heart.png");
-    DropsTex[3].loadFromFile("thunder");
-    DropsTex[4].loadFromFile("RifleBullet.png");
-    DropsTex[5].loadFromFile("PistolBullet.png");
+    DropsTex[0].loadFromFile("pistol3.png");
+    DropsTex[1].loadFromFile("Rifle2.png");
+    DropsTex[2].loadFromFile("heart (3).png");
+    DropsTex[3].loadFromFile("thunder.png");
+    DropsTex[4].loadFromFile("bullet lazer.png");
+    DropsTex[5].loadFromFile("longshot laser.png");
     for (int i = 0; i < 4; i++)
     {
         Drops[i].setTexture(DropsTex[i]);
     }
-    Drops[0].setScale(2.5, 2.5);
-    Drops[1].setScale(3, 3);
-    Drops[2].setScale(0.13, 0.13);
-    Drops[3].setScale(3, 3);
+    Drops[0].setScale(0.15, 0.15);
+    Drops[1].setScale(0.15, 0.15);
+    Drops[2].setScale(2.6, 2.6);
+    Drops[3].setScale(2.5, 2.5);
 }
 void dropADrop() {
     for (int i = 0; i < dropBag.size(); i++) {
@@ -229,10 +245,10 @@ void checkDrop(player& player) {
         return;
     }
     else {
-        if (player.droptype == 0) {
+        if (player.droptype == 0) { //pistol
             Bullet bullet;
             bullet.bulletSprite.setTexture(DropsTex[4]);
-            bullet.bulletSprite.setScale(2, 2);
+            bullet.bulletSprite.setScale(0.6, 0.6);
             bullet.speed = 8;
             bullet.cooldownUse = 20;
             bullet.magazine = 5;
@@ -243,10 +259,10 @@ void checkDrop(player& player) {
                 player.index++;
             }
         }
-        else if (player.droptype == 1) {
+        else if (player.droptype == 1) {// rifle
             Bullet bullet;
             bullet.bulletSprite.setTexture(DropsTex[5]);
-            bullet.bulletSprite.setScale(2, 2);
+            bullet.bulletSprite.setScale(0.35, 0.35);
             bullet.speed = 12;
             bullet.cooldownUse = 10;
             bullet.magazine = 10;
@@ -395,7 +411,7 @@ int main()
     Enemy enemy;
     enemy.sprite.setTexture(enemytexture);
     enemy.speed = 1.8;
-    enemy.sprite.setPosition(1700, 475);
+    enemy.sprite.setPosition(1700, 520);
     enemy.sprite.setTextureRect(IntRect(0, 0, 51, 40));
     enemy.sprite.setScale(-3.3, 3.3);
 
@@ -537,10 +553,22 @@ int main()
         //collision between sonic and enemy
         if (sonic.sprite.getGlobalBounds().intersects(enemy.sprite.getGlobalBounds()) || enemy.sprite.getPosition().x < (sonic.sprite.getPosition().x - 1000))
         {
-            enemy.sprite.setPosition(sonic.sprite.getPosition().x + 2500, 475); // Respawn the enemy on the right side of the window 
+            enemy.sprite.setPosition(sonic.sprite.getPosition().x + 2500, 520); // Respawn the enemy on the right side of the window 
             sonic.health = 0;   //sonic dies
         }
-
+        //collision of bullets and sonic
+        for (int j = 0; j < sonic.bullet.size(); j++)
+        {
+            if (sonic.bullet[j].bulletSprite.getGlobalBounds().intersects(enemy.sprite.getGlobalBounds())) {
+                enemy.health -= 19;
+                sonic.bullet[j].bulletSprite.setScale(0, 0);
+            }
+            if (enemy.health == 0) {
+                enemy.sprite.setPosition(sonic.sprite.getPosition().x + 2500, 520);
+                enemy.health = 3 * 19;
+            }
+        }
+        cout << enemy.health << endl;
         //sonic limits
         if (sonic.sprite.getPosition().x < 0) {
             sonic.sprite.setPosition(0, 566);
@@ -567,6 +595,7 @@ int main()
         enemy.animation += 0.1;
         if (enemy.animation > 4)
             enemy.animation = 0;
+
 
         window.clear();
         window.setView(view);
