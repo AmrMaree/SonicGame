@@ -390,8 +390,7 @@ void block(Sprite ground1[])
 
 void main()
 {
-    // make a Main window 
-
+    //make a Main window 
     RenderWindow MainMenu(VideoMode(1920, 1080), "game");
     Menu mainmenu(MainMenu.getSize().x, MainMenu.getSize().y);
 
