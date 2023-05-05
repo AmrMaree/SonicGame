@@ -1,5 +1,4 @@
 #include <SFML/Graphics.hpp>
-#include "Menu.h"
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
 #include <vector>
@@ -13,16 +12,13 @@
 #include<ctime>
 #include<random>
 #include<iomanip>
-
-
+#include "Menu.h"
 
 using namespace std;
 using namespace sf;
 
 const int MAP_WIDTH = 10;
 const int MAP_HEIGHT = 10;
-
-///////////////////////////////////////////////////////////
 
 struct Bullet {
     float speed;
@@ -51,7 +47,6 @@ struct player
     float addSpeed;
     vector<Bullet>bullet;
     bool canShoot;
-
 
     void sp(Texture& sonicTexture)
     {
@@ -180,7 +175,6 @@ struct Enemy {
     float animation = 0;
     int health = 3 * 19;
 };
-
 struct Help {
     Sprite dropShape; //drop
     Sprite targetShape; // block
@@ -191,12 +185,12 @@ vector<Help>dropBag;
 Sprite Drops[4]; // 0 pistol, 1 rifle, 2 health, 3 speed
 Texture DropsTex[6];
 void Setdrops() {
-    DropsTex[0].loadFromFile("pistol3.png");
-    DropsTex[1].loadFromFile("Rifle2.png");
-    DropsTex[2].loadFromFile("heart (3).png");
-    DropsTex[3].loadFromFile("thunder.png");
-    DropsTex[4].loadFromFile("bullet lazer.png");
-    DropsTex[5].loadFromFile("longshot laser.png");
+    DropsTex[0].loadFromFile("Textures/pistol3.png");
+    DropsTex[1].loadFromFile("Textures/Rifle2.png");
+    DropsTex[2].loadFromFile("Textures/heart (3).png");
+    DropsTex[3].loadFromFile("Textures/thunder.png");
+    DropsTex[4].loadFromFile("Textures/bullet lazer.png");
+    DropsTex[5].loadFromFile("Textures/longshot laser.png");
     for (int i = 0; i < 4; i++)
     {
         Drops[i].setTexture(DropsTex[i]);
@@ -394,17 +388,6 @@ void block(Sprite ground1[])
     ground1[22].setScale(1.2f, 1.5f);  //small
 }
 
-
-
-
-///////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
 void main()
 {
     // make a Main window 
@@ -451,15 +434,14 @@ void main()
 
                         //declaring sonic
                         Texture sonictexture;
-                        sonictexture.loadFromFile("sonicsprite.png");
+                        sonictexture.loadFromFile("Textures/sonicsprite.png");
                         player sonic;
                         sonic.sprite.setTextureRect(IntRect(0, 0, 102, 105));
                         sonic.sp(sonictexture);
 
-
                         //declaring enemy
                         Texture enemytexture;
-                        enemytexture.loadFromFile("crabenemy.png");
+                        enemytexture.loadFromFile("Textures/crabenemy.png");
                         Enemy enemy;
                         enemy.sprite.setTexture(enemytexture);
                         enemy.speed = 1.8;
@@ -469,7 +451,7 @@ void main()
 
                         //setting ground
                         Texture groundtexture;
-                        groundtexture.loadFromFile("map.png");
+                        groundtexture.loadFromFile("Textures/map.png");
                         Sprite ground(groundtexture);
                         ground.setPosition(0, 633);
                         ground.setScale(2.3f, 2.3f);
@@ -477,7 +459,7 @@ void main()
 
                         //setting ground
                         Texture ground1texture;
-                        ground1texture.loadFromFile("groundTextures/block89.png");
+                        ground1texture.loadFromFile("Textures/block89.png");
                         Sprite ground1[23];
                         block(ground1);
                         for (int i = 0; i < 23; ++i)
@@ -495,7 +477,7 @@ void main()
 
                         //creating coins 
                         Texture coinsTextures;
-                        coinsTextures.loadFromFile("sonicRingsprite.png");
+                        coinsTextures.loadFromFile("Textures/sonicRingsprite.png");
                         Sprite coins;
                         coins.setTexture(coinsTextures);
                         coins.setTextureRect(IntRect(0, 0, 134, 134));
@@ -503,7 +485,7 @@ void main()
 
                         //background 
                         Texture backgroundtexture;
-                        backgroundtexture.loadFromFile("lapper-bggreenhill1.jpg");
+                        backgroundtexture.loadFromFile("Textures/lapper-bggreenhill1.jpg");
                         Sprite background[100];
                         for (int i = 0; i < 100; ++i)
                         {
@@ -514,7 +496,7 @@ void main()
 
                         //Score
                         Font font;
-                        font.loadFromFile("NiseSegaSonic.TTF");
+                        font.loadFromFile("Fonts/NiseSegaSonic.TTF");
                         Text text;
                         text.setFont(font);
                         text.setString(" Score " + to_string(score));
@@ -547,13 +529,11 @@ void main()
 
                         // load the sound 
                         SoundBuffer coinBuffer;
-                        coinBuffer.loadFromFile("coinsound.wav");
+                        coinBuffer.loadFromFile("Sounds/coinsound.wav");
                         Sound coinSound(coinBuffer);
 
                         while (window.isOpen())
-
                         {
-
                             //setting time 
                             Clock clock;
                             window.setFramerateLimit(60);
@@ -575,7 +555,6 @@ void main()
                             bulletCooldown(sonic);
                             moveBullets(sonic.bullet);
 
-
                             Event aevent;
                             while (window.pollEvent(aevent))
                             {
@@ -591,9 +570,6 @@ void main()
                                     }
                                 }
                             }
-
-                            ////////////////////////////////////////////
-
 
                             // Move the player using A,D and space keys
                             if (sonic.last_key_pressed == 1) {
@@ -690,13 +666,7 @@ void main()
                             window.draw(text);
                             window.display();
                         }
-
-
-
                     }
-
-
-
 
                     if (x == 1)
                     {
@@ -725,6 +695,7 @@ void main()
                         Options.display();
 
                     }
+
                     if (x == 2)
                     {
                         while (About.isOpen())
@@ -753,6 +724,7 @@ void main()
                         }
 
                     }
+
                     if (x == 3) {
                         MainMenu.close();
                         break;

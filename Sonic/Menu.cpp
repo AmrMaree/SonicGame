@@ -1,9 +1,7 @@
 #include "Menu.h"
-
-
 Menu::Menu(float width, float height)
 {
-	if (!font.loadFromFile("NiseSegaSonic.TTF"))
+	if (!font.loadFromFile("Fonts/NiseSegaSonic.TTF"))
 	{
 		cout << "font is not here ";
 
