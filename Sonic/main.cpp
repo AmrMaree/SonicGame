@@ -317,26 +317,78 @@ void moveBullets(vector<Bullet>& bullet) {
 
     }
 }
-void drawCoins(RenderWindow& window, player& sonic, Sprite& coin, int map[][MAP_HEIGHT], int mapWidth, int mapHeight, int coinAnimationIndicator, vector<Sprite>& coinslist, int score, Text& text, Sound& coinSound) {
-
-    for (int i = 0; i < mapWidth; i++) {
-        for (int j = 0; j < mapHeight; j++) {
-            if (map[i][j] == 1) {
-                coin.setPosition(i * coin.getGlobalBounds().width * 5, j * coin.getGlobalBounds().height * 10);
-                window.draw(coin);
-                if (sonic.sprite.getGlobalBounds().intersects(coin.getGlobalBounds())) {
-                    coinSound.play(); // Play the sound effect
-                    map[i][j] = 0;
-                    score++;
-                    text.setString(" Score " + to_string(score));
-                }
-                coin.setTextureRect(IntRect(coinAnimationIndicator * 134, 0, 134, 134));
-                coinAnimationIndicator += 0.8;
-                coinAnimationIndicator %= 9;
-                coinslist.push_back(coin);
-            }
-        }
-    }
+//void drawCoins(RenderWindow& window, player& sonic, Sprite& coin, int map[][MAP_HEIGHT], int mapWidth, int mapHeight, int coinAnimationIndicator, vector<Sprite>& coinslist, int score, Text& text, Sound& coinSound) {
+//
+//    for (int i = 0; i < mapWidth; i++) {
+//        for (int j = 0; j < mapHeight; j++) {
+//            if (map[i][j] == 1) {
+//                coin.setPosition(i * coin.getGlobalBounds().width * 5, j * coin.getGlobalBounds().height * 10);
+//                window.draw(coin);
+//                if (sonic.sprite.getGlobalBounds().intersects(coin.getGlobalBounds())) {
+//                    coinSound.play(); // Play the sound effect
+//                    map[i][j] = 0;
+//                    score++;
+//                    text.setString(" Score " + to_string(score));
+//                }
+//                coin.setTextureRect(IntRect(coinAnimationIndicator * 134, 0, 134, 134));
+//                coinAnimationIndicator += 0.8;
+//                coinAnimationIndicator %= 9;
+//                coinslist.push_back(coin);
+//            }
+//        }
+//    }
+//}
+void coin(Sprite coins[]) {
+    coins[0].setPosition(430, 570);
+    coins[0].setScale(0.4f, 0.4f);
+    coins[1].setPosition(630, 570);
+    coins[1].setScale(0.4f, 0.4f);
+    coins[2].setPosition(830, 570);
+    coins[2].setScale(0.4f, 0.4f);
+    coins[3].setPosition(1030, 570);
+    coins[3].setScale(0.4f, 0.4f);
+    coins[4].setPosition(1230, 570);
+    coins[4].setScale(0.4f, 0.4f);
+    coins[5].setPosition(1430, 570);
+    coins[5].setScale(0.4f, 0.4f);
+    coins[6].setPosition(1630, 570);
+    coins[6].setScale(0.4f, 0.4f);
+    coins[7].setPosition(1830, 570);
+    coins[7].setScale(0.4f, 0.4f);
+    coins[8].setPosition(2030, 570);
+    coins[8].setScale(0.4f, 0.4f);
+    coins[9].setPosition(2230, 570);
+    coins[9].setScale(0.4f, 0.4f);
+    coins[10].setPosition(2430, 570);
+    coins[10].setScale(0.4f, 0.4f);
+    coins[11].setPosition(2630, 570);
+    coins[11].setScale(0.4f, 0.4f);
+    coins[12].setPosition(2830, 570);
+    coins[12].setScale(0.4f, 0.4f);
+    coins[13].setPosition(3030, 570);
+    coins[13].setScale(0.4f, 0.4f);
+    coins[14].setPosition(3230, 570);
+    coins[14].setScale(0.4f, 0.4f);
+    coins[15].setPosition(3430, 570);
+    coins[15].setScale(0.4f, 0.4f);
+    coins[16].setPosition(3630, 570);
+    coins[16].setScale(0.4f, 0.4f);
+    coins[17].setPosition(3830, 570);
+    coins[17].setScale(0.4f, 0.4f);
+    coins[18].setPosition(4030, 570);
+    coins[18].setScale(0.4f, 0.4f);
+    coins[19].setPosition(4230, 570);
+    coins[19].setScale(0.4f, 0.4f);
+    coins[20].setPosition(4430, 570);
+    coins[20].setScale(0.4f, 0.4f);
+    coins[21].setPosition(4630, 570);
+    coins[21].setScale(0.4f, 0.4f);
+    coins[22].setPosition(4830, 570);
+    coins[22].setScale(0.4f, 0.4f);
+    coins[23].setPosition(5030, 570);
+    coins[23].setScale(0.4f, 0.4f);
+    coins[24].setPosition(5230, 570);   
+    coins[24].setScale(0.4f, 0.4f);
 }
 void block(Sprite ground1[])
 {
@@ -391,8 +443,24 @@ void block(Sprite ground1[])
 void main()
 {
     //make a Main window 
-    RenderWindow MainMenu(VideoMode(1920, 1080), "game");
+    RenderWindow MainMenu(VideoMode(1696, 1024), "game");
     Menu mainmenu(MainMenu.getSize().x, MainMenu.getSize().y);
+    RectangleShape bg;
+    bg.setSize(Vector2f(1696, 1024));
+    bg.setScale(1, 1);
+    bg.setPosition(0, 0);
+    Texture mainbg;
+    mainbg.loadFromFile("Textures/lapper-bggreenhill1.jpg");
+    bg.setTexture(&mainbg);
+
+
+    RectangleShape sonicabg;
+    sonicabg.setSize(Vector2f(795, 475));
+    sonicabg.setScale(1, 1);
+    sonicabg.setPosition(424, 150);
+    Texture Smainbg;
+    Smainbg.loadFromFile("Textures/bgsonic.png");
+    sonicabg.setTexture(&Smainbg);
 
     while (MainMenu.isOpen())
     {
@@ -428,7 +496,7 @@ void main()
                     if (x == 0)
                     {
                         srand(static_cast<unsigned>(time(NULL)));
-                        vector <Sprite> coinslist(50);
+                        //vector <Sprite> coinslist(50);
                         Clock timerAdd, timerDelete;
 
                         //declaring sonic
@@ -477,10 +545,13 @@ void main()
                         //creating coins 
                         Texture coinsTextures;
                         coinsTextures.loadFromFile("Textures/sonicRingsprite.png");
-                        Sprite coins;
-                        coins.setTexture(coinsTextures);
-                        coins.setTextureRect(IntRect(0, 0, 134, 134));
-                        coins.setScale(0.4f, 0.4f);
+                        Sprite coins[25];
+                        coin(coins);
+                        for (int i = 0; i < 25; i++) {
+                            coins[i].setTexture(coinsTextures);
+                            coins[i].setTextureRect(IntRect(0, 0, 134, 134));
+                            coins[i].setScale(0.4f, 0.4f);
+                        }
 
                         //background 
                         Texture backgroundtexture;
@@ -540,6 +611,8 @@ void main()
                             clock.restart();
                             time *= 27.5;
 
+                            
+
                             //Clock clock1;
                             //float deltaTime = clock1.restart().asSeconds();
 
@@ -578,6 +651,8 @@ void main()
                                 sonic.sprite.setTextureRect(IntRect(0, 0, 102, 105));
                                 sonic.sprite.setScale(-1, 1);
                             }
+                            Vector2i clickPos = sf::Mouse::getPosition(window);
+                                cout << "Mouse clicked at position (" << clickPos.x << ", " << clickPos.y << ")" << std::endl;
                             if (Keyboard::isKeyPressed(Keyboard::A)) {
                                 sonic.sprite.setScale(-1, 1);
                             }
@@ -618,11 +693,21 @@ void main()
                             }
 
                             //animation of coins
-                            for (int i = 0; i < coinslist.size(); i++) {
+                            for (int i = 0; i < 25; i++) {
                                 coinAnimationIndicator += 0.08 * time;
                                 if (coinAnimationIndicator > 9)
                                     coinAnimationIndicator -= 9;
-                                coinslist[i].setTextureRect(IntRect(int(coinAnimationIndicator) * 134, 0, 134, 134));
+                                coins[i].setTextureRect(IntRect(int(coinAnimationIndicator) * 134, 0, 134, 134));
+                            }
+
+                            //incrementing scoring
+                            for (int i = 0; i < 25; i++) {
+                                if (sonic.sprite.getGlobalBounds().intersects(coins[i].getGlobalBounds())) {
+                                    coinSound.play(); // Play the sound effect
+                                    coins[i].setScale(0, 0);
+                                    score++;
+                                    text.setString(" Score " + to_string(score));
+                                }
                             }
 
                             // Draw the sprite
@@ -644,9 +729,6 @@ void main()
                             {
                                 window.draw(background[i]);
                             }
-
-                            //To draw the coins and increase the score 
-                            drawCoins(window, sonic, coins, map, MAP_WIDTH, MAP_HEIGHT, coinAnimationIndicator, coinslist, score, text, coinSound);
                             window.draw(enemy.sprite);
                             window.draw(ground);
                             for (int i = 0; i < sonic.bullet.size(); i++)
@@ -661,6 +743,9 @@ void main()
                             window.draw(sonic.sprite);
                             for (int i = 0; i < 23; i++) {
                                 window.draw(ground1[i]);
+                            }
+                            for (int i = 0; i < 25; i++) {
+                                window.draw(coins[i]);
                             }
                             window.draw(text);
                             window.display();
@@ -733,6 +818,8 @@ void main()
 
         }
         MainMenu.clear();
+        MainMenu.draw(bg);
+        MainMenu.draw(sonicabg);
         mainmenu.draw(MainMenu);
         MainMenu.display();
     }
