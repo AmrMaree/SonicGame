@@ -208,7 +208,7 @@ void dropADrop() {
     }
 }
 void chooseDrop(Sprite ground1[], Clock& timerAdd, Clock& timerDelete) {
-    if (timerAdd.getElapsedTime().asSeconds() >= 1) {
+    if (timerAdd.getElapsedTime().asSeconds() >= 2) {
         int indexDrop = rand() % 4;
         int indexBlock = rand() % 18;
         Help help;
@@ -220,7 +220,7 @@ void chooseDrop(Sprite ground1[], Clock& timerAdd, Clock& timerDelete) {
         timerAdd.restart();
 
     }
-    if (timerDelete.getElapsedTime().asSeconds() >= 8) {
+    if (timerDelete.getElapsedTime().asSeconds() >= 6) {
         if (!dropBag.empty()) {
             dropBag.erase(dropBag.begin());
             timerDelete.restart();
