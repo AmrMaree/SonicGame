@@ -38,7 +38,7 @@ struct player
     bool onground;
     const float gravity = 700.0f;
     const float moveSpeed = 270.0f;
-    const float jumpHeight = 250.0f;
+    const float jumpHeight = 450.0f;
     float groundHeight = 726.0f;
     int last_key_pressed;
     int damage;
@@ -837,9 +837,7 @@ void GamePlay(RenderWindow& window) {
     }
 
     while (window.isOpen())
-
     {
-
         //setting time 
         Clock clock, cooldown;
         window.setFramerateLimit(60);
@@ -911,27 +909,16 @@ void GamePlay(RenderWindow& window) {
             }
         }
         //collision between sonic and enemy
-        if (sonic.sprite.getGlobalBounds().intersects(enemy.sprite.getGlobalBounds()) || enemy.sprite.getPosition().x < (sonic.sprite.getPosition().x - 1000))
-        {
-            enemy.sprite.setPosition(sonic.sprite.getPosition().x + 2500, 580); // Respawn the enemy on the right side of the window 
+        if (sonic.sprite.getGlobalBounds().intersects(enemy.sprite.getGlobalBounds()))
+        { 
             sonic.damage++;
-
         }
-
-        if (sonic.damage < 3)
+        if (enemy.sprite.getPosition().x < (sonic.sprite.getPosition().x - 1000)) 
         {
-            scoreimage[2].setTextureRect(IntRect(88 - (10 * sonic.damage), 0, 10, 25));
-        }
-        else
-        {
-            ofstream offile;
-            offile.open("history.txt", ios::app);
-            offile << name << "    " << score << "*" << endl;
-            score = 0;
-            gameover = true;
-            break;
+            enemy.sprite.setPosition(sonic.sprite.getPosition().x + 2500, 580); // Respawn the enemy on the right side of the window
         }
 
+        
         //collision between bullets and enemy
         for (int j = 0; j < sonic.bullet.size(); j++)
         {
@@ -989,18 +976,32 @@ void GamePlay(RenderWindow& window) {
         if (enemy.animation > 4)
             enemy.animation = 0;
 
+        Time elapsedTime = gametime.getElapsedTime();
+        int totalSeconds = static_cast<int>(elapsedTime.asSeconds());
+        int minutes = (totalSeconds % 3600) / 60;
+        int seconds = totalSeconds % 60;
+
+        // Format the time as a string
+        string timeString = to_string(minutes) + "'" + std::to_string(seconds).substr(0, 2);
+        timerText.setString(timeString); // Set the text string
+
+        //Upating history after checking if sonic is dead or not
+        if (sonic.damage < 3)
+        {
+            scoreimage[2].setTextureRect(IntRect(88 - (10 * sonic.damage), 0, 10, 25));
+        }
+        else
+        {
+            ofstream offile;
+            offile.open("history.txt", ios::app);
+            offile << name << "   " << score << "   " << timeString << "   " << rings << "*" << endl;
+            gameover = true;
+            break;
+        }
+
 
         if (sonic.sprite.getPosition().x <= 15000) {
             window.clear();
-
-            Time elapsedTime = gametime.getElapsedTime();
-            int totalSeconds = static_cast<int>(elapsedTime.asSeconds());
-            int minutes = (totalSeconds % 3600) / 60;
-            int seconds = totalSeconds % 60;
-
-            // Format the time as a string
-            string timeString = to_string(minutes) + "'" + std::to_string(seconds).substr(0, 2);
-            timerText.setString(timeString); // Set the text string
 
             window.setView(view);
             for (int i = 0; i < 50; ++i)
@@ -1112,7 +1113,6 @@ void GamePlay(RenderWindow& window) {
 }
 void main()
 {
-
     // make a Main window
     RenderWindow MainMenu(VideoMode(1920, 1080), "game");
     Menu mainmenu(MainMenu.getSize().x, MainMenu.getSize().y);
@@ -1129,7 +1129,7 @@ void main()
     RectangleShape sonicabg;
     sonicabg.setSize(Vector2f(795, 475));
     sonicabg.setScale(1, 1);
-    sonicabg.setPosition(485, 190);
+    sonicabg.setPosition(505, 190);
     Texture Smainbg;
     Smainbg.loadFromFile("Textures/bgsonic.png");
     sonicabg.setTexture(&Smainbg);
@@ -1357,6 +1357,7 @@ void main()
                         RenderWindow gameover(VideoMode(1920, 1080), "Game Over");
                         gameOver(gameover, score);
                     }
+                    gameover = false;
                 }
             }
 
