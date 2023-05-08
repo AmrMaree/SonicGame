@@ -4,6 +4,7 @@
 #include <SFML/Window.hpp>
 #include <vector>
 #include <string>
+#include <fstream>
 #include<iostream>
 #include<SFML/Audio.hpp>
 #include<sstream>
@@ -17,21 +18,10 @@
 using namespace std;
 using namespace sf;
 
-struct Leaderboard {
-    string name;
-    int score;
-    float time;
-    void initialize() {
-        score = 0;
-        time = 0;
-    }
-    void update(string username, int userscore) {
-        name = username;
-        score = userscore;
-        // time = usertime;
-    }
-};
-vector<Leaderboard> leaderboard;
+bool gameover = false;
+string name;
+int score = 0;
+
 struct Bullet {
     float speed;
     int moveTo;
@@ -482,7 +472,7 @@ void playername(RenderWindow& window, RenderWindow& gameplay, string& name)
         name.clear();
     }
     Texture bacgroundmenu;
-    bacgroundmenu.loadFromFile("lapper-bggreenhill1.jpg");  // load soora lel window
+    bacgroundmenu.loadFromFile("Textures/lapper-bggreenhill1.jpg");  // load soora lel window
     Sprite bg;
     bg.setTexture(bacgroundmenu);
     Font font;
@@ -542,8 +532,587 @@ void playername(RenderWindow& window, RenderWindow& gameplay, string& name)
 
 
 }
+void History(RenderWindow& window) {
+
+    Texture HistoryTex;
+    HistoryTex.loadFromFile("Textures/bgsonic.png");
+    Sprite HistorySprite;
+    HistorySprite.setTexture(HistoryTex);
+    HistorySprite.setPosition(0, 0);
+
+    Font font1;
+    font1.loadFromFile("Fonts/NiseSegaSonic.TTF");
+
+    Text text[100];
+    for (int i = 0; i < 90; i++)
+    {
+        text[i].setFont(font1);
+        text[i].setCharacterSize(50);
+        text[i].setFillColor(Color::Blue);
+    }
+
+    ifstream infile;
+    infile.open("History.txt", ios::in);
+
+    vector<string> lines;
+    string line;
+    while (getline(infile, line, '*')) {
+        lines.push_back(line);
+    }
+    for (int i = 0; i < lines.size(); i++)
+    {
+        text[i].setString(lines[i]);
+        text[i].setPosition(50, 100 * i);
+    }
+
+    while (window.isOpen()) {
+        Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == Event::Closed) {
+                window.close();
+
+            }
+            if (Keyboard::isKeyPressed(Keyboard::Key::Up))
+            {
+                if (text[0].getPosition().y <= 5) {
+                    for (int i = 0; i < lines.size() + 10; i++) {
+                        text[i].move(0, 20);
+                    }
+                }
+
+            }
+            if (Keyboard::isKeyPressed(Keyboard::Key::Down)) {
+                if (text[(lines.size()) - 1].getPosition().y >= window.getPosition().y + 1000) {
+                    for (int i = 0; i < lines.size() + 10; i++) {
+                        text[i].move(0, -20);
+                    }
+                }
+            }
+            cout << lines.size() << endl;
+        }
+        window.clear();
+        window.draw(HistorySprite);
+        for (int i = 0; i < lines.size(); i++) {
+            window.draw(text[i]);
+        }
+
+        window.display();
+    }
+
+
+}
+void gameOver(RenderWindow& window,int score) {
+
+    Texture HistoryTex;
+    HistoryTex.loadFromFile("Textures/bgsonic.png");
+    Sprite HistorySprit;
+    HistorySprit.setTexture(HistoryTex);
+    HistorySprit.setPosition(500, 0);
+
+    Font font1;
+    font1.loadFromFile("Fonts/NiseSegaSonic.TTF");
+    Text Gameover;
+    Gameover.setFont(font1);
+    Gameover.setString("Game Over ");
+    Gameover.setPosition(700, 500);
+    Gameover.setScale(3, 3);
+    Gameover.setFillColor(Color::Blue);
+
+    Font font2;
+    font2.loadFromFile("Fonts/NiseSegaSonic.TTF");
+    Text GameoverScore;
+    string ScoreString = to_string(score);
+
+    GameoverScore.setFont(font2);
+    GameoverScore.setString("Score : " + ScoreString);
+    GameoverScore.setPosition(700, 600);
+    GameoverScore.setScale(2, 2);
+    GameoverScore.setFillColor(Color::Blue);
+
+    while (window.isOpen()) {
+        Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == Event::Closed()) {
+                window.close();
+
+            }
+            if (Keyboard::isKeyPressed(Keyboard::Escape)) {
+
+                return;
+            }
+        }
+        window.clear();
+        window.draw(HistorySprit);
+        window.draw(GameoverScore);
+        window.draw(Gameover);
+        window.display();
+    }
+}
+void GamePlay(RenderWindow& window) {
+    srand(static_cast<unsigned>(time(NULL)));
+    vector <Sprite> coinslist(50);
+    Clock timerAdd, timerDelete, gametime;
+
+    //playername(entername, window, name);
+
+    //adding score,time,rings
+    Texture scoreimagetexture;
+    scoreimagetexture.loadFromFile("Textures/scoreimage.png");
+    Sprite scoreimage[5];
+    for (int i = 0; i < 3; i++) {
+        scoreimage[i].setTexture(scoreimagetexture);
+        scoreimage[i].setScale(3.5f, 3.5f);
+    }
+    scoreimage[0].setTextureRect(IntRect(0, 0, 50, 55));
+    scoreimage[1].setTextureRect(IntRect(0, 56, 40, 20));
+    scoreimage[2].setTextureRect(IntRect(88, 0, 10, 25));
+
+    //declaring sonic
+    Texture sonictexture;
+    sonictexture.loadFromFile("Textures/approvedsonic.png");
+    player sonic;
+    sonic.sprite.setTextureRect(IntRect(0, 0, 50, 55));
+    sonic.sprite.setScale(2.3, 2.3);
+    sonic.sp(sonictexture);
+
+
+    //declaring enemy
+    Texture enemytexture;
+    enemytexture.loadFromFile("Textures/crabenemy.png");
+    Enemy enemy;
+    enemy.sprite.setTexture(enemytexture);
+    enemy.speed = 1.8;
+    enemy.sprite.setPosition(1700, 580);
+    enemy.sprite.setTextureRect(IntRect(0, 0, 51, 40));
+    enemy.sprite.setScale(-3.3, 3.3);
+
+
+    //setting ground plants
+    Texture groundtextureP;
+    groundtextureP.loadFromFile("Textures/maplevel1.png");
+    Sprite ground2P[50];
+    for (int i = 0; i < 50; i++)
+    {
+        ground2P[i].setTexture(groundtextureP);
+        ground2P[i].setPosition(Vector2f((i * 1800), 385));
+        ground2P[i].setScale(1.8, 1.5);
+        ground2P[i].setOrigin(200, 0);
+    }
+
+
+    //setting spikes
+    Texture spikes;
+    spikes.loadFromFile("Textures/spikes2.png");
+    Sprite spike[50];
+
+    for (int i = 0; i < 50; i++)
+    {
+        spike[i].setTexture(spikes);
+        spike[i].setPosition(Vector2f(((i * 1600)), 636));
+        spike[i].setScale(2, 2);
+        spike[i].setOrigin(-500, 0);
+    }
+
+
+    //setting ground
+    Texture groundtexture;
+    groundtexture.loadFromFile("Textures/map.png");
+    Sprite ground[5];
+    for (int i = 0; i < 2; i++)
+    {
+        ground[i].setTexture(groundtexture);
+        ground[i].setPosition(Vector2f(i * 5408, 700));
+        ground[i].setScale(2, 2);
+        ground[i].setOrigin(200, 0);
+    }
+
+
+    //setting ground2
+    Texture groundtexture2;
+    groundtexture2.loadFromFile("Textures/map2.png");
+    Sprite ground2[20];
+    for (int i = 0; i < 20; i++)
+    {
+        ground2[i].setTexture(groundtexture2);
+        ground2[i].setPosition(Vector2f((i * 1088) + 15000, 695));
+        ground2[i].setScale(2, 3.1);
+        ground2[i].setOrigin(200, 0);
+    }
+
+    //setting blocks
+    Texture ground1texture;
+    ground1texture.loadFromFile("Textures/block89.png");
+    Texture ground1texture2;
+    ground1texture2.loadFromFile("Textures/oakground.png");
+    Sprite ground1[46];
+    block(ground1);
+    for (int i = 0; i < 23; ++i)
+    {
+        ground1[i].setTexture(ground1texture);
+    }
+    for (int i = 23; i < 46; ++i)
+    {
+        ground1[i].setTexture(ground1texture2);
+    }
+
+
+    //Variables
+    int coinCount = 0;
+    int coinAnimationIndicator = 0;
+    bool isCoinVisible = true;
+    bool landed = false;
+    double velocityY = 0;
+    score = 0;
+    int rings = 0;
+
+    //creating coins 
+    Texture coinsTextures;
+    coinsTextures.loadFromFile("Textures/coinsprite.png");
+    Sprite coins[25];
+    coin(coins);
+    for (int i = 0; i < 25; i++) {
+        coins[i].setTexture(coinsTextures);
+        coins[i].setTextureRect(IntRect(0, 0, 64, 64));
+        coins[i].setScale(0.4f, 0.4f);
+    }
+
+    //background 1
+    Texture backgroundtexture;
+    backgroundtexture.loadFromFile("Textures/lapper-bggreenhill1.jpg");
+    Sprite background[50];
+
+    for (int i = 0; i < 50; ++i)
+    {
+        background[i].setTexture(backgroundtexture);
+        background[i].setPosition(Vector2f((i * 1920), -50));
+        background[i].setOrigin(400, 0);
+        background[i].setScale(1, 1.17);
+    }
+
+    //Score
+    Font font;
+    font.loadFromFile("Fonts/NiseSegaSonic.TTF");
+    Text text;
+    Text text2;
+    text.setFont(font);
+    text2.setFont(font);
+    text.setString(to_string(score));
+    text2.setString(to_string(rings));
+    text.setFillColor(Color(50, 205, 50, 255));
+    text2.setFillColor(Color(50, 205, 50, 255));
+    text.setPosition(70, 65);
+    text.setCharacterSize(32);
+    text2.setCharacterSize(32);
+    text.setScale(1.45f, 1.45f);
+    text2.setScale(1.45f, 1.45f);
+
+    // Declare a Text object for the timer
+    Text timerText("", font, 50);
+    timerText.setFillColor(Color(50, 205, 50, 255));
+    timerText.setPosition(350, 250);
+
+    //2D camera
+    View view(Vector2f(0, 0), Vector2f(1920, 1080));
+    view.setCenter(sonic.sprite.getPosition() - Vector2f(200.0f, 0)); //update
+    window.setView(view);
+
+    //powerups
+    Setdrops();
+
+    // load the sound 
+    SoundBuffer coinBuffer;
+    coinBuffer.loadFromFile("Sounds/coinsound.wav");
+    Sound coinSound(coinBuffer);
+
+    //background 2 
+    Texture backgroundtexture2;
+    backgroundtexture2.loadFromFile("Textures/lapper-bggreenhill2.jpg");
+    Sprite background2[50];
+    for (int i = 0; i < 50; ++i)
+    {
+        background2[i].setTexture(backgroundtexture2);
+        background2[i].setPosition(Vector2f((i * 1920), -50));
+        background2[i].setOrigin(200, 0);
+        background2[i].setScale(1, 1.17);
+    }
+
+    while (window.isOpen())
+
+    {
+
+        //setting time 
+        Clock clock, cooldown;
+        window.setFramerateLimit(60);
+        float time = clock.getElapsedTime().asMicroseconds();
+        clock.restart();
+        time *= 27.5;
+
+
+        //powerups 
+        chooseDrop(ground1, timerAdd, timerDelete);
+        dropADrop();
+        dropCollision(sonic);
+        checkDrop(sonic);
+        resetSpeed(sonic);
+
+        //bullet 
+        bulletCooldown(sonic);
+        moveBullets(sonic.bullet);
+
+
+        Event aevent;
+        while (window.pollEvent(aevent))
+        {
+            if (aevent.type == Event::Closed)
+            {
+                window.close();
+            }
+            if (aevent.type == Event::KeyPressed)
+            {
+                if (aevent.key.code == Keyboard::Escape)
+                {
+                    window.close();
+                }
+            }
+        }
+
+        // Move the player using A,D and space keys
+        if (sonic.last_key_pressed == 1) {
+            sonic.sprite.setTextureRect(IntRect(0, 0, 50, 55));
+        }
+        if (sonic.last_key_pressed == 2) {
+            sonic.sprite.setTextureRect(IntRect(0, 0, 50, 55));
+            sonic.sprite.setScale(-2.3, 2.3);
+        }
+        if (Keyboard::isKeyPressed(Keyboard::A)) {
+            sonic.sprite.setScale(-2.3, 2.3);
+        }
+        if (Mouse::isButtonPressed(Mouse::Left) && sonic.index >= 0 && sonic.canShoot) {
+            sonic.bullet[sonic.index].bulletSprite.setPosition(sonic.sprite.getPosition().x, sonic.sprite.getPosition().y);
+            sonic.shootCooldown = sonic.bullet[sonic.index].cooldownUse;
+            sonic.bullet[sonic.index].moveTo = sonic.last_key_pressed;
+            sonic.index--;
+            sonic.canShoot = 0;
+        }
+        //setting position for score
+        text.setPosition(sonic.sprite.getPosition().x - 100, 48);
+        text2.setPosition(sonic.sprite.getPosition().x - 100, 155);
+        timerText.setPosition(sonic.sprite.getPosition().x - 100, 105);
+        scoreimage[0].setPosition(sonic.sprite.getPosition().x - 180 - 104, 25);
+        scoreimage[1].setPosition(sonic.sprite.getPosition().x - 180 - 104, 880);
+        scoreimage[2].setPosition(sonic.sprite.getPosition().x - 50 - 104, 867);
+
+
+        //collision between sonic and spikes
+        for (int i = 0; i < 50; i++) {
+            if (sonic.sprite.getGlobalBounds().intersects(spike[i].getGlobalBounds()))
+            {
+                sonic.damage++;
+            }
+        }
+        //collision between sonic and enemy
+        if (sonic.sprite.getGlobalBounds().intersects(enemy.sprite.getGlobalBounds()) || enemy.sprite.getPosition().x < (sonic.sprite.getPosition().x - 1000))
+        {
+            enemy.sprite.setPosition(sonic.sprite.getPosition().x + 2500, 580); // Respawn the enemy on the right side of the window 
+            sonic.damage++;
+
+        }
+
+        if (sonic.damage < 3)
+        {
+            scoreimage[2].setTextureRect(IntRect(88 - (10 * sonic.damage), 0, 10, 25));
+        }
+        else
+        {
+            ofstream offile;
+            offile.open("history.txt", ios::app);
+            offile << name << "    " << score << "*" << endl;
+            score = 0;
+            gameover = true;
+            break;
+        }
+
+        //collision between bullets and enemy
+        for (int j = 0; j < sonic.bullet.size(); j++)
+        {
+            if (sonic.bullet[j].bulletSprite.getGlobalBounds().intersects(enemy.sprite.getGlobalBounds())) {
+                enemy.health -= 19;
+                sonic.bullet[j].bulletSprite.setScale(0, 0);
+            }
+            if (enemy.health == 0) {
+                enemy.sprite.setPosition(sonic.sprite.getPosition().x + 2500, 580);
+                score += 5;
+                text.setString(to_string(score));
+                enemy.health = 3 * 19;
+            }
+        }
+
+        //sonic limits
+        if (sonic.sprite.getPosition().x < 0) {
+            sonic.sprite.setPosition(0, sonic.sprite.getPosition().y);
+        }
+        if (sonic.sprite.getPosition().y < 0) {
+            sonic.sprite.setPosition(sonic.sprite.getPosition().x, 0);
+        }
+        if (sonic.sprite.getPosition().x > 16000) {
+            if (sonic.sprite.getPosition().x < 16000) {
+                sonic.sprite.setPosition(16000, sonic.sprite.getPosition().y);
+            }
+        }
+
+        //animation of coins
+        for (int i = 0; i < 25; i++) {
+            coinAnimationIndicator += 0.08 * time;
+            if (coinAnimationIndicator > 9)
+                coinAnimationIndicator -= 9;
+            coins[i].setTextureRect(IntRect(int(coinAnimationIndicator) * 64, 0, 64, 64));
+        }
+
+        //incrementing scoring
+        for (int i = 0; i < 25; i++) {
+            if (sonic.sprite.getGlobalBounds().intersects(coins[i].getGlobalBounds())) {
+                coinSound.play(); // Play the sound effect
+                coins[i].setScale(0, 0);
+                rings++;
+                text2.setString(to_string(rings));
+            }
+        }
+
+        //Updating sonic
+        view.setCenter(Vector2f(sonic.sprite.getPosition().x + 648, 540));
+        sonic.update(time, 1.0f / 40.f, ground1);
+
+        //enemy animation
+        enemy.sprite.move(-enemy.speed, 0);
+        enemy.sprite.setTextureRect(IntRect(int(enemy.animation) * 52, 0, 52, 40));
+        enemy.animation += 0.1;
+        if (enemy.animation > 4)
+            enemy.animation = 0;
+
+
+        if (sonic.sprite.getPosition().x <= 15000) {
+            window.clear();
+
+            Time elapsedTime = gametime.getElapsedTime();
+            int totalSeconds = static_cast<int>(elapsedTime.asSeconds());
+            int minutes = (totalSeconds % 3600) / 60;
+            int seconds = totalSeconds % 60;
+
+            // Format the time as a string
+            string timeString = to_string(minutes) + "'" + std::to_string(seconds).substr(0, 2);
+            timerText.setString(timeString); // Set the text string
+
+            window.setView(view);
+            for (int i = 0; i < 50; ++i)
+            {
+                window.draw(background[i]);
+            }
+            for (int i = 0; i < 20; i++)
+            {
+                window.draw(ground2P[i]);
+            }
+
+            for (int i = 0; i < 25; i++) {
+                window.draw(coins[i]);
+            }
+
+            for (int i = 0; i < 20; i++)
+            {
+                window.draw(spike[i]);
+            }
+            window.draw(enemy.sprite);
+
+            for (int i = 0; i < 5; i++)
+            {
+                window.draw(ground[i]);
+            }
+            for (int i = 0; i < sonic.bullet.size(); i++)
+            {
+                window.draw(sonic.bullet[i].bulletSprite);
+            }
+
+            for (int i = 0; i < dropBag.size(); i++) {
+                window.draw(dropBag[i].dropShape);
+            }
+
+            window.draw(sonic.sprite);
+            for (int i = 0; i < 23; i++) {
+                window.draw(ground1[i]);
+            }
+            window.draw(text);
+            window.draw(text2);
+            window.draw(timerText);
+            for (int i = 0; i < 3; i++) {
+                window.draw(scoreimage[i]);
+            }
+
+            window.display();
+        }
+        //
+        ///
+        ////
+        /////
+        //////
+        /////level 2
+        //////
+        /////
+        ////
+        ///
+        //
+        else if (sonic.sprite.getPosition().x > 15000) {
+            enemy.sprite.setPosition(1700 + 16000, 580);
+            sonic.groundHeight = 744;
+            sonic.update(time, 1.0f / 40.f, ground1);
+            window.clear();
+
+
+            Time elapsedTime = gametime.getElapsedTime();
+            int totalSeconds = static_cast<int>(elapsedTime.asSeconds());
+            int minutes = (totalSeconds % 3600) / 60;
+            int seconds = totalSeconds % 60;
+
+            // Format the time as a string
+            string timeString = to_string(minutes) + "'" + std::to_string(seconds).substr(0, 2);
+            timerText.setString(timeString); // Set the text string
+
+            window.setView(view);
+            window.draw(enemy.sprite);
+            for (int i = 0; i < 50; i++)
+            {
+                window.draw(background2[i]);
+            }
+            for (int i = 0; i < 20; i++)
+            {
+                window.draw(ground2[i]);
+            }
+            for (int i = 0; i < sonic.bullet.size(); i++)
+            {
+                window.draw(sonic.bullet[i].bulletSprite);
+            }
+
+            for (int i = 0; i < dropBag.size(); i++) {
+                window.draw(dropBag[i].dropShape);
+            }
+            window.draw(sonic.sprite);
+            for (int i = 23; i < 46; i++) {
+                window.draw(ground1[i]);
+            }
+            for (int i = 0; i < 25; i++) {
+                window.draw(coins[i]);
+            }
+            window.draw(text);
+            window.draw(text2);
+            window.draw(timerText);
+            for (int i = 0; i < 3; i++) {
+                window.draw(scoreimage[i]);
+            }
+            window.display();
+        }
+    }
+}
 void main()
 {
+
     // make a Main window
     RenderWindow MainMenu(VideoMode(1920, 1080), "game");
     Menu mainmenu(MainMenu.getSize().x, MainMenu.getSize().y);
@@ -555,11 +1124,6 @@ void main()
     Texture mainbg;
     mainbg.loadFromFile("Textures/lapper-bggreenhill1.jpg");
     bg.setTexture(&mainbg);
-
-    //enter name
-    string name;
-    Leaderboard user;
-    user.initialize();
 
 
     RectangleShape sonicabg;
@@ -591,7 +1155,6 @@ void main()
                 {
                     mainmenu.movedown();
                     break;
-
                 }
                 if (event.key.code == Keyboard::Return)
                 {
@@ -604,458 +1167,10 @@ void main()
                     int x = mainmenu.pressed();
                     if (x == 0)
                     {
-
-                        srand(static_cast<unsigned>(time(NULL)));
-                        vector <Sprite> coinslist(50);
-                        Clock timerAdd, timerDelete, gametime;
-
-                        //adding score,time,rings
-                        Texture scoreimagetexture;
-                        scoreimagetexture.loadFromFile("Textures/scoreimage.png");
-                        Sprite scoreimage[5];
-                        for (int i = 0; i < 3; i++) {
-                            scoreimage[i].setTexture(scoreimagetexture);
-                            scoreimage[i].setScale(3.5f, 3.5f);
-                        }
-                        scoreimage[0].setTextureRect(IntRect(0, 0, 50, 55));
-                        scoreimage[1].setTextureRect(IntRect(0, 56, 40, 20));
-                        scoreimage[2].setTextureRect(IntRect(88, 0, 10, 25));
-
-                        //declaring sonic
-                        Texture sonictexture;
-                        sonictexture.loadFromFile("Textures/approvedsonic.png");
-                        player sonic;
-                        sonic.sprite.setTextureRect(IntRect(0, 0, 50, 55));
-                        sonic.sprite.setScale(2.3, 2.3);
-                        sonic.sp(sonictexture);
-
-
-                        //declaring enemy
-                        Texture enemytexture;
-                        enemytexture.loadFromFile("Textures/crabenemy.png");
-                        Enemy enemy;
-                        enemy.sprite.setTexture(enemytexture);
-                        enemy.speed = 1.8;
-                        enemy.sprite.setPosition(1700, 580);
-                        enemy.sprite.setTextureRect(IntRect(0, 0, 51, 40));
-                        enemy.sprite.setScale(-3.3, 3.3);
-
-
-                        //setting ground plants
-                        Texture groundtextureP;
-                        groundtextureP.loadFromFile("Textures/maplevel1.png");
-                        Sprite ground2P[50];
-                        for (int i = 0; i < 50; i++)
-                        {
-                            ground2P[i].setTexture(groundtextureP);
-                            ground2P[i].setPosition(Vector2f((i * 1800), 385));
-                            ground2P[i].setScale(1.8, 1.5);
-                            ground2P[i].setOrigin(200, 0);
-                        }
-
-
-                        //setting spikes
-                        Texture spikes;
-                        spikes.loadFromFile("Textures/spikes.png");
-                        Sprite spike[50];
-                        for (int i = 0; i < 50; i++)
-                        {
-                            spike[i].setTexture(spikes);
-                            spike[i].setPosition(Vector2f(((i * 1500)), 414));
-                            spike[i].setScale(2, 2);
-                            spike[i].setOrigin(-200, 0);
-                        }
-
-
-                        //setting ground
-                        Texture groundtexture;
-                        groundtexture.loadFromFile("Textures/map.png");
-                        Sprite ground[5];
-                        for (int i = 0; i < 2; i++)
-                        {
-                            ground[i].setTexture(groundtexture);
-                            ground[i].setPosition(Vector2f(i * 5408, 700));
-                            ground[i].setScale(2, 2);
-                            ground[i].setOrigin(200, 0);
-                        }
-
-
-                        //setting ground2
-                        Texture groundtexture2;
-                        groundtexture2.loadFromFile("Textures/map2.png");
-                        Sprite ground2[20];
-                        for (int i = 0; i < 20; i++)
-                        {
-                            ground2[i].setTexture(groundtexture2);
-                            ground2[i].setPosition(Vector2f((i * 1088) + 15000, 695));
-                            ground2[i].setScale(2, 3.1);
-                            ground2[i].setOrigin(200, 0);
-                        }
-
-
-                        //setting blocks
-                        Texture ground1texture;
-                        ground1texture.loadFromFile("Textures/block89.png");
-                        Texture ground1texture2;
-                        ground1texture2.loadFromFile("Textures/oakground.png");
-                        Sprite ground1[46];
-                        block(ground1);
-                        for (int i = 0; i < 23; ++i)
-                        {
-                            ground1[i].setTexture(ground1texture);
-                        }
-                        for (int i = 23; i < 46; ++i)
-                        {
-                            ground1[i].setTexture(ground1texture2);
-                        }
-                       
-
-                        //Variables
-                        int coinCount = 0;
-                        int coinAnimationIndicator = 0;
-                        bool isCoinVisible = true;
-                        bool landed = false;
-                        double velocityY = 0;
-                        int score = 0;
-                        int rings = 0;
-
-                        //creating coins 
-                        Texture coinsTextures;
-                        coinsTextures.loadFromFile("Textures/coinsprite.png");
-                        Sprite coins[25];
-                        coin(coins);
-                        for (int i = 0; i < 25; i++) {
-                            coins[i].setTexture(coinsTextures);
-                            coins[i].setTextureRect(IntRect(0, 0, 64, 64));
-                            coins[i].setScale(0.4f, 0.4f);
-                        }
-
-                        //background 1
-                        Texture backgroundtexture;
-                        backgroundtexture.loadFromFile("Textures/lapper-bggreenhill1.jpg");
-                        Sprite background[50];
-
-                        for (int i = 0; i < 50; ++i)
-                        {
-                            background[i].setTexture(backgroundtexture);
-                            background[i].setPosition(Vector2f((i * 1920), -50));
-                            background[i].setOrigin(400, 0);
-                            background[i].setScale(1, 1.17);
-                        }
-
-                        //Score
-                        Font font;
-                        font.loadFromFile("Fonts/NiseSegaSonic.TTF");
-                        Text text;
-                        Text text2;
-                        text.setFont(font);
-                        text2.setFont(font);
-                        text.setString(to_string(score));
-                        text2.setString(to_string(rings));
-                        text.setFillColor(Color(50, 205, 50, 255));
-                        text2.setFillColor(Color(50, 205, 50, 255));
-                        text.setPosition(70, 65);
-                        text.setCharacterSize(32);
-                        text2.setCharacterSize(32);
-                        text.setScale(1.45f, 1.45f);
-                        text2.setScale(1.45f, 1.45f);
-
-                        // Declare a Text object for the timer
-                        Text timerText("", font, 50);
-                        timerText.setFillColor(Color(50, 205, 50, 255));
-                        timerText.setPosition(350, 250);
-
-                        //2D camera
-                        View view(Vector2f(0, 0), Vector2f(1920, 1080));
-                        view.setCenter(sonic.sprite.getPosition() - Vector2f(200.0f, 0)); //update
-                        window.setView(view);
-
-                        //powerups
-                        Setdrops();
-
-                        // load the sound 
-                        SoundBuffer coinBuffer;
-                        coinBuffer.loadFromFile("Sounds/coinsound.wav");
-                        Sound coinSound(coinBuffer);
-
-                        //background 2 
-                        Texture backgroundtexture2;
-                        backgroundtexture2.loadFromFile("Textures/lapper-bggreenhill2.jpg");
-                        Sprite background2[50];
-                        for (int i = 0; i < 50; ++i)
-                        {
-                            background2[i].setTexture(backgroundtexture2);
-                            background2[i].setPosition(Vector2f((i * 1920), -50));
-                            background2[i].setOrigin(200, 0);
-                            background2[i].setScale(1, 1.17);
-                        }
-
-                        while (window.isOpen())
-
-                        {
-
-                            //setting time 
-                            Clock clock;
-                            window.setFramerateLimit(60);
-                            float time = clock.getElapsedTime().asMicroseconds();
-                            clock.restart();
-                            time *= 27.5;
-
-                          
-                            //powerups 
-                            chooseDrop(ground1, timerAdd, timerDelete);
-                            dropADrop();
-                            dropCollision(sonic);
-                            checkDrop(sonic);
-                            resetSpeed(sonic);
-
-                            //bullet 
-                            bulletCooldown(sonic);
-                            moveBullets(sonic.bullet);
-
-                            
-                            Event aevent;
-                            while (window.pollEvent(aevent))
-                            {
-                                if (aevent.type == Event::Closed)
-                                {
-                                    window.close();
-                                }
-                                if (aevent.type == Event::KeyPressed)
-                                {
-                                    if (aevent.key.code == Keyboard::Escape)
-                                    {
-                                        window.close();
-                                    }
-                                }
-                            }
-
-                            // Move the player using A,D and space keys
-                            if (sonic.last_key_pressed == 1) {
-                                sonic.sprite.setTextureRect(IntRect(0, 0, 50, 55));
-                            }
-                            if (sonic.last_key_pressed == 2) {
-                                sonic.sprite.setTextureRect(IntRect(0, 0, 50, 55));
-                                sonic.sprite.setScale(-2.3, 2.3);
-                            }
-                            if (Keyboard::isKeyPressed(Keyboard::A)) {
-                                sonic.sprite.setScale(-2.3, 2.3);
-                            }
-                            if (Mouse::isButtonPressed(Mouse::Left) && sonic.index >= 0 && sonic.canShoot) {
-                                sonic.bullet[sonic.index].bulletSprite.setPosition(sonic.sprite.getPosition().x, sonic.sprite.getPosition().y);
-                                sonic.shootCooldown = sonic.bullet[sonic.index].cooldownUse;
-                                sonic.bullet[sonic.index].moveTo = sonic.last_key_pressed;
-                                sonic.index--;
-                                sonic.canShoot = 0;
-                            }
-                            //setting position for score
-                            text.setPosition(sonic.sprite.getPosition().x - 100, 48);
-                            text2.setPosition(sonic.sprite.getPosition().x - 100, 155);
-                            timerText.setPosition(sonic.sprite.getPosition().x - 100, 105);
-                            scoreimage[0].setPosition(sonic.sprite.getPosition().x - 180 - 104, 25);
-                            scoreimage[1].setPosition(sonic.sprite.getPosition().x - 180 - 104, 880);
-                            scoreimage[2].setPosition(sonic.sprite.getPosition().x - 50 - 104, 867);
-
-
-                            //collision between sonic and enemy
-                            if (sonic.sprite.getGlobalBounds().intersects(enemy.sprite.getGlobalBounds()) || enemy.sprite.getPosition().x < (sonic.sprite.getPosition().x - 1000))
-                            {
-                                enemy.sprite.setPosition(sonic.sprite.getPosition().x + 2500, 580); // Respawn the enemy on the right side of the window 
-                                sonic.damage++;
-                                if (sonic.damage <= 3)
-                                {
-                                    scoreimage[2].setTextureRect(IntRect(88 - (10 * sonic.damage), 0, 10, 25));
-                                }
-                                else
-                                {
-                                    //sonic dies
-                                }
-                            }
-
-                            //collision between bullets and enemy
-                            for (int j = 0; j < sonic.bullet.size(); j++)
-                            {
-                                if (sonic.bullet[j].bulletSprite.getGlobalBounds().intersects(enemy.sprite.getGlobalBounds())) {
-                                    enemy.health -= 19;
-                                    sonic.bullet[j].bulletSprite.setScale(0, 0);
-                                }
-                                if (enemy.health == 0) {
-                                    enemy.sprite.setPosition(sonic.sprite.getPosition().x + 2500, 580);
-                                    score += 5;
-                                    text.setString(to_string(score));
-                                    enemy.health = 3 * 19;
-                                }
-                            }
-
-                            //sonic limits
-                            if (sonic.sprite.getPosition().x < 0) {
-                                sonic.sprite.setPosition(0, sonic.sprite.getPosition().y);
-                            }
-                            if (sonic.sprite.getPosition().y < 0) {
-                                sonic.sprite.setPosition(sonic.sprite.getPosition().x, 0);
-                            }
-                            if (sonic.sprite.getPosition().x > 16000) {
-                                if (sonic.sprite.getPosition().x < 16000) {
-                                    sonic.sprite.setPosition(16000, sonic.sprite.getPosition().y);
-                                }
-                            }
-
-                            //animation of coins
-                            for (int i = 0; i < 25; i++) {
-                                coinAnimationIndicator += 0.08 * time;
-                                if (coinAnimationIndicator > 9)
-                                    coinAnimationIndicator -= 9;
-                                coins[i].setTextureRect(IntRect(int(coinAnimationIndicator) * 64, 0, 64, 64));
-                            }
-
-                            //incrementing scoring
-                            for (int i = 0; i < 25; i++) {
-                                if (sonic.sprite.getGlobalBounds().intersects(coins[i].getGlobalBounds())) {
-                                    coinSound.play(); // Play the sound effect
-                                    coins[i].setScale(0, 0);
-                                    rings++;
-                                    text2.setString(to_string(rings));
-                                }
-                            }
-
-                            //Updating sonic
-                            view.setCenter(Vector2f(sonic.sprite.getPosition().x + 648, 540));
-                            sonic.update(time, 1.0f / 40.f, ground1);
-
-                            //enemy animation
-                            enemy.sprite.move(-enemy.speed, 0);
-                            enemy.sprite.setTextureRect(IntRect(int(enemy.animation) * 52, 0, 52, 40));
-                            enemy.animation += 0.1;
-                            if (enemy.animation > 4)
-                                enemy.animation = 0;
-
-                            Options.close();
-                            About.close();
-                          
-                            playername(entername, window, name);
-                            user.update(name, score);
-
-                            if (sonic.sprite.getPosition().x <= 15000) {
-                                window.clear();
-                                
-                                Time elapsedTime = gametime.getElapsedTime();
-                                int totalSeconds = static_cast<int>(elapsedTime.asSeconds());
-                                int minutes = (totalSeconds % 3600) / 60;
-                                int seconds = totalSeconds % 60;
-
-                                // Format the time as a string
-                                string timeString = to_string(minutes) + "'" + std::to_string(seconds).substr(0, 2);
-                                timerText.setString(timeString); // Set the text string
-
-                                window.setView(view);
-                                for (int i = 0; i < 50; ++i)
-                                {
-                                    window.draw(background[i]);
-                                }
-                                for (int i = 0; i < 20; i++)
-                                {
-                                    window.draw(ground2P[i]);
-                                }
-
-                                for (int i = 0; i < 25; i++) {
-                                    window.draw(coins[i]);
-                                }
-
-                                for (int i = 0; i < 20; i++)
-                                {
-                                    window.draw(spike[i]);
-                                }
-                                window.draw(enemy.sprite);
-
-                                for (int i = 0; i < 5; i++)
-                                {
-                                    window.draw(ground[i]);
-                                }
-                                for (int i = 0; i < sonic.bullet.size(); i++)
-                                {
-                                    window.draw(sonic.bullet[i].bulletSprite);
-                                }
-
-                                for (int i = 0; i < dropBag.size(); i++) {
-                                    window.draw(dropBag[i].dropShape);
-                                }
-
-                                window.draw(sonic.sprite);
-                                for (int i = 0; i < 23; i++) {
-                                    window.draw(ground1[i]);
-                                }
-                                window.draw(text);
-                                window.draw(text2);
-                                window.draw(timerText);
-                                for (int i = 0; i < 3; i++) {
-                                    window.draw(scoreimage[i]);
-                                }
-                                
-                                window.display();
-                            }
-                            //
-                            ///
-                            ////
-                            /////
-                            //////
-                            /////level 2
-                            //////
-                            /////
-                            ////
-                            ///
-                            //
-                            else if (sonic.sprite.getPosition().x > 15000) {
-                                enemy.sprite.setPosition(1700 + 16000, 580);
-                                sonic.groundHeight = 744;
-                                sonic.update(time, 1.0f / 40.f, ground1);
-                                window.clear();
-
-                               
-                                Time elapsedTime = gametime.getElapsedTime();
-                                int totalSeconds = static_cast<int>(elapsedTime.asSeconds());
-                                int minutes = (totalSeconds % 3600) / 60;
-                                int seconds = totalSeconds % 60;
-
-                                // Format the time as a string
-                                string timeString = to_string(minutes) + "'" + std::to_string(seconds).substr(0, 2);
-                                timerText.setString(timeString); // Set the text string
-
-                                window.setView(view);
-                                window.draw(enemy.sprite);
-                                for (int i = 0; i < 50; i++)
-                                {
-                                    window.draw(background2[i]);
-                                }
-                                for (int i = 0; i < 20; i++)
-                                {
-                                    window.draw(ground2[i]);
-                                }
-                                for (int i = 0; i < sonic.bullet.size(); i++)
-                                {
-                                    window.draw(sonic.bullet[i].bulletSprite);
-                                }
-
-                                for (int i = 0; i < dropBag.size(); i++) {
-                                    window.draw(dropBag[i].dropShape);
-                                }
-                                window.draw(sonic.sprite);
-                                for (int i = 23; i < 46; i++) {
-                                    window.draw(ground1[i]);
-                                }
-                                for (int i = 0; i < 25; i++) {
-                                    window.draw(coins[i]);
-                                }
-                                window.draw(text);
-                                window.draw(text2);
-                                window.draw(timerText);
-                                for (int i = 0; i < 3; i++) {
-                                    window.draw(scoreimage[i]);
-                                }
-
-
-                                window.display();
-                            }
-                        }
+                        Options.close();
+                        About.close();
+                        playername(entername, window, name);
+                        GamePlay(window);
 
                     }
                     if (x == 1)
@@ -1227,37 +1342,21 @@ void main()
                     }
                     if (x == 2)
                     {
-                        while (About.isOpen())
-                        {
-                            Event aevent;
-                            while (About.pollEvent(aevent))
-                            {
-                                if (aevent.type == Event::Closed)
-                                {
-                                    About.close();
-                                }
-                                if (aevent.type == Event::KeyPressed)
-                                {
-                                    if (aevent.key.code == Keyboard::Escape)
-                                    {
-                                        About.close();
-                                    }
-                                }
-                            }
-                            window.close();
-                            Options.close();
-                            About.clear();
-                            About.display();
-
-
-                        }
+                        
+                        window.close();
+                        Options.close();
+                        History(About);
 
                     }
                     if (x == 3) {
+
                         MainMenu.close();
                         break;
                     }
-
+                    if (gameover) {
+                        RenderWindow gameover(VideoMode(1920, 1080), "Game Over");
+                        gameOver(gameover, score);
+                    }
                 }
             }
 
