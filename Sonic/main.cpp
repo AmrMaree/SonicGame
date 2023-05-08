@@ -898,7 +898,6 @@ void main()
                                 }
                             }
 
-
                             //Updating sonic
                             view.setCenter(Vector2f(sonic.sprite.getPosition().x + 648, 540));
                             sonic.update(time, 1.0f / 40.f, ground1);
@@ -964,7 +963,6 @@ void main()
                                 }
                                 window.display();
                             }
-
                             //
                             ///
                             ////
@@ -976,7 +974,6 @@ void main()
                             ////
                             ///
                             //
-
                             else if (sonic.sprite.getPosition().x > 15000) {
                                 enemy.sprite.setPosition(1700 + 16000, 580);
                                 sonic.groundHeight = 725;
@@ -1011,7 +1008,6 @@ void main()
                                 for (int i = 0; i < dropBag.size(); i++) {
                                     window.draw(dropBag[i].dropShape);
                                 }
-
                                 window.draw(sonic.sprite);
                                 for (int i = 0; i < 23; i++) {
                                     window.draw(ground22[i]);
@@ -1032,7 +1028,6 @@ void main()
                         }
 
                     }
-
                     if (x == 1)
                     {
                         int j = 0;
