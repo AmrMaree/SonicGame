@@ -1,8 +1,6 @@
 Name   Score   Time   Rings
 
 
-
-the greatest of all time erwin smith   0   0'28   6*
 amr   15   1'31   8*
 amr   0   0'29   6*
 amr   10   0'17   6*
@@ -14,7 +12,8 @@ amr   0   0'29   0*
 amr   0   0'28   0*
 amr   5   0'47   6*
 amr   0   0'24   13*
-d   15   0'42   4*
+
+d   15   0'42   4*
 aad   0   0'38   2*
 amr   5   0'36   11*
 amr   25   0'49   7*

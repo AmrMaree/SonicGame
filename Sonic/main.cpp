@@ -911,6 +911,7 @@ void GamePlay(RenderWindow& window) {
         //collision between sonic and enemy
         if (sonic.sprite.getGlobalBounds().intersects(enemy.sprite.getGlobalBounds()))
         { 
+            enemy.sprite.setPosition(sonic.sprite.getPosition().x + 2500, 580); // Respawn the enemy on the right side of the window
             sonic.damage++;
         }
         if (enemy.sprite.getPosition().x < (sonic.sprite.getPosition().x - 1000)) 
