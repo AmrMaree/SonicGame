@@ -1201,13 +1201,15 @@ void GamePlay2(RenderWindow& window) {
 
     //declaring enemy1
     Texture enemytexture;
-    enemytexture.loadFromFile("Textures/crabenemy.png");
-    Enemy enemy;
-    enemy.sprite.setTexture(enemytexture);
-    enemy.speed = 3;
-    enemy.sprite.setPosition(1700, 580);
-    enemy.sprite.setTextureRect(IntRect(0, 0, 51, 40));
-    enemy.sprite.setScale(-3.3, 3.3);
+    enemytexture.loadFromFile("Textures/beetle.png");
+    Enemy enemy[5];
+    for (int i = 0; i < 5; i++) {
+    enemy[i].sprite.setTexture(enemytexture);
+    enemy[i].speed = 3;
+    enemy[i].sprite.setTextureRect(IntRect(0, 0, 51, 40));
+    enemy[i].sprite.setScale(-3.3, 3.3);
+    }
+    enemy[0].sprite.setPosition(1700, 580);
 
     
     //declaring enemy2
@@ -1445,29 +1447,31 @@ void GamePlay2(RenderWindow& window) {
         }*/
 
         //collision between sonic and enemy
-        if (sonic.sprite.getGlobalBounds().intersects(enemy.sprite.getGlobalBounds()))
-        {
-
-
-            if (candamage && cooldowndamage.getElapsedTime().asSeconds() >= cooldownTime)
+        for (int i = 0; i < 5; i++) {
+            if (sonic.sprite.getGlobalBounds().intersects(enemy[i].sprite.getGlobalBounds()))
             {
-                sonic.damage++;
-                sonic.sprite.move(-100, -150);
 
-                cooldowndamage.restart();
-                candamage = false;
+
+                if (candamage && cooldowndamage.getElapsedTime().asSeconds() >= cooldownTime)
+                {
+                    sonic.damage++;
+                    sonic.sprite.move(-100, -150);
+
+                    cooldowndamage.restart();
+                    candamage = false;
+                }
+
+                if (!candamage && cooldowndamage.getElapsedTime().asSeconds() >= cooldownTime)
+
+                {
+                    candamage = true;
+                }
+                enemy[i].sprite.setPosition(sonic.sprite.getPosition().x + 2500, 580); // Respawn the enemy on the right side of the window
             }
-
-            if (!candamage && cooldowndamage.getElapsedTime().asSeconds() >= cooldownTime)
-
+            if (enemy[i].sprite.getPosition().x < (sonic.sprite.getPosition().x - 1000))
             {
-                candamage = true;
+                enemy[i].sprite.setPosition(sonic.sprite.getPosition().x + 2500, 580); // Respawn the enemy on the right side of the window
             }
-            enemy.sprite.setPosition(sonic.sprite.getPosition().x + 2500, 580); // Respawn the enemy on the right side of the window
-        }
-        if (enemy.sprite.getPosition().x < (sonic.sprite.getPosition().x - 1000))
-        {
-            enemy.sprite.setPosition(sonic.sprite.getPosition().x + 2500, 580); // Respawn the enemy on the right side of the window
         }
 
 
@@ -1493,17 +1497,19 @@ void GamePlay2(RenderWindow& window) {
 
 
         //collision between bullets and enemy
-        for (int j = 0; j < sonic.bullet.size(); j++)
-        {
-            if (sonic.bullet[j].bulletSprite.getGlobalBounds().intersects(enemy.sprite.getGlobalBounds())) {
-                enemy.health -= 19;
-                sonic.bullet[j].bulletSprite.setScale(0, 0);
-            }
-            if (enemy.health == 0) {
-                enemy.sprite.setPosition(sonic.sprite.getPosition().x + 2500, 580);
-                score += 5;
-                text.setString(to_string(score));
-                enemy.health = 3 * 19;
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < sonic.bullet.size(); j++)
+            {
+                if (sonic.bullet[j].bulletSprite.getGlobalBounds().intersects(enemy[i].sprite.getGlobalBounds())) {
+                    enemy[i].health -= 19;
+                    sonic.bullet[j].bulletSprite.setScale(0, 0);
+                }
+                if (enemy[i].health == 0) {
+                    enemy[i].sprite.setPosition(sonic.sprite.getPosition().x + 2500, 580);
+                    score += 5;
+                    text.setString(to_string(score));
+                    enemy[i].health = 3 * 19;
+                }
             }
         }
 
@@ -1538,21 +1544,24 @@ void GamePlay2(RenderWindow& window) {
         sonic.update(time, 1.0f / 40.f, ground1);
 
         //enemy animation
-        enemy.sprite.move(-enemy.speed, 0);
-        enemy.sprite.setTextureRect(IntRect(int(enemy.animation) * 52, 0, 52, 40));
-        enemy.animation += 0.1;
-        if (enemy.animation > 4)
-            enemy.animation = 0;
-
+        for (int i = 0; i < 5; i++) {
+            
+        enemy[i].sprite.move(-enemy[i].speed, 0);
+        enemy[i].sprite.setTextureRect(IntRect(int(enemy[i].animation) * 52, 0, 52, 40));
+        enemy[i].animation += 0.1;
+        if (enemy[i].animation > 4)
+            enemy[i].animation = 0;
+        }
         //enemy2 animation
         for (int i = 0; i < 2; i++) {
-            enemy2[i].sprite.setTextureRect(IntRect(int(enemy.animation) * 36, 0, 36, 48));
+            enemy2[i].sprite.setTextureRect(IntRect(int(enemy2[i].animation) * 36, 0, 36, 48));
             enemy2[i].animation += 0.1;
+            if (enemy[i].animation > 3)
+                enemy[i].animation = 0;
         }
         enemy2[0].sprite.move(-enemy2[0].speed, 0);
         enemy2[1].sprite.move(enemy2[1].speed, 0);
-        if (enemy.animation > 3)
-            enemy.animation = 0;
+        
 
         Time elapsedTime = gametime.getElapsedTime();
         int totalSeconds = static_cast<int>(elapsedTime.asSeconds());
@@ -1580,7 +1589,10 @@ void GamePlay2(RenderWindow& window) {
         sonic.update(time, 1.0f / 40.f, ground1);
         window.clear();
         window.setView(view);
-        window.draw(enemy.sprite);
+        for (int i = 0; i < 5; i++) 
+        {
+            window.draw(enemy[i].sprite);
+        }
         for (int i = 0; i < 18; i++)
         {
             window.draw(background2[i]);
@@ -2242,14 +2254,6 @@ void main()
     mainbg.loadFromFile("Textures/main1.jpg");
     Sprite bg;
     bg.setTexture(mainbg);
-
-
-    Texture mainbutton;
-    mainbutton.loadFromFile("Textures/mainmenubutton.png");
-    Sprite mainbutton1;
-    mainbutton1.setTexture(mainbutton);
-    mainbutton1.setPosition(500, 30);
-    mainbutton1.setScale(2, 2);
 
 
     Texture box;
