@@ -2290,7 +2290,7 @@ void main()
                     RenderWindow entername(VideoMode(1920, 1080), "Enter Name");
                     RenderWindow Options(VideoMode(1920, 1080), "Controls");
                     RenderWindow About(VideoMode(1920, 1080), "Leaderboard");
-
+                    
 
                     int x = mainmenu.pressed();
                     if (x == 0)
@@ -2301,6 +2301,7 @@ void main()
                         playername(entername, window, name);
                         selectlevel(window);
                         GamePlay(window, levelisfinished);
+                        selectlevel(window);
 
                     }
                     if (x == 1)
@@ -2483,10 +2484,11 @@ void main()
                         MainMenu.close();
                         break;
                     }
-                    if (levelisfinished) {
+                   /* if (levelisfinished) {
                         GamePlay2(window);
-                    }
+                    }*/
                     if (gameover) {
+                        window.close();
                         RenderWindow gameover(VideoMode(1920, 1080), "Game Over");
                         gameOver(gameover, score);
                     }
