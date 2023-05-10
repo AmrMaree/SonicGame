@@ -2076,7 +2076,6 @@ void selectlevel(RenderWindow& window)
     levelz2.setTexture(level2);
     levelz2.setPosition(700, 320);
 
-
     Texture level3;
     level3.loadFromFile("Textures/level3m.png");
     Sprite levelz3;
@@ -2159,8 +2158,11 @@ void selectlevel(RenderWindow& window)
             if (spriteBounds.contains(mousePosition.x, mousePosition.y))
             {
                 levelz1.setScale(1.2, 1.2);
-                if (Mouse::isButtonPressed(Mouse::Left))
+                if (Mouse::isButtonPressed(Mouse::Left)) {
                     GamePlay(window, levelisfinished);
+                    window.close();
+                    return;
+                }
             }
 
             Vector2i mousePosition1 = sf::Mouse::getPosition(window);
@@ -2169,8 +2171,11 @@ void selectlevel(RenderWindow& window)
             if (spriteBounds1.contains(mousePosition1.x, mousePosition1.y))
             {
                 levelz2.setScale(1.2, 1.2);
-                if (Mouse::isButtonPressed(Mouse::Left))
+                if (Mouse::isButtonPressed(Mouse::Left)) {
                     GamePlay2(window);
+                    window.close();
+                    return;
+                }
             }
 
             Vector2i mousePosition2 = Mouse::getPosition(window);
@@ -2178,8 +2183,11 @@ void selectlevel(RenderWindow& window)
             levelz3.setScale(1, 1);
             if (spriteBounds2.contains(mousePosition2.x, mousePosition2.y))
             {
-                 if(Mouse::isButtonPressed(Mouse::Left))
-                      GamePlay3(window);
+                if (Mouse::isButtonPressed(Mouse::Left)) {
+                    GamePlay3(window);
+                    window.close();
+                    return;
+                }
                 levelz3.setScale(1.2, 1.2);
             }
 
@@ -2299,8 +2307,6 @@ void main()
                         Options.close();
                         About.close();
                         playername(entername, window, name);
-                        selectlevel(window);
-                        GamePlay(window, levelisfinished);
                         selectlevel(window);
 
                     }
@@ -2488,7 +2494,6 @@ void main()
                         GamePlay2(window);
                     }*/
                     if (gameover) {
-                        window.close();
                         RenderWindow gameover(VideoMode(1920, 1080), "Game Over");
                         gameOver(gameover, score);
                     }
