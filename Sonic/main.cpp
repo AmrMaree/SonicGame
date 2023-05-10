@@ -2217,6 +2217,25 @@ void main()
     RenderWindow MainMenu(VideoMode(1920, 1080), "game");
     Menu mainmenu(MainMenu.getSize().x, MainMenu.getSize().y);
 
+    Texture duos;
+    duos.loadFromFile("Textures/duo.png");
+    Sprite duo;
+    duo.setTexture(duos);
+    duo.setPosition(850, 110);
+
+    Texture hedge;
+    hedge.loadFromFile("Textures/headgehog.png");
+    Sprite hog;
+    hog.setTexture(hedge);
+    hog.setPosition(1050, 590);
+    hog.setScale(0.55, 0.55);
+
+    Texture mainbutton;
+    mainbutton.loadFromFile("Textures/mainmenubutton.png");
+    Sprite mainbutton1;
+    mainbutton1.setTexture(mainbutton);
+    mainbutton1.setPosition(665, 70);
+    mainbutton1.setScale(2.4, 2.4);
 
 
     Texture mainbg;
@@ -2264,8 +2283,6 @@ void main()
 
     while (MainMenu.isOpen())
     {
-
-
         Event event;
         while (MainMenu.pollEvent(event))
         {
@@ -2293,7 +2310,7 @@ void main()
                 }
                 if (event.key.code == Keyboard::Return)
                 {
-                    RenderWindow window(sf::VideoMode(1920, 1080), "Sonic Game");
+                    RenderWindow window(sf::VideoMode(1920, 1080), "Sonic fucking Game");
                     window.setFramerateLimit(60);
                     RenderWindow entername(VideoMode(1920, 1080), "Enter Name");
                     RenderWindow Options(VideoMode(1920, 1080), "Controls");
@@ -2506,6 +2523,8 @@ void main()
         MainMenu.clear();
         MainMenu.draw(bg);
         MainMenu.draw(mainbutton1);
+        MainMenu.draw(duo);
+        MainMenu.draw(hog);
         MainMenu.draw(box1);
         MainMenu.draw(box3);
         MainMenu.draw(box5);
