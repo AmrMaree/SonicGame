@@ -21,7 +21,8 @@ using namespace sf;
 bool gameover = false;
 string name;
 int score = 0;
-bool levelisfinished = false;
+bool level1isfinished = false;
+bool level2isfinished = false;
 
 struct Bullet {
     float speed;
@@ -44,7 +45,7 @@ struct player
     const float gravity = 700.0f;
     float moveSpeed = 270.0f;
     float limitSpeed = 550;
-    const float jumpHeight = 450.0f;
+    const float jumpHeight = 350.0f;
     float groundHeight = 726.0f;
     int last_key_pressed;
     int damage;
@@ -117,7 +118,7 @@ struct player
             // sprite.setTextureRect(IntRect(0, 0, 50, 55));
         }
 
-        cout << velocity.x << "   " << velocity.y << endl;
+       // cout << velocity.x << "   " << velocity.y << endl;
         // Apply gravity to the character
         velocity.y += gravity * deltaTime;
 
@@ -225,6 +226,10 @@ struct Enemy {
     float x;
     float animation = 0;
     int health = 3 * 19;
+    float posX = 700.0f;
+    float moveSpeed = 4.0f;
+    float moveRange = 700.0f;
+    bool moveRight = true;
 };
 struct Help {
     Sprite dropShape; //drop
@@ -376,8 +381,10 @@ void coin(Sprite coins[]) {
     coins[2].setPosition(830, 570);
     coins[3].setPosition(1030, 570);
     coins[4].setPosition(1230, 570);
-    coins[5].setPosition(1430, 570);
-    coins[6].setPosition(1630, 570);
+    //floor 
+
+    coins[5].setPosition(560, 280);
+    coins[6].setPosition(570, 280);
     coins[7].setPosition(1830, 570);
     coins[8].setPosition(2030, 570);
     coins[9].setPosition(2230, 570);
@@ -396,55 +403,130 @@ void coin(Sprite coins[]) {
     coins[22].setPosition(4830, 570);
     coins[23].setPosition(5030, 570);
     coins[24].setPosition(5230, 570);
+    coins[25].setPosition(430, 570);
+    coins[26].setPosition(630, 570);
+    coins[27].setPosition(830, 570);
+    coins[28].setPosition(1030, 570);
+    coins[29].setPosition(1230, 570);
+    coins[30].setPosition(1430, 570);
+    coins[31].setPosition(1630, 570);
+    coins[32].setPosition(1830, 570);
+    coins[33].setPosition(2030, 570);
+    coins[34].setPosition(2230, 570);
+    coins[35].setPosition(2430, 570);
+    coins[36].setPosition(2630, 570);
+    coins[37].setPosition(2830, 570);
+    coins[38].setPosition(3030, 570);
+    coins[39].setPosition(3230, 570);
+    coins[40].setPosition(3430, 570);
+    coins[41].setPosition(3630, 570);
+    coins[42].setPosition(3830, 570);
+    coins[43].setPosition(4030, 570);
+    coins[44].setPosition(4230, 570);
+    coins[45].setPosition(4430, 570);
+    coins[46].setPosition(4630, 570);
+    coins[47].setPosition(4830, 570);
+    coins[48].setPosition(5030, 570);
+    coins[49].setPosition(5230, 570);
+    coins[50].setPosition(430, 570);
+    coins[51].setPosition(630, 570);
+    coins[52].setPosition(830, 570);
+    coins[53].setPosition(1030, 570);
+    coins[54].setPosition(1230, 570);
+    coins[55].setPosition(1430, 570);
+    coins[56].setPosition(1630, 570);
+    coins[57].setPosition(1830, 570);
+    coins[58].setPosition(2030, 570);
+    coins[59].setPosition(2230, 570);
+    coins[60].setPosition(2430, 570);
+    coins[61].setPosition(2630, 570);
+    coins[62].setPosition(2830, 570);
+    coins[63].setPosition(3030, 570);
+    coins[64].setPosition(3230, 570);
+    coins[65].setPosition(3430, 570);
+    coins[66].setPosition(3630, 570);
+    coins[67].setPosition(3830, 570);
+    coins[68].setPosition(4030, 570);
+    coins[69].setPosition(4230, 570);
+    coins[70].setPosition(4430, 570);
+    coins[71].setPosition(4630, 570);
+    coins[72].setPosition(4830, 570);
+    coins[73].setPosition(5030, 570);
+    coins[74].setPosition(5230, 570);
+    coins[75].setPosition(430, 570);
+    coins[76].setPosition(630, 570);
+    coins[77].setPosition(830, 570);
+    coins[78].setPosition(1030, 570);
+    coins[79].setPosition(1230, 570);
+    coins[80].setPosition(1430, 570);
+    coins[81].setPosition(1630, 570);
+    coins[82].setPosition(1830, 570);
+    coins[83].setPosition(2030, 570);
+    coins[84].setPosition(2230, 570);
+    coins[85].setPosition(2430, 570);
+    coins[86].setPosition(2630, 570);
+    coins[87].setPosition(2830, 570);
+    coins[88].setPosition(3030, 570);
+    coins[89].setPosition(3230, 570);
+    coins[90].setPosition(3430, 570);
+    coins[91].setPosition(3630, 570);
+    coins[92].setPosition(3830, 570);
+    coins[93].setPosition(4030, 570);
+    coins[94].setPosition(4230, 570);
+    coins[95].setPosition(4430, 570);
+    coins[96].setPosition(4630, 570);
+    coins[97].setPosition(4830, 570);
+    coins[98].setPosition(5030, 570);
+    coins[99].setPosition(5230, 570);
 }
 void block(Sprite ground1[])
 {
-    ground1[0].setPosition(560, 480);
+    ground1[0].setPosition(560, 300);
     ground1[0].setScale(1.2f, 1.5f);    //small
     ground1[1].setPosition(1100, 350);
     ground1[1].setScale(1.2f, 1.5f);    //small
-    ground1[2].setPosition(1700, 200);
+    ground1[2].setPosition(1700, 420);
     ground1[2].setScale(1.2f, 1.5f);    //small
     ground1[3].setPosition(2300, 300);
     ground1[3].setScale(1.5f, 1.5f);
-    ground1[4].setPosition(2900, 400);
+    ground1[4].setPosition(2900, 370);
     ground1[4].setScale(1.5f, 1.5f);
-    ground1[5].setPosition(3500, 350);
+    ground1[5].setPosition(3500, 300);
     ground1[5].setScale(1.2f, 1.5f);    //small
-    ground1[6].setPosition(4100, 250);
+    ground1[6].setPosition(4100, 400);
     ground1[6].setScale(1.5f, 1.5f);
-    ground1[7].setPosition(4700, 290);
+    ground1[7].setPosition(4700, 300);
     ground1[7].setScale(1.5f, 1.5f);
-    ground1[8].setPosition(5300, 380);
+    ground1[8].setPosition(5300, 350);
     ground1[8].setScale(1.5f, 1.5f);
-    ground1[9].setPosition(5900, 380);
+    ground1[9].setPosition(5900, 400);
     ground1[9].setScale(1.5f, 1.5f);
-    ground1[10].setPosition(6500, 200);
+    ground1[10].setPosition(6500, 300);
     ground1[10].setScale(1.5f, 1.5f);
-    ground1[11].setPosition(7100, 300);
+    ground1[11].setPosition(7100, 350);
     ground1[11].setScale(1.5f, 1.5f);
     ground1[12].setPosition(7700, 400);
     ground1[12].setScale(1.2f, 1.5f);     //small
-    ground1[13].setPosition(8300, 300);
+    ground1[13].setPosition(8300, 315);
     ground1[13].setScale(1.5f, 1.5f);
-    ground1[14].setPosition(8900, 400);
+    ground1[14].setPosition(8900, 350);
     ground1[14].setScale(1.5f, 1.5f);
-    ground1[15].setPosition(9500, 290);
+    ground1[15].setPosition(9500, 400);
     ground1[15].setScale(1.5f, 1.5f);
-    ground1[16].setPosition(10100, 400);
+    ground1[16].setPosition(10100, 350);
     ground1[16].setScale(1.2f, 1.5f);     //small
-    ground1[17].setPosition(10700, 300);
+    ground1[17].setPosition(10700, 380);
     ground1[17].setScale(1.5f, 1.5f);
-    ground1[18].setPosition(11300, 400);
+    ground1[18].setPosition(11300, 420);
     ground1[18].setScale(1.5f, 1.5f);
     ground1[19].setPosition(11900, 300);
     ground1[19].setScale(1.5f, 1.5f);
-    ground1[20].setPosition(12500, 200);
+    ground1[20].setPosition(12500, 400);
     ground1[20].setScale(1.2f, 1.5f);         //small
-    ground1[21].setPosition(13100, 300);
+    ground1[21].setPosition(13100, 350);
     ground1[21].setScale(1.5f, 1.5f);
-    ground1[22].setPosition(13700, 400);
-    ground1[22].setScale(1.2f, 1.5f);  //small
+    ground1[22].setPosition(13700, 300);
+    ground1[22].setScale(1.2f, 1.5f);   //small
 }
 void playername(RenderWindow& window, RenderWindow& gameplay, string& name)
 {
@@ -716,7 +798,7 @@ void pressEnter(RenderWindow& window)
     }
 
 }
-void GamePlay(RenderWindow& window, bool& levelisfinished) {
+void GamePlay(RenderWindow& window, bool& level1isfinished) {
     srand(static_cast<unsigned>(time(NULL)));
     Clock timerAdd, timerDelete, gametime;
 
@@ -732,6 +814,7 @@ void GamePlay(RenderWindow& window, bool& levelisfinished) {
     scoreimage[1].setTextureRect(IntRect(0, 56, 40, 20));
     scoreimage[2].setTextureRect(IntRect(88, 0, 10, 25));
 
+
     //declaring sonic
     Texture sonictexture;
     sonictexture.loadFromFile("Textures/approvedsonic.png");
@@ -740,9 +823,6 @@ void GamePlay(RenderWindow& window, bool& levelisfinished) {
     sonic.sprite.setScale(2.3, 2.3);
     sonic.sp(sonictexture);
 
-    //waiting sonic
-    Texture waitingsonictexture;
-    waitingsonictexture.loadFromFile("Textures/waitingsonic.png");
 
     //declaring enemy1
     Texture enemytexture;
@@ -769,11 +849,12 @@ void GamePlay(RenderWindow& window, bool& levelisfinished) {
     enemy2[0].sprite.setScale(-2.9, 2.9);
     enemy2[1].sprite.setScale(2.9, 2.9);
 
+    
     //setting ground plants
     Texture groundtextureP;
     groundtextureP.loadFromFile("Textures/maplevel1.png");
     Sprite ground2P[18];
-    for (int i = 0; i < 18; i++)
+    for (int i = 0; i < 9; i++)
     {
         ground2P[i].setTexture(groundtextureP);
         ground2P[i].setPosition(Vector2f((i * 1800), 385));
@@ -782,19 +863,24 @@ void GamePlay(RenderWindow& window, bool& levelisfinished) {
     }
 
 
-    ////setting spikes
-    //Texture spikes;
-    //spikes.loadFromFile("Textures/spikes2.png");
-    //Sprite spike[18];
+    //setting spikes
+    Texture spikes;
+    spikes.loadFromFile("Textures/spikes2.png");
+    Sprite spike[18];
+    for (int i = 0; i < 8; i++)
+    {
+        spike[i].setTexture(spikes);
+        spike[i].setPosition(Vector2f(((i * 1600)), 597));
+        spike[i].setScale(2.7, 2.7);
+        spike[i].setOrigin(-500, 0);
+    }
 
-    //for (int i = 0; i < 18; i++)
-    //{
-    //    spike[i].setTexture(spikes);
-    //    spike[i].setPosition(Vector2f(((i * 1600)), 597));
-    //    spike[i].setScale(2.7, 2.7);
-    //    spike[i].setOrigin(-500, 0);
-    //}
-
+    //ending sign
+    Texture endtexture;
+    endtexture.loadFromFile("Textures/ending.png");
+    Sprite end(endtexture);
+    end.setScale(2.8f, 2.8f);
+    end.setPosition(14700,560);
 
     //setting ground
     Texture groundtexture;
@@ -808,7 +894,7 @@ void GamePlay(RenderWindow& window, bool& levelisfinished) {
         ground[i].setOrigin(200, 0);
     }
 
-
+    
     //setting blocks
     Texture ground1texture;
     ground1texture.loadFromFile("Textures/block89.png");
@@ -822,7 +908,7 @@ void GamePlay(RenderWindow& window, bool& levelisfinished) {
 
     //Variables
     int coinCount = 0;
-    int coinAnimationIndicator = 0;
+    float coinAnimationIndicator = 0;
     bool isCoinVisible = true;
     bool landed = false;
     double velocityY = 0;
@@ -833,19 +919,18 @@ void GamePlay(RenderWindow& window, bool& levelisfinished) {
     //creating coins 
     Texture coinsTextures;
     coinsTextures.loadFromFile("Textures/coinsprite.png");
-    Sprite coins[25];
+    Sprite coins[100];
     coin(coins);
-    for (int i = 0; i < 25; i++) {
+    for (int i = 0; i < 100; i++) {
         coins[i].setTexture(coinsTextures);
         coins[i].setTextureRect(IntRect(0, 0, 64, 64));
-        coins[i].setScale(0.4f, 0.4f);
+        coins[i].setScale(0.8f, 0.8f);
     }
 
     //background 1
     Texture backgroundtexture;
     backgroundtexture.loadFromFile("Textures/lapper-bggreenhill1.jpg");
     Sprite background[18];
-
     for (int i = 0; i < 18; ++i)
     {
         background[i].setTexture(backgroundtexture);
@@ -875,7 +960,7 @@ void GamePlay(RenderWindow& window, bool& levelisfinished) {
     text.setScale(1.45f, 1.45f);
     text2.setScale(1.45f, 1.45f);
 
-    // Declare a Text object for the timer
+    //Declare a Text object for the timer
     Text timerText("", font, 50);
     timerText.setFillColor(Color::White);
     timerText.setOutlineColor(Color::Black);
@@ -953,7 +1038,7 @@ void GamePlay(RenderWindow& window, bool& levelisfinished) {
         // Move the player using A,D and space keys
         if (sonic.last_key_pressed == 1) {
             sonic.sprite.setTextureRect(IntRect(0, 0, 50, 55));
-
+            sonic.sprite.setScale(2.3, 2.3);
         }
         if (sonic.last_key_pressed == 2) {
             sonic.sprite.setTextureRect(IntRect(0, 0, 50, 55));
@@ -961,6 +1046,11 @@ void GamePlay(RenderWindow& window, bool& levelisfinished) {
         }
         if (Keyboard::isKeyPressed(Keyboard::A)) {
             sonic.sprite.setScale(-2.3, 2.3);
+            sonic.last_key_pressed = 2;
+        }
+        if (Keyboard::isKeyPressed(Keyboard::D)) {
+            sonic.sprite.setScale(2.3, 2.3);
+            sonic.last_key_pressed = 1;
         }
         if (Mouse::isButtonPressed(Mouse::Left) && sonic.index >= 0 && sonic.canShoot) {
             sonic.bullet[sonic.index].bulletSprite.setPosition(sonic.sprite.getPosition().x, sonic.sprite.getPosition().y);
@@ -968,6 +1058,7 @@ void GamePlay(RenderWindow& window, bool& levelisfinished) {
             sonic.bullet[sonic.index].moveTo = sonic.last_key_pressed;
             sonic.index--;
             sonic.canShoot = 0;
+
         }
         //setting position for score
         text.setPosition(sonic.sprite.getPosition().x - 100, 48);
@@ -979,7 +1070,7 @@ void GamePlay(RenderWindow& window, bool& levelisfinished) {
 
 
         //collision between sonic and spikes
-        /*for (int i = 0; i < 18; i++) {
+        for (int i = 0; i < 18; i++) {
             if (sonic.sprite.getGlobalBounds().intersects(spike[i].getGlobalBounds()))
             {
 
@@ -1001,7 +1092,7 @@ void GamePlay(RenderWindow& window, bool& levelisfinished) {
 
 
             }
-        }*/
+        }
 
         //collision between sonic and enemy
         if (sonic.sprite.getGlobalBounds().intersects(enemy.sprite.getGlobalBounds()))
@@ -1034,7 +1125,6 @@ void GamePlay(RenderWindow& window, bool& levelisfinished) {
             enemy2[1].sprite.setPosition(sonic.sprite.getPosition().x - 1000, 120); // Respawn the enemy2 on the right side of the window
         }
 
-
         //collision between bullets and enemy
         for (int j = 0; j < sonic.bullet.size(); j++)
         {
@@ -1059,15 +1149,15 @@ void GamePlay(RenderWindow& window, bool& levelisfinished) {
         }
 
         //animation of coins
-        for (int i = 0; i < 25; i++) {
-            coinAnimationIndicator += 0.08 * time;
+        for (int i = 0; i < 100; i++) {
+            coinAnimationIndicator += 0.018;
             if (coinAnimationIndicator > 9)
                 coinAnimationIndicator -= 9;
             coins[i].setTextureRect(IntRect(int(coinAnimationIndicator) * 64, 0, 64, 64));
         }
 
         //incrementing scoring
-        for (int i = 0; i < 25; i++) {
+        for (int i = 0; i < 100; i++) {
             if (sonic.sprite.getGlobalBounds().intersects(coins[i].getGlobalBounds())) {
                 coinSound.play(); // Play the sound effect
                 coins[i].setScale(0, 0);
@@ -1103,7 +1193,7 @@ void GamePlay(RenderWindow& window, bool& levelisfinished) {
         int seconds = totalSeconds % 60;
 
         // Format the time as a string
-        string timeString = to_string(minutes) + "'" + std::to_string(seconds).substr(0, 2);
+        string timeString = to_string(minutes) + "'" + to_string(seconds).substr(0, 2);
         timerText.setString(timeString); // Set the text string
 
         //Upating history after checking if sonic is dead or not
@@ -1121,8 +1211,11 @@ void GamePlay(RenderWindow& window, bool& levelisfinished) {
         }
 
         //checking if the level is finished
-        if (sonic.sprite.getPosition().x > 1000) {
-            levelisfinished = true;
+        if (sonic.sprite.getGlobalBounds().intersects(end.getGlobalBounds())) {
+            sonic.sprite.move(-30, 0);
+            sonic.velocity.x = 0;
+            level1isfinished = true;
+            break;
         }
 
         window.clear();
@@ -1131,19 +1224,19 @@ void GamePlay(RenderWindow& window, bool& levelisfinished) {
         {
             window.draw(background[i]);
         }
-        for (int i = 0; i < 18; i++)
+        for (int i = 0; i < 8; i++)
         {
             window.draw(ground2P[i]);
         }
 
-        for (int i = 0; i < 25; i++) {
+        for (int i = 0; i < 10; i++) {
             window.draw(coins[i]);
         }
 
-        /*for (int i = 0; i < 18; i++)
+        for (int i = 0; i < 8; i++)
         {
             window.draw(spike[i]);
-        }*/
+        }
         window.draw(enemy.sprite);
         for (int i = 0; i < 2; i++) {
             window.draw(enemy2[i].sprite);
@@ -1165,6 +1258,7 @@ void GamePlay(RenderWindow& window, bool& levelisfinished) {
         for (int i = 0; i < 23; i++) {
             window.draw(ground1[i]);
         }
+        window.draw(end);
         window.draw(text);
         window.draw(text2);
         window.draw(timerText);
@@ -1203,15 +1297,19 @@ void GamePlay2(RenderWindow& window) {
     Texture enemytexture;
     enemytexture.loadFromFile("Textures/beetle.png");
     Enemy enemy[5];
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 5; i++){
     enemy[i].sprite.setTexture(enemytexture);
     enemy[i].speed = 3;
-    enemy[i].sprite.setTextureRect(IntRect(0, 0, 51, 40));
+    enemy[i].sprite.setTextureRect(IntRect(0, 0, 45, 35));
     enemy[i].sprite.setScale(-3.3, 3.3);
+    enemy[i].sprite.setPosition((enemy[i].posX) + (i * 2000.0f), 608);
+    enemy[i].sprite.setOrigin(21, 0);
     }
-    enemy[0].sprite.setPosition(1700, 580);
+    enemy[1].posX = 2700;
+    enemy[2].posX = 4700;
+    enemy[3].posX = 6700;
+    enemy[4].posX = 8700;
 
-    
     //declaring enemy2
     Texture enemytexture2;
     enemytexture2.loadFromFile("Textures/batenemy.png");
@@ -1235,17 +1333,6 @@ void GamePlay2(RenderWindow& window) {
     backgroundimage.setPosition(-250, 510);
     backgroundimage.setScale(4, 4);
 
-    //setting ground plants
-    Texture groundtextureP;
-    groundtextureP.loadFromFile("Textures/maplevel1.png");
-    Sprite ground2P[18];
-    for (int i = 0; i < 18; i++)
-    {
-        ground2P[i].setTexture(groundtextureP);
-        ground2P[i].setPosition(Vector2f((i * 1800), 385));
-        ground2P[i].setScale(1.8, 1.5);
-        ground2P[i].setOrigin(200, 0);
-    }
 
     //setting spikes
     /*Texture spikes;
@@ -1285,7 +1372,7 @@ void GamePlay2(RenderWindow& window) {
 
     //Variables
     int coinCount = 0;
-    int coinAnimationIndicator = 0;
+    float coinAnimationIndicator = 0;
     bool isCoinVisible = true;
     bool landed = false;
     double velocityY = 0;
@@ -1295,17 +1382,17 @@ void GamePlay2(RenderWindow& window) {
     //creating coins 
     Texture coinsTextures;
     coinsTextures.loadFromFile("Textures/coinsprite.png");
-    Sprite coins[25];
+    Sprite coins[100];
     coin(coins);
-    for (int i = 0; i < 25; i++) {
+    for (int i = 0; i < 100; i++) {
         coins[i].setTexture(coinsTextures);
         coins[i].setTextureRect(IntRect(0, 0, 64, 64));
-        coins[i].setScale(0.4f, 0.4f);
+        coins[i].setScale(0.8f, 0.8f);
     }
 
     //Score
     Font font;
-    font.loadFromFile("Fonts/sonic-hud-font.ttf");
+    font.loadFromFile("Fonts/sonic-hud-font.ttf");      
     Text text;
     Text text2;
     text.setFont(font);
@@ -1403,6 +1490,7 @@ void GamePlay2(RenderWindow& window) {
         // Move the player using A,D and space keys
         if (sonic.last_key_pressed == 1) {
             sonic.sprite.setTextureRect(IntRect(0, 0, 50, 55));
+            sonic.sprite.setScale(2.3, 2.3);
         }
         if (sonic.last_key_pressed == 2) {
             sonic.sprite.setTextureRect(IntRect(0, 0, 50, 55));
@@ -1411,6 +1499,10 @@ void GamePlay2(RenderWindow& window) {
         if (Keyboard::isKeyPressed(Keyboard::A)) {
             sonic.last_key_pressed = 2;
             sonic.sprite.setScale(-2.3, 2.3);
+        }
+        if (Keyboard::isKeyPressed(Keyboard::D)) {
+            sonic.last_key_pressed = 1;
+            sonic.sprite.setScale(2.3, 2.3);
         }
         if (Mouse::isButtonPressed(Mouse::Left) && sonic.index >= 0 && sonic.canShoot) {
             sonic.bullet[sonic.index].bulletSprite.setPosition(sonic.sprite.getPosition().x, sonic.sprite.getPosition().y);
@@ -1450,8 +1542,6 @@ void GamePlay2(RenderWindow& window) {
         for (int i = 0; i < 5; i++) {
             if (sonic.sprite.getGlobalBounds().intersects(enemy[i].sprite.getGlobalBounds()))
             {
-
-
                 if (candamage && cooldowndamage.getElapsedTime().asSeconds() >= cooldownTime)
                 {
                     sonic.damage++;
@@ -1466,12 +1556,8 @@ void GamePlay2(RenderWindow& window) {
                 {
                     candamage = true;
                 }
-                enemy[i].sprite.setPosition(sonic.sprite.getPosition().x + 2500, 580); // Respawn the enemy on the right side of the window
             }
-            if (enemy[i].sprite.getPosition().x < (sonic.sprite.getPosition().x - 1000))
-            {
-                enemy[i].sprite.setPosition(sonic.sprite.getPosition().x + 2500, 580); // Respawn the enemy on the right side of the window
-            }
+
         }
 
 
@@ -1495,9 +1581,8 @@ void GamePlay2(RenderWindow& window) {
             enemy2[1].sprite.setPosition(sonic.sprite.getPosition().x - 1000, 120); // Respawn the enemy2 on the right side of the window
         }
 
-
         //collision between bullets and enemy
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 5; i++){
             for (int j = 0; j < sonic.bullet.size(); j++)
             {
                 if (sonic.bullet[j].bulletSprite.getGlobalBounds().intersects(enemy[i].sprite.getGlobalBounds())) {
@@ -1505,13 +1590,15 @@ void GamePlay2(RenderWindow& window) {
                     sonic.bullet[j].bulletSprite.setScale(0, 0);
                 }
                 if (enemy[i].health == 0) {
-                    enemy[i].sprite.setPosition(sonic.sprite.getPosition().x + 2500, 580);
+                    enemy[i].sprite.setPosition(-10000,0);
                     score += 5;
                     text.setString(to_string(score));
                     enemy[i].health = 3 * 19;
                 }
             }
         }
+
+       
 
         //sonic limits
         if (sonic.sprite.getPosition().x < 0) {
@@ -1522,15 +1609,15 @@ void GamePlay2(RenderWindow& window) {
         }
 
         //animation of coins
-        for (int i = 0; i < 25; i++) {
-            coinAnimationIndicator += 0.08 * time;
+        for (int i = 0; i < 100; i++) {
+            coinAnimationIndicator += 0.018;
             if (coinAnimationIndicator > 9)
                 coinAnimationIndicator -= 9;
             coins[i].setTextureRect(IntRect(int(coinAnimationIndicator) * 64, 0, 64, 64));
         }
 
         //incrementing scoring
-        for (int i = 0; i < 25; i++){
+        for (int i = 0; i < 100; i++){
             if (sonic.sprite.getGlobalBounds().intersects(coins[i].getGlobalBounds())) {
                 coinSound.play(); // Play the sound effect
                 coins[i].setScale(0, 0);
@@ -1545,19 +1632,38 @@ void GamePlay2(RenderWindow& window) {
 
         //enemy animation
         for (int i = 0; i < 5; i++) {
-            
-        enemy[i].sprite.move(-enemy[i].speed, 0);
-        enemy[i].sprite.setTextureRect(IntRect(int(enemy[i].animation) * 52, 0, 52, 40));
+        enemy[i].sprite.setTextureRect(IntRect(int(enemy[i].animation) * 45, 0, 45, 35));
         enemy[i].animation += 0.1;
-        if (enemy[i].animation > 4)
+        if (enemy[i].animation > 1)
             enemy[i].animation = 0;
         }
+
+        for (int i = 0; i < 5; i++) {
+            // Update the enemy's position based on movement direction
+            if (enemy[i].moveRight) {
+                enemy[i].sprite.move(enemy[i].moveSpeed, 0.0f);     
+                enemy[i].sprite.setScale(-3.3, 3.3);
+            }
+            else {
+                enemy[i].sprite.move(-enemy[i].moveSpeed, 0.0f);
+                enemy[i].sprite.setScale(3.3, 3.3);
+            }
+
+            // Check if the enemy exceeds the movement range
+            if (enemy[i].sprite.getPosition().x >= enemy[i].posX + enemy[i].moveRange) {
+                enemy[i].moveRight = false;
+            }
+            else if (enemy[i].sprite.getPosition().x <= enemy[i].posX) {
+                enemy[i].moveRight = true;
+            }
+        }
+
         //enemy2 animation
         for (int i = 0; i < 2; i++) {
             enemy2[i].sprite.setTextureRect(IntRect(int(enemy2[i].animation) * 36, 0, 36, 48));
             enemy2[i].animation += 0.1;
-            if (enemy[i].animation > 3)
-                enemy[i].animation = 0;
+            if (enemy2[i].animation > 3)
+                enemy2[i].animation = 0;
         }
         enemy2[0].sprite.move(-enemy2[0].speed, 0);
         enemy2[1].sprite.move(enemy2[1].speed, 0);
@@ -1589,10 +1695,6 @@ void GamePlay2(RenderWindow& window) {
         sonic.update(time, 1.0f / 40.f, ground1);
         window.clear();
         window.setView(view);
-        for (int i = 0; i < 5; i++) 
-        {
-            window.draw(enemy[i].sprite);
-        }
         for (int i = 0; i < 18; i++)
         {
             window.draw(background2[i]);
@@ -1614,7 +1716,7 @@ void GamePlay2(RenderWindow& window) {
         for (int i = 0; i < 23; i++) {
             window.draw(ground1[i]);
         }
-        for (int i = 0; i < 25; i++) {
+        for (int i = 0; i < 100; i++) {
             window.draw(coins[i]);
         }
        /* for (int i = 0; i < 18; i++)
@@ -1623,6 +1725,10 @@ void GamePlay2(RenderWindow& window) {
         }*/
         for (int i = 0; i < 2; i++) {
             window.draw(enemy2[i].sprite);
+        }
+        for (int i = 0; i < 5; i++)
+        {
+            window.draw(enemy[i].sprite);
         }
         window.draw(text);
         window.draw(text2);
@@ -1740,9 +1846,9 @@ void GamePlay3(RenderWindow& window) {
     //creating coins 
     Texture coinsTextures;
     coinsTextures.loadFromFile("Textures/coinsprite.png");
-    Sprite coins[25];
+    Sprite coins[100];
     coin(coins);
-    for (int i = 0; i < 25; i++) {
+    for (int i = 0; i < 100; i++) {
         coins[i].setTexture(coinsTextures);
         coins[i].setTextureRect(IntRect(0, 0, 64, 64));
         coins[i].setScale(0.8f, 0.8f);
@@ -1955,7 +2061,7 @@ void GamePlay3(RenderWindow& window) {
         }
 
         //animation of coins
-        for (int i = 0; i < 25; i++) {
+        for (int i = 0; i < 100; i++) {
             coinAnimationIndicator += 0.018 ;
             if (coinAnimationIndicator > 9)
                 coinAnimationIndicator -= 9;
@@ -1963,7 +2069,7 @@ void GamePlay3(RenderWindow& window) {
         }
 
         //incrementing scoring
-        for (int i = 0; i < 25; i++) {
+        for (int i = 0; i < 100; i++) {
             if (sonic.sprite.getGlobalBounds().intersects(coins[i].getGlobalBounds())) {
                 coinSound.play(); // Play the sound effect
                 coins[i].setScale(0, 0);
@@ -1976,12 +2082,14 @@ void GamePlay3(RenderWindow& window) {
         view.setCenter(Vector2f(sonic.sprite.getPosition().x + 648, 540));
         sonic.update(time, 1.0f / 40.f, ground1);
 
+
         //enemy animation
         enemy.sprite.move(-enemy.speed, 0);
         enemy.sprite.setTextureRect(IntRect(int(enemy.animation) * 52, 0, 52, 40));
         enemy.animation += 0.1;
         if (enemy.animation > 4)
             enemy.animation = 0;
+
 
         //enemy2 animation
         for (int i = 0; i < 2; i++) {
@@ -2018,7 +2126,7 @@ void GamePlay3(RenderWindow& window) {
 
         //checking if the level is finished
         if (sonic.sprite.getPosition().x > 9000) {
-            levelisfinished = true;
+            level1isfinished = true;
         }
 
         window.clear();
@@ -2031,7 +2139,7 @@ void GamePlay3(RenderWindow& window) {
         {
             window.draw(ground[i]);
         }
-        for (int i = 0; i < 25; i++) {
+        for (int i = 0; i < 100; i++) {
             window.draw(coins[i]);
         }
 
@@ -2171,7 +2279,10 @@ void selectlevel(RenderWindow& window)
             {
                 levelz1.setScale(1.2, 1.2);
                 if (Mouse::isButtonPressed(Mouse::Left)) {
-                    GamePlay(window, levelisfinished);
+                    GamePlay(window, level1isfinished);
+                    if (level1isfinished) {
+                        GamePlay2(window);
+                    }
                     window.close();
                     return;
                 }
@@ -2185,6 +2296,9 @@ void selectlevel(RenderWindow& window)
                 levelz2.setScale(1.2, 1.2);
                 if (Mouse::isButtonPressed(Mouse::Left)) {
                     GamePlay2(window);
+                    if (level2isfinished) {
+                        GamePlay3(window);
+                    }
                     window.close();
                     return;
                 }
@@ -2511,9 +2625,7 @@ void main()
                         MainMenu.close();
                         break;
                     }
-                   /* if (levelisfinished) {
-                        GamePlay2(window);
-                    }*/
+                   
                     if (gameover) {
                         RenderWindow gameover(VideoMode(1920, 1080), "Game Over");
                         gameOver(gameover, score);
