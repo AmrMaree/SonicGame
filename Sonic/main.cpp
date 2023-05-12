@@ -1966,12 +1966,12 @@ void GamePlay3(RenderWindow& window) {
     Texture greenfires;
     greenfires.loadFromFile("Textures/greenfire.png");
     Sprite green[18];
-    for (int i = 0; i < 18; i++)
+    for (int i = 0; i < 8; i++)
     {
         green[i].setTexture(greenfires);
         green[i].setPosition(Vector2f(((i * 1600)), 638));
         green[i].setScale(2.7, 3.5);
-        green[i].setOrigin(-700, 0);
+        green[i].setOrigin(-630, 0);
     }
 
     //Variables
@@ -2165,7 +2165,7 @@ void GamePlay3(RenderWindow& window) {
 
 
         //collision between sonic and spikes
-        for (int i = 0; i < 18; i++) {
+        for (int i = 0; i < 8; i++) {
             if (sonic.sprite.getGlobalBounds().intersects(green[i].getGlobalBounds()))
             {
 
@@ -2229,7 +2229,7 @@ void GamePlay3(RenderWindow& window) {
                 sonic.bullet[j].bulletSprite.setScale(0, 0);
             }
             if (enemy.health == 0) {
-                enemy.sprite.setPosition(sonic.sprite.getPosition().x + 2500, 580);
+                enemy.sprite.setPosition(sonic.sprite.getPosition().x + 2500, 598);
                 score += 5;
                 text.setString(to_string(score));
                 enemy.health = 3 * 19;
@@ -2352,7 +2352,7 @@ void GamePlay3(RenderWindow& window) {
         /*for (int i = 0; i < 23; i++) {
             window.draw(ground1top[i]);
         }*/
-        for (int i = 0; i < 18; i++)
+        for (int i = 0; i < 8; i++)
         {
             window.draw(green[i]);
         }
