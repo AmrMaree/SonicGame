@@ -1355,13 +1355,14 @@ void GamePlay2(RenderWindow& window) {
     sonic.sprite.setTextureRect(IntRect(0, 0, 50, 55));
     sonic.sprite.setScale(2.3, 2.3);
     sonic.sp(sonictexture);
+    
 
     //ending sign
     Texture endtexture;
     endtexture.loadFromFile("Textures/ending.png");
     Sprite end(endtexture);
     end.setScale(2.8f, 2.8f);
-    end.setPosition(14200, 578);
+    end.setPosition(14293, 578);
 
 
     //declaring enemy1
@@ -1424,7 +1425,7 @@ void GamePlay2(RenderWindow& window) {
         fire[i].setTexture(fires);
         fire[i].setPosition(Vector2f(((i * 1600)), 637));
         fire[i].setScale(2.7, 2.7);
-        fire[i].setOrigin(-350, 0);
+        fire[i].setOrigin(-500, 0);
     }
 
 
@@ -1724,8 +1725,8 @@ void GamePlay2(RenderWindow& window) {
         if (sonic.sprite.getPosition().y < 0) {
             sonic.sprite.setPosition(sonic.sprite.getPosition().x, 0);
         }
-        if (sonic.sprite.getPosition().x > 14200) {
-            sonic.sprite.setPosition(14200, sonic.sprite.getPosition().y);
+        if (sonic.sprite.getPosition().x > 14293) {
+            sonic.sprite.setPosition(14293, sonic.sprite.getPosition().y);
         }
 
         //animation of coins
@@ -1813,6 +1814,7 @@ void GamePlay2(RenderWindow& window) {
         }
         sonic.groundHeight = 744;
         sonic.update(time, 1.0f / 40.f, ground1);
+        sonic.moveSpeed = 1;
 
         //checking if the level is finished
         if (sonic.sprite.getGlobalBounds().intersects(end.getGlobalBounds())) {
@@ -2165,7 +2167,7 @@ void GamePlay3(RenderWindow& window) {
 
 
         //collision between sonic and spikes
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 8 ; i++) {
             if (sonic.sprite.getGlobalBounds().intersects(green[i].getGlobalBounds()))
             {
 
