@@ -186,14 +186,14 @@ struct player
             if (acceleration.x != 0)
                 sprite.setTextureRect(IntRect((int(runcurrentframe) * 54), 0, 54, 39));
         }
-        /*else if (onground && !Keyboard::isKeyPressed(Keyboard::A) && !Keyboard::isKeyPressed(Keyboard::D) && !Keyboard::isKeyPressed(Keyboard::Space)) {
+        else if (onground && !Keyboard::isKeyPressed(Keyboard::A) && !Keyboard::isKeyPressed(Keyboard::D) && !Keyboard::isKeyPressed(Keyboard::Space)) {
             waitingframe += 0.0015f * time;
-            if (waitingframe > 5)
+            if (waitingframe >= 4)
                 waitingframe = 0;
             fullsonictexture.loadFromFile("Textures/waitingsonic.png");
             sprite.setTexture(fullsonictexture);
             sprite.setTextureRect(IntRect(int(waitingframe) * 45, 0, 45, 43));
-        }*/
+        }
         else if (velocity.y < 0 || !onground) {
             fullsonictexture.loadFromFile("Textures/jumpingsonic.png");
             sprite.setTexture(fullsonictexture);
@@ -1360,6 +1360,7 @@ void GamePlay2(RenderWindow& window) {
     sonic.sprite.setScale(2.3, 2.3);
     sonic.sp(sonictexture);
     
+    
 
     //ending sign
     Texture endtexture;
@@ -1577,7 +1578,7 @@ void GamePlay2(RenderWindow& window) {
     {
         //setting time 
         Clock clock, cooldown;
-        window.setFramerateLimit(60);
+        window.setFramerateLimit(60);   
         float time = clock.getElapsedTime().asMicroseconds();
         clock.restart();
         time *= 27.5;
@@ -1817,7 +1818,6 @@ void GamePlay2(RenderWindow& window) {
             break;
         }
         sonic.groundHeight = 744;
-        sonic.update(time, 1.0f / 40.f, ground1);
         sonic.moveSpeed = 1;
 
         //checking if the level is finished

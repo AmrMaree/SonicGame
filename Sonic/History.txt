@@ -3,3 +3,10 @@ Name   Score   Time   Rings
 amr   0   0'20   9*
 amr   0   0'16   7*
 amr   0   0'17   15*
+amr   0   0'36   5*
+amr   5   0'23   11*
+amr   0   0'34   14*
+amr   5   0'40   17*
+amr   0   0'14   19*
+amr   5   1'13   29*
+arm   0   0'21   13*
