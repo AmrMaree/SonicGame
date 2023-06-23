@@ -1683,7 +1683,6 @@ void GamePlay2(RenderWindow& window) {
         scoreimage[1].setPosition(sonic.sprite.getPosition().x - 180 - 104, 880);
         scoreimage[2].setPosition(sonic.sprite.getPosition().x - 50 - 104, 867);
 
-
         //collision between sonic and fire
         for (int i = 0; i < 8; i++) {
             if (sonic.sprite.getGlobalBounds().intersects(sprites[i].getGlobalBounds()))
@@ -1868,7 +1867,6 @@ void GamePlay2(RenderWindow& window) {
         }
         window.clear();
         window.setView(view);
-
 
 
         for (int i = 0; i < 18; i++)
