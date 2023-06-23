@@ -14,6 +14,8 @@
 #include<ctime>
 #include<random>
 #include<iomanip>
+#include<Candle/Candle.hpp>
+#include "Candle/RadialLight.hpp"
 
 using namespace std;
 using namespace sf;
@@ -815,6 +817,7 @@ void GamePlay(RenderWindow& window, bool& level1isfinished) {
     srand(static_cast<unsigned>(time(NULL)));
     Clock timerAdd, timerDelete, gametime;
 
+    level1isfinished = false;
     //adding score,time,rings
     Texture scoreimagetexture;
     scoreimagetexture.loadFromFile("Textures/scoreimage.png");
@@ -1275,7 +1278,7 @@ void GamePlay(RenderWindow& window, bool& level1isfinished) {
 
         //checking if the level is finished
         if (sonic.sprite.getGlobalBounds().intersects(end.getGlobalBounds())) {
-            sonic.sprite.move(-30, 0);
+            sonic.sprite.move(30, 0);
             sonic.velocity.x = 0;
             level1isfinished = true;
             break;
@@ -1334,6 +1337,7 @@ void GamePlay(RenderWindow& window, bool& level1isfinished) {
 void GamePlay2(RenderWindow& window) {
     srand(static_cast<unsigned>(time(NULL)));
     Clock timerAdd, timerDelete, gametime;
+    level2isfinished = false;
 
     //adding score,time,rings
     Texture scoreimagetexture;
@@ -1994,7 +1998,6 @@ void GamePlay3(RenderWindow& window) {
         coins[i].setTexture(coinsTextures);
         coins[i].setTextureRect(IntRect(0, 0, 64, 64));
         coins[i].setScale(0.8f, 0.8f);
-
     }
 
     //background 3
@@ -2484,10 +2487,10 @@ void selectlevel(RenderWindow& window)
                     GamePlay(window, level1isfinished);
                     if (level1isfinished)
                         GamePlay2(window);
-                    level1isfinished = false;
+             
                     if (level2isfinished)
                         GamePlay3(window);
-                    level2isfinished = false;
+               
                     window.close();
                     return;
                 }
@@ -2499,11 +2502,11 @@ void selectlevel(RenderWindow& window)
             if (spriteBounds1.contains(mousePosition1.x, mousePosition1.y))
             {
                 levelz2.setScale(1.2, 1.2);
-                if (Mouse::isButtonPressed(Mouse::Left)) {
+                if (Mouse::isButtonPressed(Mouse::Left)&&level1isfinished) {
                     GamePlay2(window);
                     if (level2isfinished)
                         GamePlay3(window);
-                    level2isfinished = false;
+
                     window.close();
                     return;
                 }
@@ -2514,7 +2517,7 @@ void selectlevel(RenderWindow& window)
             levelz3.setScale(1, 1);
             if (spriteBounds2.contains(mousePosition2.x, mousePosition2.y))
             {
-                if (Mouse::isButtonPressed(Mouse::Left)) {
+                if (Mouse::isButtonPressed(Mouse::Left)&&level2isfinished) {
                     GamePlay3(window);
                     window.close();
                     return;
