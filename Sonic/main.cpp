@@ -186,14 +186,16 @@ struct player
             if (acceleration.x != 0)
                 sprite.setTextureRect(IntRect((int(runcurrentframe) * 54), 0, 54, 39));
         }
-        else if (onground && !Keyboard::isKeyPressed(Keyboard::A) && !Keyboard::isKeyPressed(Keyboard::D) && !Keyboard::isKeyPressed(Keyboard::Space)) {
-            waitingframe += 0.0015f * time;
-            if (waitingframe >= 4)
-                waitingframe = 0;
+        /*else if (velocity.y ==0 && !Keyboard::isKeyPressed(Keyboard::A) && !Keyboard::isKeyPressed(Keyboard::D) && !Keyboard::isKeyPressed(Keyboard::Space)) {
+            
+            if (waitingframe >= 5)
+                waitingframe -= 5;
             fullsonictexture.loadFromFile("Textures/waitingsonic.png");
             sprite.setTexture(fullsonictexture);
+            sprite.setTextureRect(IntRect(0, 0, 45, 43));
             sprite.setTextureRect(IntRect(int(waitingframe) * 45, 0, 45, 43));
-        }
+            waitingframe += 1;
+        }*/
         else if (velocity.y < 0 || !onground) {
             fullsonictexture.loadFromFile("Textures/jumpingsonic.png");
             sprite.setTexture(fullsonictexture);
@@ -1338,6 +1340,34 @@ void GamePlay2(RenderWindow& window) {
     srand(static_cast<unsigned>(time(NULL)));
     Clock timerAdd, timerDelete, gametime;
     level2isfinished = false;
+    std::vector<sf::Texture> frames;
+    frames.emplace_back();
+    frames.back().loadFromFile("Textures/fire1.png");
+    frames.emplace_back();
+    frames.back().loadFromFile("Textures/fire2.png");
+    frames.emplace_back();
+    frames.back().loadFromFile("Textures/fire3.png");
+
+    const int numSprites = 8; // Number of sprite instances to create
+    std::vector<sf::Sprite> sprites(numSprites);
+
+    // Set the textures and positions of the sprites using a loop
+    for (int i = 0; i < numSprites; i++)
+    {
+        sprites[i].setTexture(frames[0]);
+        sf::FloatRect frameBounds = sprites[i].getLocalBounds();
+        sprites[i].setOrigin(frameBounds.width / 2, frameBounds.height / 2);
+        sprites[i].setPosition((i + 1) * window.getSize().x + 30 / (numSprites + 1), 690);
+        sprites[i].setScale(3.5f, 7);
+    }
+
+    int currentFrame = 0;
+    sf::Clock frameClock;
+    sf::Clock timer; // Clock for measuring elapsed time
+    const float timeLimit = 2.0f; // Time limit in seconds
+    int loopCounter = 0;
+
+
 
     //adding score,time,rings
     Texture scoreimagetexture;
@@ -1359,8 +1389,7 @@ void GamePlay2(RenderWindow& window) {
     sonic.sprite.setTextureRect(IntRect(0, 0, 50, 55));
     sonic.sprite.setScale(2.3, 2.3);
     sonic.sp(sonictexture);
-    
-    
+
 
     //ending sign
     Texture endtexture;
@@ -1421,17 +1450,8 @@ void GamePlay2(RenderWindow& window) {
 
 
     //setting fire
-    Texture fires;
-    fires.loadFromFile("Textures/fire.png");
-    Sprite fire[18];
 
-    for (int i = 0; i < 8; i++)
-    {
-        fire[i].setTexture(fires);
-        fire[i].setPosition(Vector2f(((i * 1600)), 637));
-        fire[i].setScale(2.7, 2.7);
-        fire[i].setOrigin(-500, 0);
-    }
+
 
 
     //setting ground2
@@ -1578,7 +1598,7 @@ void GamePlay2(RenderWindow& window) {
     {
         //setting time 
         Clock clock, cooldown;
-        window.setFramerateLimit(60);   
+        window.setFramerateLimit(60);
         float time = clock.getElapsedTime().asMicroseconds();
         clock.restart();
         time *= 27.5;
@@ -1610,6 +1630,25 @@ void GamePlay2(RenderWindow& window) {
                 }
             }
         }
+
+        if (frameClock.getElapsedTime().asSeconds() > 0.1f)
+        {
+            currentFrame = (currentFrame + 1) % frames.size();
+            for (int i = 0; i < numSprites; i++)
+            {
+                sprites[i].setTexture(frames[currentFrame]);
+            }
+            frameClock.restart();
+
+            if (currentFrame == 0) {
+                loopCounter++;
+            }
+
+            if (loopCounter >= 8) {
+
+            }
+        }
+
 
         // Move the player using A,D and space keys
         if (sonic.last_key_pressed == 1) {
@@ -1647,7 +1686,7 @@ void GamePlay2(RenderWindow& window) {
 
         //collision between sonic and fire
         for (int i = 0; i < 8; i++) {
-            if (sonic.sprite.getGlobalBounds().intersects(fire[i].getGlobalBounds()))
+            if (sonic.sprite.getGlobalBounds().intersects(sprites[i].getGlobalBounds()))
             {
                 if (candamage && cooldowndamage.getElapsedTime().asSeconds() >= cooldownTime)
                 {
@@ -1829,6 +1868,9 @@ void GamePlay2(RenderWindow& window) {
         }
         window.clear();
         window.setView(view);
+
+
+
         for (int i = 0; i < 18; i++)
         {
             window.draw(background2[i]);
@@ -1856,9 +1898,10 @@ void GamePlay2(RenderWindow& window) {
         for (int i = 0; i < 70; i++) {
             window.draw(coins[i]);
         }
-        for (int i = 0; i < 8; i++)
+
+        for (int i = 0; i < numSprites; i++)
         {
-            window.draw(fire[i]);
+            window.draw(sprites[i]);
         }
 
         for (int i = 0; i < 2; i++) {
