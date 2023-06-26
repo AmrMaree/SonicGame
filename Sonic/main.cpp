@@ -197,14 +197,14 @@ struct player
             if (acceleration.x != 0)
                 sprite.setTextureRect(IntRect((int(runcurrentframe) * 54), 0, 54, 39));
         }
-        else if (onground && !Keyboard::isKeyPressed(Keyboard::A) && !Keyboard::isKeyPressed(Keyboard::D) && !Keyboard::isKeyPressed(Keyboard::Space)) {
+        /*else if (onground && !Keyboard::isKeyPressed(Keyboard::A) && !Keyboard::isKeyPressed(Keyboard::D) && !Keyboard::isKeyPressed(Keyboard::Space)) {
             waitingframe += 0.0015f * time;
             if (waitingframe > 5)
                 waitingframe = 0;
             fullsonictexture.loadFromFile("Textures/waitingsonic.png");
             sprite.setTexture(fullsonictexture);
             sprite.setTextureRect(IntRect(int(waitingframe) * 45, 0, 45, 43));
-        }
+        }*/
         else if (velocity.y < 0 || !onground) {
             fullsonictexture.loadFromFile("Textures/jumpingsonic.png");
             sprite.setTexture(fullsonictexture);
