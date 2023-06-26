@@ -30,10 +30,14 @@ using namespace sf;
 
 bool gameover = false;
 string name;
+string timeString;
 int score = 0;
-bool level1isfinished = false;
+int rings;
+bool level1isfinished = true;
 bool level2isfinished = false;
 int character = -1;
+bool stopFollowingSonic=false;
+
 struct Bullet {
     float speed;
     int moveTo;
@@ -66,18 +70,30 @@ struct player
     float addSpeed;
     vector<Bullet>bullet;
     bool canShoot;
+    int w, h;
+    float s1,s2;
+
     void sp(Texture& sonicTexture)
     {
         sprite.setTexture(sonicTexture);
         currentframe = 0;
         runcurrentframe = 0;
         last_key_pressed = 1;
-        damage = -50;
+        damage = -3;
         index = -1;
         droptype = -1;
         speed = 1;
         addSpeed = 0.0;
         sprite.setOrigin(15, 0);
+        if (character == 1) {
+            w = 50, h = 55;
+            s1 = 2.3,s2= 2.3;
+        }
+        else if (character == 2) {
+            w = 35.5, h = 41;
+            s1 = -2.65,s2 =2.65;
+            groundHeight = 700;
+        }
     }
     void update(float time, float deltaTime, Sprite block[])
     {
@@ -96,7 +112,7 @@ struct player
             }
             else
                 acceleration.x = -moveSpeed;
-            sprite.setScale(-2.3f, 2.3f); // Flip the sprite to face left
+            sprite.setScale(-s1, s2); // Flip the sprite to face left
         }
         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
             if (velocity.x < 0) {
@@ -106,7 +122,7 @@ struct player
             }
             else
                 acceleration.x = moveSpeed;
-            sprite.setScale(2.3f, 2.3f); // Flip the sprite to face right
+            sprite.setScale(s1, s2); // Flip the sprite to face right
         }
         else {
             acceleration.x = 0.0f;
@@ -121,11 +137,9 @@ struct player
                         velocity.x += 0.0001;
                     }
                 }
-                /*while (velocity.y < 0) {
-                    velocity.y += 20;
-                }*/
+                
             }
-            // sprite.setTextureRect(IntRect(0, 0, 50, 55));
+
         }
 
         // cout << velocity.x << "   " << velocity.y << endl;
@@ -233,14 +247,53 @@ struct player
     }
     void knucles_animation(float time)
     {
-
+        ////Animation of knucles
+        if (((velocity.x >= 500) || (velocity.x <= -500)) && onground == true) {
+            // Running animation
+            runcurrentframe += 0.015f * time;
+            sprite.setOrigin(20, 0);
+            if (runcurrentframe > 12) {
+                runcurrentframe -= 12;
+            }   
+            fullsonictexture.loadFromFile("Textures/fastrunningknuckles.png");
+            sprite.setTexture(fullsonictexture);
+            sprite.setTextureRect(IntRect(0, 0, 43.3, 44));
+            //sprite.setPosition(sprite.getPosition().x, sprite.getPosition().y - 10);
+            if (acceleration.x != 0)
+                sprite.setTextureRect(IntRect((int(runcurrentframe) * 43.3), 0, 43.3, 44));
+        }
+        else if (velocity.y < 0 || !onground) {
+            jumpframe += 0.015f * time;
+            fullsonictexture.loadFromFile("Textures/jumpingknuckles.png");
+            sprite.setTexture(fullsonictexture);
+            sprite.setOrigin(17, 0);
+            sprite.setTextureRect(IntRect(0, 0, 43.3, 44));
+            if (jumpframe > 4) {
+                jumpframe -= 4;
+            }
+            sprite.setTextureRect(IntRect(int(jumpframe) * 39, 0, 39, 51));
+        }
+        else
+        {
+            // Idle animation
+            currentframe += 0.00523f * time;
+            sprite.setOrigin(14, 0);
+            if (currentframe > 12) {
+                currentframe -= 12;
+            }
+            //sprite.setPosition(sprite.getPosition().x, sprite.getPosition().y -10);
+            fullsonictexture.loadFromFile("Textures/runningknuckles.png");
+            sprite.setTexture(fullsonictexture);
+            if (acceleration.x != 0)
+                sprite.setTextureRect(IntRect(int(currentframe) * 35.5, 0, 35.5, 41));
+        }
     }
     void tails_animation(float time)
     {
 
     }
 
-}sonic, knucles, tails;
+}sonic;
 struct Enemy {
     Sprite sprite;
     float speed;
@@ -687,7 +740,7 @@ void History(RenderWindow& window) {
                     }
                 }
             }
-            cout << lines.size() << endl;
+            //cout << lines.size() << endl;
         }
         window.clear();
         for (int i = 0; i < 5; i++)
@@ -704,7 +757,7 @@ void History(RenderWindow& window) {
 
 
 }
-void gameOver(RenderWindow& window, int score) {
+void gameOver(RenderWindow& window, int score, int rings, string timeString) {
 
 
     Texture HistoryTex;
@@ -720,10 +773,10 @@ void gameOver(RenderWindow& window, int score) {
     Button1.setPosition(175, 485);
     Button1.setScale(5, 5);
 
-    Font font22;
-    font22.loadFromFile("Fonts/NiseSegaSonic.TTF");
+    Font font1;
+    font1.loadFromFile("Fonts/NiseSegaSonic.TTF");
     Text GameoverF;
-    GameoverF.setFont(font22);
+    GameoverF.setFont(font1);
     GameoverF.setString("Main menu ");
     GameoverF.setPosition(250, 500);
     GameoverF.setScale(1.2, 1.2);
@@ -731,8 +784,7 @@ void gameOver(RenderWindow& window, int score) {
     GameoverF.setOutlineColor(Color::Black);
     GameoverF.setOutlineThickness(2);
 
-    Font font1;
-    font1.loadFromFile("Fonts/NiseSegaSonic.TTF");
+
     Text Gameover;
     Gameover.setFont(font1);
     Gameover.setString("Game Over ");
@@ -742,18 +794,38 @@ void gameOver(RenderWindow& window, int score) {
     Gameover.setOutlineColor(Color::Black);
     Gameover.setOutlineThickness(4);
 
-    Font font2;
-    font2.loadFromFile("Fonts/NiseSegaSonic.TTF");
+
     Text GameoverScore;
     string ScoreString = to_string(score);
-
-    GameoverScore.setFont(font2);
+    GameoverScore.setFont(font1);
     GameoverScore.setString("Score : " + ScoreString);
     GameoverScore.setPosition(200, 235);
     GameoverScore.setScale(1.7, 1.7);
     GameoverScore.setFillColor(Color::White);
     GameoverScore.setOutlineColor(Color::Black);
     GameoverScore.setOutlineThickness(4);
+
+
+    Text Gameovercoins;
+    string RingString = to_string(rings);
+    Gameovercoins.setFont(font1);
+    Gameovercoins.setString("Rings : " + RingString);
+    Gameovercoins.setPosition(200, 395);
+    Gameovercoins.setScale(1.7, 1.7);
+    Gameovercoins.setFillColor(Color::White);
+    Gameovercoins.setOutlineColor(Color::Black);
+    Gameovercoins.setOutlineThickness(4);
+
+
+    Text Gameovertime;
+    Gameovertime.setFont(font1);
+    Gameovertime.setString("Time : " + timeString);
+    Gameovertime.setPosition(200, 315);
+    Gameovertime.setScale(1.7, 1.7);
+    Gameovertime.setFillColor(Color::White);
+    Gameovertime.setOutlineColor(Color::Black);
+    Gameovertime.setOutlineThickness(4);
+
 
     while (window.isOpen()) {
         Event event;
@@ -774,6 +846,8 @@ void gameOver(RenderWindow& window, int score) {
         window.clear();
         window.draw(HistorySprit);
         window.draw(GameoverScore);
+        window.draw(Gameovercoins);
+        window.draw(Gameovertime);
         window.draw(Gameover);
         window.draw(Button1);
         window.draw(GameoverF);
@@ -832,11 +906,12 @@ void pressEnter(RenderWindow& window)
     }
 
 }
-void GamePlay(RenderWindow& window, bool& level1isfinished, player& sonic) {
+void GamePlay(RenderWindow& window, bool& level1isfinished) {
     srand(static_cast<unsigned>(time(NULL)));
     Clock timerAdd, timerDelete, gametime;
 
     level1isfinished = false;
+
     //adding score,time,rings
     Texture scoreimagetexture;
     scoreimagetexture.loadFromFile("Textures/scoreimage.png");
@@ -901,6 +976,16 @@ void GamePlay(RenderWindow& window, bool& level1isfinished, player& sonic) {
         spike[i].setOrigin(-500, 0);
     }
 
+    //declaring sonic
+   
+    Texture sonictexture;
+    sonictexture.loadFromFile("Textures/approvedsonic.png");
+    player sonic;
+    sonic.sprite.setTextureRect(IntRect(0, 0, 50, 55));
+    sonic.sprite.setScale(sonic.s1, sonic.s2);
+    sonic.sp(sonictexture);
+   
+
     //ending sign
     Texture endtexture;
     endtexture.loadFromFile("Textures/ending.png");
@@ -939,7 +1024,8 @@ void GamePlay(RenderWindow& window, bool& level1isfinished, player& sonic) {
     bool landed = false;
     double velocityY = 0;
     score = 0;
-    int rings = 0;
+    rings = 0;
+    bool stopFollowingSonic = false;
 
 
     //creating coins 
@@ -1105,19 +1191,19 @@ void GamePlay(RenderWindow& window, bool& level1isfinished, player& sonic) {
 
         // Move the player using A,D and space keys
         if (sonic.last_key_pressed == 1) {
-            sonic.sprite.setTextureRect(IntRect(0, 0, 50, 55));
-            sonic.sprite.setScale(2.3, 2.3);
+            sonic.sprite.setTextureRect(IntRect(0, 0, sonic.w, sonic.h));
+            sonic.sprite.setScale(sonic.s1, sonic.s2);
         }
         if (sonic.last_key_pressed == 2) {
-            sonic.sprite.setTextureRect(IntRect(0, 0, 50, 55));
-            sonic.sprite.setScale(-2.3, 2.3);
+            sonic.sprite.setTextureRect(IntRect(0, 0, sonic.w, sonic.h));
+            sonic.sprite.setScale(-sonic.s1, sonic.s2);
         }
         if (Keyboard::isKeyPressed(Keyboard::A)) {
-            sonic.sprite.setScale(-2.3, 2.3);
+            sonic.sprite.setScale(-sonic.s1, sonic.s2);
             sonic.last_key_pressed = 2;
         }
         if (Keyboard::isKeyPressed(Keyboard::D)) {
-            sonic.sprite.setScale(2.3, 2.3);
+            sonic.sprite.setScale(sonic.s1, sonic.s2);
             sonic.last_key_pressed = 1;
         }
         if (Mouse::isButtonPressed(Mouse::Left) && sonic.index >= 0 && sonic.canShoot) {
@@ -1130,12 +1216,14 @@ void GamePlay(RenderWindow& window, bool& level1isfinished, player& sonic) {
 
         }
         //setting position for score
-        text.setPosition(sonic.sprite.getPosition().x - 100, 48);
-        text2.setPosition(sonic.sprite.getPosition().x - 100, 155);
-        timerText.setPosition(sonic.sprite.getPosition().x - 100, 105);
-        scoreimage[0].setPosition(sonic.sprite.getPosition().x - 180 - 104, 25);
-        scoreimage[1].setPosition(sonic.sprite.getPosition().x - 180 - 104, 880);
-        scoreimage[2].setPosition(sonic.sprite.getPosition().x - 50 - 104, 867);
+        if (!stopFollowingSonic) {
+            text.setPosition(sonic.sprite.getPosition().x - 100, 48);
+            text2.setPosition(sonic.sprite.getPosition().x - 100, 155);
+            timerText.setPosition(sonic.sprite.getPosition().x - 100, 105);
+            scoreimage[0].setPosition(sonic.sprite.getPosition().x - 180 - 104, 25);
+            scoreimage[1].setPosition(sonic.sprite.getPosition().x - 180 - 104, 880);
+            scoreimage[2].setPosition(sonic.sprite.getPosition().x - 50 - 104, 867);
+        }
 
 
         //collision between sonic and spikes
@@ -1164,6 +1252,8 @@ void GamePlay(RenderWindow& window, bool& level1isfinished, player& sonic) {
         }
 
         //collision between sonic and enemy
+        if (!stopFollowingSonic)
+        {
         if (sonic.sprite.getGlobalBounds().intersects(enemy.sprite.getGlobalBounds()))
         {
             sonic.damage++;
@@ -1173,8 +1263,11 @@ void GamePlay(RenderWindow& window, bool& level1isfinished, player& sonic) {
         {
             enemy.sprite.setPosition(sonic.sprite.getPosition().x + 2500, 580); // Respawn the enemy on the right side of the window
         }
+        }
 
         //collision between sonic and enemy2
+        if (!stopFollowingSonic)
+        {
         if (sonic.sprite.getGlobalBounds().intersects(enemy2[0].sprite.getGlobalBounds()))
         {
             enemy2[0].sprite.setPosition(sonic.sprite.getPosition().x + 2500, 80); // Respawn the enemy2 on the right side of the window
@@ -1192,6 +1285,7 @@ void GamePlay(RenderWindow& window, bool& level1isfinished, player& sonic) {
         if (enemy2[1].sprite.getPosition().x > (sonic.sprite.getPosition().x + 1650))
         {
             enemy2[1].sprite.setPosition(sonic.sprite.getPosition().x - 1000, 120); // Respawn the enemy2 on the right side of the window
+        }
         }
 
         //collision between bullets and enemy
@@ -1216,13 +1310,8 @@ void GamePlay(RenderWindow& window, bool& level1isfinished, player& sonic) {
         if (sonic.sprite.getPosition().y < 0) {
             sonic.sprite.setPosition(sonic.sprite.getPosition().x, 0);
         }
-        /*  if (sonic.sprite.getPosition().x > 14000) {
-              soundtrackMusic.pause();
-              levelupSound.play();
-          }*/
-        if (sonic.sprite.getPosition().x > 14750) {
-            sonic.sprite.setPosition(14200, sonic.sprite.getPosition().y);
-        }
+
+        
 
         //animation of coins
         for (int i = 0; i < 70; i++) {
@@ -1243,7 +1332,6 @@ void GamePlay(RenderWindow& window, bool& level1isfinished, player& sonic) {
         }
 
         //Updating sonic
-        view.setCenter(Vector2f(sonic.sprite.getPosition().x + 648, 540));
         sonic.update(time, 1.0f / 40.f, ground1);
         if (character == 1)
         {
@@ -1281,7 +1369,7 @@ void GamePlay(RenderWindow& window, bool& level1isfinished, player& sonic) {
         int seconds = totalSeconds % 60;
 
         // Format the time as a string
-        string timeString = to_string(minutes) + "'" + to_string(seconds).substr(0, 2);
+        timeString = to_string(minutes) + "'" + to_string(seconds).substr(0, 2);
         timerText.setString(timeString); // Set the text string
 
         //Upating history after checking if sonic is dead or not
@@ -1299,13 +1387,30 @@ void GamePlay(RenderWindow& window, bool& level1isfinished, player& sonic) {
             break;
         }
 
-        //checking if the level is finished
-        if (sonic.sprite.getGlobalBounds().intersects(end.getGlobalBounds())) {
-            sonic.sprite.move(30, 0);
-            sonic.velocity.x = 0;
-            level1isfinished = true;
-            break;
+        if (!stopFollowingSonic) {
+            view.setCenter(Vector2f(sonic.sprite.getPosition().x + 648, 540));
         }
+
+
+        //checking if the level is finished
+        if (sonic.sprite.getPosition().x > 13700) 
+            stopFollowingSonic = true;
+
+            
+        if (sonic.sprite.getPosition().x < 13700 && stopFollowingSonic)
+                sonic.sprite.setPosition(13700, sonic.sprite.getPosition().y);
+        
+       if(sonic.sprite.getPosition().x > 14750) 
+            sonic.sprite.move(10, 0);
+
+        if (sonic.sprite.getPosition().x > 15400) {
+            level1isfinished = true;
+            soundtrackMusic.pause();
+            levelupSound.play();
+        }
+        if (level1isfinished)
+            return;
+
 
         window.clear();
         window.setView(view);
@@ -1357,10 +1462,11 @@ void GamePlay(RenderWindow& window, bool& level1isfinished, player& sonic) {
         window.display();
     }
 }
-void GamePlay2(RenderWindow& window) {
+void GamePlay2(RenderWindow& window,bool& level2isfinished) {
     srand(static_cast<unsigned>(time(NULL)));
     Clock timerAdd, timerDelete, gametime;
     level2isfinished = false;
+    stopFollowingSonic = false;
     vector<Texture> frames;
     frames.emplace_back();
     frames.back().loadFromFile("Textures/fire1.png");
@@ -1409,8 +1515,9 @@ void GamePlay2(RenderWindow& window) {
     sonictexture.loadFromFile("Textures/approvedsonic.png");
     player sonic;
     sonic.sprite.setTextureRect(IntRect(0, 0, 50, 55));
-    sonic.sprite.setScale(2.3, 2.3);
+    sonic.sprite.setScale(sonic.s1, sonic.s2);
     sonic.sp(sonictexture);
+   
 
 
     //ending sign
@@ -1418,7 +1525,7 @@ void GamePlay2(RenderWindow& window) {
     endtexture.loadFromFile("Textures/ending.png");
     Sprite end(endtexture);
     end.setScale(2.8f, 2.8f);
-    end.setPosition(14293, 578);
+    end.setPosition(14750, 578);
 
 
     //declaring enemy1
@@ -1499,7 +1606,7 @@ void GamePlay2(RenderWindow& window) {
     bool landed = false;
     double velocityY = 0;
     score = 0;
-    int rings = 0;
+    rings = 0;
 
     //creating coins 
     Texture coinsTextures;
@@ -1668,20 +1775,20 @@ void GamePlay2(RenderWindow& window) {
 
         // Move the player using A,D and space keys
         if (sonic.last_key_pressed == 1) {
-            sonic.sprite.setTextureRect(IntRect(0, 0, 50, 55));
-            sonic.sprite.setScale(2.3, 2.3);
+            sonic.sprite.setTextureRect(IntRect(0, 0, sonic.w, sonic.h));
+            sonic.sprite.setScale(sonic.s1, sonic.s2);
         }
         if (sonic.last_key_pressed == 2) {
-            sonic.sprite.setTextureRect(IntRect(0, 0, 50, 55));
-            sonic.sprite.setScale(-2.3, 2.3);
+            sonic.sprite.setTextureRect(IntRect(0, 0, sonic.w, sonic.h));
+            sonic.sprite.setScale(-sonic.s1, sonic.s2);
         }
         if (Keyboard::isKeyPressed(Keyboard::A)) {
+            sonic.sprite.setScale(-sonic.s1, sonic.s2);
             sonic.last_key_pressed = 2;
-            sonic.sprite.setScale(-2.3, 2.3);
         }
         if (Keyboard::isKeyPressed(Keyboard::D)) {
+            sonic.sprite.setScale(sonic.s1, sonic.s2);
             sonic.last_key_pressed = 1;
-            sonic.sprite.setScale(2.3, 2.3);
         }
         if (Mouse::isButtonPressed(Mouse::Left) && sonic.index >= 0 && sonic.canShoot) {
             bulletSound.play();
@@ -1692,16 +1799,18 @@ void GamePlay2(RenderWindow& window) {
             sonic.canShoot = 0;
         }
         //setting position for score
-        text.setPosition(sonic.sprite.getPosition().x - 100, 48);
-        text2.setPosition(sonic.sprite.getPosition().x - 100, 155);
-        timerText.setPosition(sonic.sprite.getPosition().x - 100, 105);
-        scoreimage[0].setPosition(sonic.sprite.getPosition().x - 180 - 104, 25);
-        scoreimage[1].setPosition(sonic.sprite.getPosition().x - 180 - 104, 880);
-        scoreimage[2].setPosition(sonic.sprite.getPosition().x - 50 - 104, 867);
-
+        if (!stopFollowingSonic)
+        {
+            text.setPosition(sonic.sprite.getPosition().x - 100, 48);
+            text2.setPosition(sonic.sprite.getPosition().x - 100, 155);
+            timerText.setPosition(sonic.sprite.getPosition().x - 100, 105);
+            scoreimage[0].setPosition(sonic.sprite.getPosition().x - 180 - 104, 25);
+            scoreimage[1].setPosition(sonic.sprite.getPosition().x - 180 - 104, 880);
+            scoreimage[2].setPosition(sonic.sprite.getPosition().x - 50 - 104, 867);
+        }
 
         //collision between sonic and fire
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 7; i++) {
             if (sonic.sprite.getGlobalBounds().intersects(sprites[i].getGlobalBounds()))
             {
                 if (candamage && cooldowndamage.getElapsedTime().asSeconds() >= cooldownTime)
@@ -1742,25 +1851,27 @@ void GamePlay2(RenderWindow& window) {
 
 
         //collision between sonic and enemy2
-        if (sonic.sprite.getGlobalBounds().intersects(enemy2[0].sprite.getGlobalBounds()))
+        if (!stopFollowingSonic)
         {
-            enemy2[0].sprite.setPosition(sonic.sprite.getPosition().x + 2500, 80); // Respawn the enemy2 on the right side of the window
-            sonic.damage++;
+            if (sonic.sprite.getGlobalBounds().intersects(enemy2[0].sprite.getGlobalBounds()))
+            {
+                enemy2[0].sprite.setPosition(sonic.sprite.getPosition().x + 2500, 80); // Respawn the enemy2 on the right side of the window
+                sonic.damage++;
+            }
+            if (enemy2[0].sprite.getPosition().x < (sonic.sprite.getPosition().x - 1000))
+            {
+                enemy2[0].sprite.setPosition(sonic.sprite.getPosition().x + 2500, 80); // Respawn the enemy2 on the right side of the window
+            }
+            if (sonic.sprite.getGlobalBounds().intersects(enemy2[1].sprite.getGlobalBounds()))
+            {
+                enemy2[1].sprite.setPosition(sonic.sprite.getPosition().x + 2500, 120); // Respawn the enemy2 on the right side of the window
+                sonic.damage++;
+            }
+            if (enemy2[1].sprite.getPosition().x > (sonic.sprite.getPosition().x + 1650))
+            {
+                enemy2[1].sprite.setPosition(sonic.sprite.getPosition().x - 1000, 120); // Respawn the enemy2 on the right side of the window
+            }
         }
-        if (enemy2[0].sprite.getPosition().x < (sonic.sprite.getPosition().x - 1000))
-        {
-            enemy2[0].sprite.setPosition(sonic.sprite.getPosition().x + 2500, 80); // Respawn the enemy2 on the right side of the window
-        }
-        if (sonic.sprite.getGlobalBounds().intersects(enemy2[1].sprite.getGlobalBounds()))
-        {
-            enemy2[1].sprite.setPosition(sonic.sprite.getPosition().x + 2500, 120); // Respawn the enemy2 on the right side of the window
-            sonic.damage++;
-        }
-        if (enemy2[1].sprite.getPosition().x > (sonic.sprite.getPosition().x + 1650))
-        {
-            enemy2[1].sprite.setPosition(sonic.sprite.getPosition().x - 1000, 120); // Respawn the enemy2 on the right side of the window
-        }
-
         //collision between bullets and enemy
         for (int i = 0; i < 7; i++) {
             for (int j = 0; j < sonic.bullet.size(); j++)
@@ -1785,9 +1896,7 @@ void GamePlay2(RenderWindow& window) {
         if (sonic.sprite.getPosition().y < 0) {
             sonic.sprite.setPosition(sonic.sprite.getPosition().x, 0);
         }
-        if (sonic.sprite.getPosition().x > 14293) {
-            sonic.sprite.setPosition(14293, sonic.sprite.getPosition().y);
-        }
+        
 
         //animation of coins
         for (int i = 0; i < 70; i++) {
@@ -1808,7 +1917,6 @@ void GamePlay2(RenderWindow& window) {
         }
 
         //Updating sonic
-        view.setCenter(Vector2f(sonic.sprite.getPosition().x + 648, 540));
         sonic.update(time, 1.0f / 40.f, ground1);
         if (character == 1)
         {
@@ -1868,7 +1976,7 @@ void GamePlay2(RenderWindow& window) {
         int seconds = totalSeconds % 60;
 
         // Format the time as a string
-        string timeString = to_string(minutes) + "'" + std::to_string(seconds).substr(0, 2);
+        timeString = to_string(minutes) + "'" + std::to_string(seconds).substr(0, 2);
         timerText.setString(timeString); // Set the text string
 
         //Upating history after checking if sonic is dead or not
@@ -1887,13 +1995,29 @@ void GamePlay2(RenderWindow& window) {
         sonic.groundHeight = 744;
         sonic.moveSpeed = 1;
 
-        //checking if the level is finished
-        if (sonic.sprite.getGlobalBounds().intersects(end.getGlobalBounds())) {
-            sonic.sprite.move(-30, 0);
-            sonic.velocity.x = 0;
-            level2isfinished = true;
-            break;
+        if (!stopFollowingSonic) {
+            view.setCenter(Vector2f(sonic.sprite.getPosition().x + 648, 540));
         }
+
+
+        //checking if the level is finished
+        if (sonic.sprite.getPosition().x > 13700)
+            stopFollowingSonic = true;
+
+
+        if (sonic.sprite.getPosition().x < 13700 && stopFollowingSonic)
+            sonic.sprite.setPosition(13700, sonic.sprite.getPosition().y);
+
+        if (sonic.sprite.getPosition().x > 14750)
+            sonic.sprite.move(10, 0);
+
+        if (sonic.sprite.getPosition().x > 15400) {
+            level2isfinished = true;
+            soundtrackMusic.pause();
+            levelupSound.play();
+        }
+        if (level2isfinished)
+            return;
         window.clear();
         window.setView(view);
 
@@ -1927,7 +2051,7 @@ void GamePlay2(RenderWindow& window) {
             window.draw(coins[i]);
         }
 
-        for (int i = 0; i < numSprites; i++)
+        for (int i = 0; i < numSprites-1; i++)
         {
             window.draw(sprites[i]);
         }
@@ -1953,6 +2077,8 @@ void GamePlay3(RenderWindow& window) {
     srand(static_cast<unsigned>(time(NULL)));
     Clock timerAdd, timerDelete, gametime;
 
+    stopFollowingSonic = false;
+
     //adding score,time,rings
     Texture scoreimagetexture;
     scoreimagetexture.loadFromFile("Textures/scoreimage.png");
@@ -1966,13 +2092,15 @@ void GamePlay3(RenderWindow& window) {
     scoreimage[2].setTextureRect(IntRect(88, 0, 10, 25));
 
     //declaring sonic
-    Texture sonictexture;
-    sonictexture.loadFromFile("Textures/approvedsonic.png");
-    player sonic;
-    sonic.sprite.setTextureRect(IntRect(0, 0, 50, 55));
-    sonic.sprite.setScale(2.3, 2.3);
-    sonic.sp(sonictexture);
-    sonic.groundHeight = 742;
+    
+        Texture sonictexture;
+        sonictexture.loadFromFile("Textures/approvedsonic.png");
+        player sonic;
+        sonic.sprite.setTextureRect(IntRect(0, 0, 50, 55));
+        sonic.sprite.setScale(sonic.s1, sonic.s2);
+        sonic.sp(sonictexture);
+        sonic.groundHeight = 742;
+   
 
     //ending sign
     Texture endtexture;
@@ -2058,7 +2186,7 @@ void GamePlay3(RenderWindow& window) {
     bool landed = false;
     double velocityY = 0;
     score = 0;
-    int rings = 0;
+    rings = 0;
 
     //creating coins 
     Texture coinsTextures;
@@ -2208,19 +2336,19 @@ void GamePlay3(RenderWindow& window) {
 
         // Move the player using A,D and space keys
         if (sonic.last_key_pressed == 1) {
-            sonic.sprite.setTextureRect(IntRect(0, 0, 50, 55));
-            sonic.sprite.setScale(2.3, 2.3);
+            sonic.sprite.setTextureRect(IntRect(0, 0, sonic.w, sonic.h));
+            sonic.sprite.setScale(sonic.s1, sonic.s2);
         }
         if (sonic.last_key_pressed == 2) {
-            sonic.sprite.setTextureRect(IntRect(0, 0, 50, 55));
-            sonic.sprite.setScale(-2.3, 2.3);
+            sonic.sprite.setTextureRect(IntRect(0, 0, sonic.w, sonic.h));
+            sonic.sprite.setScale(-sonic.s1, sonic.s2);
         }
         if (Keyboard::isKeyPressed(Keyboard::A)) {
-            sonic.sprite.setScale(-2.3, 2.3);
+            sonic.sprite.setScale(-sonic.s1, sonic.s2);
             sonic.last_key_pressed = 2;
         }
         if (Keyboard::isKeyPressed(Keyboard::D)) {
-            sonic.sprite.setScale(2.3, 2.3);
+            sonic.sprite.setScale(sonic.s1, sonic.s2);
             sonic.last_key_pressed = 1;
         }
         if (Mouse::isButtonPressed(Mouse::Left) && sonic.index >= 0 && sonic.canShoot) {
@@ -2232,12 +2360,15 @@ void GamePlay3(RenderWindow& window) {
             sonic.canShoot = 0;
         }
         //setting position for score
-        text.setPosition(sonic.sprite.getPosition().x - 100, 48);
-        text2.setPosition(sonic.sprite.getPosition().x - 100, 155);
-        timerText.setPosition(sonic.sprite.getPosition().x - 100, 105);
-        scoreimage[0].setPosition(sonic.sprite.getPosition().x - 180 - 104, 25);
-        scoreimage[1].setPosition(sonic.sprite.getPosition().x - 180 - 104, 880);
-        scoreimage[2].setPosition(sonic.sprite.getPosition().x - 50 - 104, 867);
+        if (!stopFollowingSonic)
+        {
+            text.setPosition(sonic.sprite.getPosition().x - 100, 48);
+            text2.setPosition(sonic.sprite.getPosition().x - 100, 155);
+            timerText.setPosition(sonic.sprite.getPosition().x - 100, 105);
+            scoreimage[0].setPosition(sonic.sprite.getPosition().x - 180 - 104, 25);
+            scoreimage[1].setPosition(sonic.sprite.getPosition().x - 180 - 104, 880);
+            scoreimage[2].setPosition(sonic.sprite.getPosition().x - 50 - 104, 867);
+        }
 
 
         //collision between sonic and spikes
@@ -2272,34 +2403,40 @@ void GamePlay3(RenderWindow& window) {
         }
 
         //collision between sonic and enemy
-        if (sonic.sprite.getGlobalBounds().intersects(enemy.sprite.getGlobalBounds()))
+        if (!stopFollowingSonic)
         {
-            sonic.damage++;
-            enemy.sprite.setPosition(sonic.sprite.getPosition().x + 2500, 598); // Respawn the enemy on the right side of the window
-        }
-        if (enemy.sprite.getPosition().x < (sonic.sprite.getPosition().x - 1000))
-        {
-            enemy.sprite.setPosition(sonic.sprite.getPosition().x + 2500, 598); // Respawn the enemy on the right side of the window
+            if (sonic.sprite.getGlobalBounds().intersects(enemy.sprite.getGlobalBounds()))
+            {
+                sonic.damage++;
+                enemy.sprite.setPosition(sonic.sprite.getPosition().x + 2500, 598); // Respawn the enemy on the right side of the window
+            }
+            if (enemy.sprite.getPosition().x < (sonic.sprite.getPosition().x - 1000))
+            {
+                enemy.sprite.setPosition(sonic.sprite.getPosition().x + 2500, 598); // Respawn the enemy on the right side of the window
+            }
         }
 
         //collision between sonic and enemy2
-        if (sonic.sprite.getGlobalBounds().intersects(enemy2[0].sprite.getGlobalBounds()))
+        if (!stopFollowingSonic)
         {
-            enemy2[0].sprite.setPosition(sonic.sprite.getPosition().x + 2500, 80); // Respawn the enemy2 on the right side of the window
-            sonic.damage++;
-        }
-        if (enemy2[0].sprite.getPosition().x < (sonic.sprite.getPosition().x - 1000))
-        {
-            enemy2[0].sprite.setPosition(sonic.sprite.getPosition().x + 2500, 80); // Respawn the enemy2 on the right side of the window
-        }
-        if (sonic.sprite.getGlobalBounds().intersects(enemy2[1].sprite.getGlobalBounds()))
-        {
-            enemy2[1].sprite.setPosition(sonic.sprite.getPosition().x + 2500, 120); // Respawn the enemy2 on the right side of the window
-            sonic.damage++;
-        }
-        if (enemy2[1].sprite.getPosition().x > (sonic.sprite.getPosition().x + 1650))
-        {
-            enemy2[1].sprite.setPosition(sonic.sprite.getPosition().x - 1000, 120); // Respawn the enemy2 on the right side of the window
+            if (sonic.sprite.getGlobalBounds().intersects(enemy2[0].sprite.getGlobalBounds()))
+            {
+                enemy2[0].sprite.setPosition(sonic.sprite.getPosition().x + 2500, 80); // Respawn the enemy2 on the right side of the window
+                sonic.damage++;
+            }
+            if (enemy2[0].sprite.getPosition().x < (sonic.sprite.getPosition().x - 1000))
+            {
+                enemy2[0].sprite.setPosition(sonic.sprite.getPosition().x + 2500, 80); // Respawn the enemy2 on the right side of the window
+            }
+            if (sonic.sprite.getGlobalBounds().intersects(enemy2[1].sprite.getGlobalBounds()))
+            {
+                enemy2[1].sprite.setPosition(sonic.sprite.getPosition().x + 2500, 120); // Respawn the enemy2 on the right side of the window
+                sonic.damage++;
+            }
+            if (enemy2[1].sprite.getPosition().x > (sonic.sprite.getPosition().x + 1650))
+            {
+                enemy2[1].sprite.setPosition(sonic.sprite.getPosition().x - 1000, 120); // Respawn the enemy2 on the right side of the window
+            }
         }
 
 
@@ -2325,9 +2462,7 @@ void GamePlay3(RenderWindow& window) {
         if (sonic.sprite.getPosition().y < 0) {
             sonic.sprite.setPosition(sonic.sprite.getPosition().x, 0);
         }
-        if (sonic.sprite.getPosition().x > 14800) {
-            sonic.sprite.setPosition(14800, sonic.sprite.getPosition().y);
-        }
+        
 
         //animation of coins
         for (int i = 0; i < 70; i++) {
@@ -2348,7 +2483,6 @@ void GamePlay3(RenderWindow& window) {
         }
 
         //Updating sonic
-        view.setCenter(Vector2f(sonic.sprite.getPosition().x + 648, 540));
         sonic.update(time, 1.0f / 40.f, ground1);
         if (character == 1)
         {
@@ -2388,7 +2522,7 @@ void GamePlay3(RenderWindow& window) {
         int seconds = totalSeconds % 60;
 
         // Format the time as a string
-        string timeString = to_string(minutes) + "'" + std::to_string(seconds).substr(0, 2);
+        timeString = to_string(minutes) + "'" + std::to_string(seconds).substr(0, 2);
         timerText.setString(timeString); // Set the text string
 
         //Upating history after checking if sonic is dead or not
@@ -2405,13 +2539,28 @@ void GamePlay3(RenderWindow& window) {
             break;
         }
 
-        //checking if the level is finished
-        if (sonic.sprite.getGlobalBounds().intersects(end.getGlobalBounds())) {
-            sonic.sprite.move(-30, 0);
-            sonic.velocity.x = 0;
-            break;
+        if (!stopFollowingSonic) {
+            view.setCenter(Vector2f(sonic.sprite.getPosition().x + 648, 540));
         }
 
+
+        //checking if the level is finished
+        if (sonic.sprite.getPosition().x > 13700)
+            stopFollowingSonic = true;
+
+
+        if (sonic.sprite.getPosition().x < 13700 && stopFollowingSonic)
+            sonic.sprite.setPosition(13700, sonic.sprite.getPosition().y);
+
+        if (sonic.sprite.getPosition().x > 14750)
+            sonic.sprite.move(10, 0);
+
+        if (sonic.sprite.getPosition().x > 15400) {
+            soundtrackMusic.pause();
+            levelupSound.play();
+            return;
+        }
+        
         window.clear();
         window.setView(view);
         for (int i = 0; i < 18; ++i)
@@ -2706,21 +2855,6 @@ void chat(RenderWindow& window)
 }
 void selectlevel(RenderWindow& window)
 {
-    //declaring sonic
-    Texture sonictexture;
-    sonictexture.loadFromFile("Textures/approvedsonic.png");
-    player sonic;
-    sonic.sprite.setTextureRect(IntRect(0, 0, 50, 55));
-    sonic.sprite.setScale(2.3, 2.3);
-    sonic.sp(sonictexture);
-
-    Texture knuclesT;
-    knuclesT.loadFromFile("Textures/knucles.png");
-    player knucles;
-    knucles.sprite.setTexture(knuclesT);
-    knucles.sprite.setScale(0.37, 0.37);
-    knucles.sprite.setPosition(820, 340);
-
     Texture level;
     level.loadFromFile("Textures/main2.jpg");
     Sprite levelz;
@@ -2852,21 +2986,10 @@ void selectlevel(RenderWindow& window)
 
                 if (Mouse::isButtonPressed(Mouse::Left)) {
                     chat(window);
-                    switch (character) {
-                    case 1:
-                        GamePlay(window, level1isfinished, sonic);
-                        break;
-                    case 2:
-                        GamePlay(window, level1isfinished, knucles);
-                        break;
-                    case 3:
-                        GamePlay(window, level1isfinished, sonic);
-                        break;
-                    }
-
+                    GamePlay(window, level1isfinished);
                     if (level1isfinished)
                     {
-                        GamePlay2(window);
+                        GamePlay2(window,level2isfinished);
                     }
                     if (level2isfinished)
                     {
@@ -2887,7 +3010,7 @@ void selectlevel(RenderWindow& window)
                 locks.setScale(1.0, 0.45);
 
                 if (Mouse::isButtonPressed(Mouse::Left)) {
-                    GamePlay2(window);
+                    GamePlay2(window,level2isfinished);
                     if (level2isfinished)
                     {
                         GamePlay3(window);
@@ -3352,7 +3475,7 @@ void main()
                     }
                     if (gameover) {
                         RenderWindow gameover(VideoMode(1920, 1080), "Game Over");
-                        gameOver(gameover, score);
+                        gameOver(gameover, score,rings,timeString);
                     }
                     gameover = false;
                 }
