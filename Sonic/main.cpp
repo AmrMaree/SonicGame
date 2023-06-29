@@ -1,4 +1,3 @@
-
 #include <SFML/Graphics.hpp>
 #include "Menu.h"
 #include <SFML/System.hpp>
@@ -21,9 +20,6 @@
 #include"Candle/RadialLight.hpp"
 #include"Candle/Constants.hpp"
 #include"Candle/DirectedLight.hpp"
-
-
-
 
 using namespace std;
 using namespace sf;
@@ -94,6 +90,10 @@ struct player
         else if (character == 2) {
             w = 36, h = 41;
             s1 = -2.65,s2 =2.65;
+        }
+        else if (character == 3) {
+            w = 55, h = 42;
+            s1 = 2.3, s2 = 2.3;
         }
     }
     void update(float time, float deltaTime, Sprite block[])
@@ -216,7 +216,7 @@ struct player
             waitingframe += 0.0038f * time;
             fullsonictexture.loadFromFile("Textures/waitingsonic.png");
             sprite.setTexture(fullsonictexture);
-            sprite.setOrigin(16, 0);
+            sprite.setOrigin(22, 0);
             if (waitingframe > 5)
                 waitingframe -= 5;
             sprite.setTextureRect(IntRect(int(waitingframe) * 45, 0, 45, 43));
@@ -266,7 +266,7 @@ struct player
             jumpframe += 0.015f * time;
             fullsonictexture.loadFromFile("Textures/jumpingknuckles.png");
             sprite.setTexture(fullsonictexture);
-            sprite.setOrigin(17, 0);
+            sprite.setOrigin(19, 0);
             if (jumpframe > 4) {
                 jumpframe -= 4;
             }
@@ -286,7 +286,7 @@ struct player
         {
             // Idle animation
             currentframe += (0.00523f * time);
-            sprite.setOrigin(14, 0);
+            sprite.setOrigin(18, 0);
             if (currentframe > 6) {
                 currentframe -= 6;
             }
@@ -298,7 +298,52 @@ struct player
     }
     void tails_animation(float time)
     {
-
+        //Animation of tails
+        if (((velocity.x >= 500) || (velocity.x <= -500)) && onground == true) {
+            // Running animation
+            runcurrentframe += 0.015f * time;
+            sprite.setOrigin(29, 0);
+            if (runcurrentframe > 8) {
+                runcurrentframe -= 8;
+            }
+            fullsonictexture.loadFromFile("Textures/fastrunningtails1.png");
+            sprite.setTexture(fullsonictexture);
+            sprite.setTextureRect(IntRect(0, 0, 58, 48));
+            //sprite.setPosition(sprite.getPosition().x, sprite.getPosition().y + 10);
+            if (acceleration.x != 0)
+                sprite.setTextureRect(IntRect((int(runcurrentframe) * 58), 0, 58, 48));
+        }
+        else if (onground && !Keyboard::isKeyPressed(Keyboard::A) && !Keyboard::isKeyPressed(Keyboard::D) && !Keyboard::isKeyPressed(Keyboard::Space)) {
+            waitingframe += 0.0038f * time;
+            fullsonictexture.loadFromFile("Textures/waitingtails.png");
+            sprite.setTexture(fullsonictexture);
+            sprite.setOrigin(26, 0);
+            if (waitingframe > 8)
+                waitingframe -= 8;
+            sprite.setTextureRect(IntRect(int(waitingframe) * 53, 0, 53, 38));
+        }
+        else if (velocity.y < 0) {
+            jumpframe += 0.015f * time;
+            fullsonictexture.loadFromFile("Textures/jumpingtails.png");
+            sprite.setTexture(fullsonictexture);
+            sprite.setOrigin(20, 0);
+            if (jumpframe > 6)
+                jumpframe -= 6;
+            sprite.setTextureRect(IntRect(int(jumpframe) * 41, 0, 41, 60));
+        }
+        else
+        {
+            // Idle animation
+            currentframe += 0.00523f * time;
+            sprite.setOrigin(22, 0);
+            if (currentframe > 8) {
+                currentframe -= 8;
+            }
+            fullsonictexture.loadFromFile("Textures/runningtails.png");
+            sprite.setTexture(fullsonictexture);
+            if (acceleration.x != 0)
+                sprite.setTextureRect(IntRect(int(currentframe) * 55, 0, 55, 42));
+        }
     }
 
 }sonic;
@@ -1486,7 +1531,6 @@ void GamePlay2(RenderWindow& window,bool& level2isfinished) {
     std::vector<sf::Sprite> sprites(numSprites);
 
     // Setting fire 
-
     for (int i = 0; i < numSprites; i++)
     {
         sprites[i].setTexture(frames[0]);
@@ -2662,7 +2706,6 @@ void bossfight(RenderWindow& window)
     }
 
     //declaring sonic
-
     Texture sonictexture;
     sonictexture.loadFromFile("Textures/approvedsonic.png");
     player sonic;
@@ -2680,9 +2723,6 @@ void bossfight(RenderWindow& window)
     double velocityY = 0;
     score = 0;
     rings = 0;
-
-
-
 
 
     //Score
@@ -2706,6 +2746,7 @@ void bossfight(RenderWindow& window)
     text.setScale(1.45f, 1.45f);
     text2.setScale(1.45f, 1.45f);
 
+
     // Declare a Text object for the timer
     Text timerText("", font, 50);
     timerText.setFillColor(Color::White);
@@ -2714,7 +2755,6 @@ void bossfight(RenderWindow& window)
     timerText.setPosition(350, 250);
     timerText.setCharacterSize(32);
     timerText.setScale(1.45f, 1.45f);
-
 
 
     //powerups
@@ -2874,15 +2914,9 @@ void bossfight(RenderWindow& window)
             gameover = true;
             break;
         }
-
-
-
-
         window.clear();
-
         window.draw(bossbg1S);
         window.draw(bossbgS);
-
         for (int i = 0; i < sonic.bullet.size(); i++)
         {
             window.draw(sonic.bullet[i].bulletSprite);
@@ -3467,6 +3501,35 @@ void main()
     RenderWindow MainMenu(VideoMode(1920, 1080), "game");
     Menu mainmenu(MainMenu.getSize().x, MainMenu.getSize().y);
 
+    vector<Texture> frames;
+    Texture frame;
+
+
+    for (int i = 0; i < 3; i++) {
+        frame.loadFromFile("Textures/mainmenubg" + to_string(i + 1) + ".png");
+        //frames[i].pushback(frame);
+    }
+    
+
+    const int numSprites = 3; // Number of sprite instances to create
+    vector<Sprite> sprites(numSprites);
+    int currentframe = 0;
+    bool firstloop = true;
+    float animationduration = 0.2f;
+    Clock animationclock;
+    animationclock.restart();
+
+    if (animationclock.getElapsedTime().asSeconds() < animationduration) {
+        currentframe = (currentframe + 1) % frames.size();
+    }
+
+    if (currentframe == 0 && !firstloop)
+    {
+        currentframe = 3;
+    }
+    //sprite.setTexture(frames[currentframe]);
+
+
     Texture duos;
     duos.loadFromFile("Textures/duo.png");
     Sprite duo;
@@ -3532,6 +3595,9 @@ void main()
             {
                 MainMenu.close();
             }
+
+
+
             if (event.type == Event::KeyReleased)
             {
                 if (event.key.code == Keyboard::Up)
@@ -3771,7 +3837,7 @@ void main()
                     }
                     if (gameover) {
                         RenderWindow gameover(VideoMode(1920, 1080), "Game Over");
-                        gameOver(gameover, score,rings,timeString);
+                        gameOver(gameover, score, rings, timeString);
                     }
                     gameover = false;
                 }
