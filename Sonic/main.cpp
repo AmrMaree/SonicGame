@@ -3553,14 +3553,16 @@ void bossfight(RenderWindow& window)
         for (int j = 0; j < sonic.bullet.size(); j++)
         {
             if (sonic.bullet[j].bulletSprite.getGlobalBounds().intersects(eggman.sprite.getGlobalBounds())) {
-                eggman.health -= 10;
+                eggman.health -= 5;
                 sonic.bullet[j].bulletSprite.setScale(0, 0);
             }
-            if (eggman.health == 0) {
-                
+            if (eggman.health <= 0) {
+                //level is finished
                 text.setString(to_string(score));
             
             }
+            else
+                fill.setSize(sf::Vector2f(200.f * (eggman.health / eggman.maxhealth), 20.f));
         }
 
         //Updating sonic
@@ -3601,7 +3603,7 @@ void bossfight(RenderWindow& window)
             break;
         }
 
-        fill.setSize(sf::Vector2f(200.f * (eggman.health / eggman.maxhealth), 20.f));
+        
         window.clear();
         window.draw(bossbg1S);
         window.draw(bossbgS);
