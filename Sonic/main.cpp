@@ -38,6 +38,7 @@ bool pause = false;
 int character = -1;
 bool stopFollowingSonic = false;
 
+
 struct Bullet {
     float speed;
     int moveTo;
@@ -1126,6 +1127,7 @@ void GamePlay(RenderWindow& window, bool& level1isfinished) {
     Clock timerAdd, timerDelete, gametime;
     SoundManager soundManager;
     level1isfinished = false;
+    pause = false;
 
     Texture pauseT;
     pauseT.loadFromFile("Textures/arrow.png");
@@ -1219,7 +1221,6 @@ void GamePlay(RenderWindow& window, bool& level1isfinished) {
     }
 
     //declaring sonic
-
     Texture sonictexture;
     sonictexture.loadFromFile("Textures/approvedsonic.png");
     player sonic;
@@ -1435,6 +1436,7 @@ void GamePlay(RenderWindow& window, bool& level1isfinished) {
         dropCollision(sonic, liveSound, getthegunSound);
         checkDrop(sonic);
         resetSpeed(sonic);
+
         //bullet 
         bulletCooldown(sonic);
         moveBullets(sonic.bullet);
@@ -1467,28 +1469,24 @@ void GamePlay(RenderWindow& window, bool& level1isfinished) {
             }
         }
         //setting position for score
-        if (!stopFollowingSonic|| !pause) {
+        if (!stopFollowingSonic) {
             text.setPosition(sonic.sprite.getPosition().x - 100, 48);
             text2.setPosition(sonic.sprite.getPosition().x - 100, 155);
             timerText.setPosition(sonic.sprite.getPosition().x - 100, 105);
             scoreimage[0].setPosition(sonic.sprite.getPosition().x - 180 - 104, 25);
             scoreimage[1].setPosition(sonic.sprite.getPosition().x - 180 - 104, 880);
             scoreimage[2].setPosition(sonic.sprite.getPosition().x - 50 - 104, 867);
+            pauseS.setPosition(sonic.sprite.getPosition().x + 900, 10);
         }
-        if (!pause)
-        {
-            pauseS.setPosition(sonic.sprite.getPosition().x + 500,10);
-        }
-
-
+        
+           
         Vector2i mousePosition = Mouse::getPosition(window);
         FloatRect spriteBounds(sonic.sprite.getPosition().x + 700, pauseS.getPosition().y, pauseS.getGlobalBounds().width,pauseS.getGlobalBounds().height);
-        pauseS.setScale(1, 1);
+        pauseS.setScale(0.8, 0.8);
 
-        if (spriteBounds.contains(mousePosition.x, mousePosition.y))
+        if (spriteBounds.contains(mousePosition.x, mousePosition.y) && !pause)
         {
-            pauseS.setScale(1.7, 1.7);
-
+            pauseS.setScale(1, 1);
             if (Mouse::isButtonPressed(Mouse::Left))
             {
                 pause = true;
@@ -1521,7 +1519,6 @@ void GamePlay(RenderWindow& window, bool& level1isfinished) {
                 window.close();
             }
         }
-
 
         //collision between sonic and spikes
         for (int i = 0; i < 18; i++) {
@@ -1599,7 +1596,6 @@ void GamePlay(RenderWindow& window, bool& level1isfinished) {
         if (sonic.sprite.getPosition().y < 0) {
             sonic.sprite.setPosition(sonic.sprite.getPosition().x, 0);
         }
-
 
 
         //animation of coins
@@ -1759,6 +1755,7 @@ void GamePlay2(RenderWindow& window, bool& level2isfinished) {
     Clock timerAdd, timerDelete, gametime;
     level2isfinished = false;
     stopFollowingSonic = false;
+    pause = false;
 
     Texture pauseT;
     pauseT.loadFromFile("Textures/arrow.png");
@@ -2077,7 +2074,7 @@ void GamePlay2(RenderWindow& window, bool& level2isfinished) {
 
         if (spriteBounds.contains(mousePosition.x, mousePosition.y))
         {
-            pauseS.setScale(1, 1);
+            pauseS.setScale(1.2, 1.2);
 
             if (Mouse::isButtonPressed(Mouse::Left))
             {
@@ -2172,14 +2169,14 @@ void GamePlay2(RenderWindow& window, bool& level2isfinished) {
         }
         
         //setting position for score
-        if (!stopFollowingSonic || !pause) {
+        if (!stopFollowingSonic) {
             text.setPosition(sonic.sprite.getPosition().x - 100, 48);
             text2.setPosition(sonic.sprite.getPosition().x - 100, 155);
             timerText.setPosition(sonic.sprite.getPosition().x - 100, 105);
             scoreimage[0].setPosition(sonic.sprite.getPosition().x - 180 - 104, 25);
             scoreimage[1].setPosition(sonic.sprite.getPosition().x - 180 - 104, 880);
             scoreimage[2].setPosition(sonic.sprite.getPosition().x - 50 - 104, 867);
-            pauseS.setPosition(0, 10);
+            pauseS.setPosition(sonic.sprite.getPosition().x + 1000, 10);
         }
 
         //collision between sonic and fire
@@ -2226,7 +2223,7 @@ void GamePlay2(RenderWindow& window, bool& level2isfinished) {
         }
 
         //collision between sonic and enemy2
-        if (!stopFollowingSonic || !pause)
+        if (!stopFollowingSonic)
         {
             if (sonic.sprite.getGlobalBounds().intersects(enemy2[0].sprite.getGlobalBounds()))
             {
@@ -2317,8 +2314,8 @@ void GamePlay2(RenderWindow& window, bool& level2isfinished) {
                 if (enemy[i].animation > 1)
                     enemy[i].animation = 0;
             }
-        }
 
+        }
         for (int i = 0; i < 7; i++) {
             // Update the enemy's position based on movement direction
             if (enemy[i].moveRight) {
@@ -2339,8 +2336,9 @@ void GamePlay2(RenderWindow& window, bool& level2isfinished) {
             }
         }
 
+
         //enemy2 animation
-        if (pause) {
+        if (!pause) {
             for (int i = 0; i < 2; i++) {
                 enemy2[i].sprite.setTextureRect(IntRect(int(enemy2[i].animation) * 36, 0, 36, 48));
                 enemy2[i].animation += 0.1;
@@ -2395,7 +2393,7 @@ void GamePlay2(RenderWindow& window, bool& level2isfinished) {
             sonic.sprite.move(10, 0);
 
         if (sonic.sprite.getPosition().x > 15400) {
-            level1isfinished = true;
+            level2isfinished = true;
             soundtrackMusic.pause();
             soundManager.playSound(5);
         }
@@ -2465,8 +2463,9 @@ void GamePlay2(RenderWindow& window, bool& level2isfinished) {
 void GamePlay3(RenderWindow& window, bool& level3isfinished) {
     srand(static_cast<unsigned>(time(NULL)));
     Clock timerAdd, timerDelete, gametime;
-    //level3isfinished = false;
+    level3isfinished = false;
     stopFollowingSonic = false;
+    pause = false;
 
     vector<Texture> frames;
     frames.emplace_back();
@@ -2480,7 +2479,6 @@ void GamePlay3(RenderWindow& window, bool& level3isfinished) {
     std::vector<sf::Sprite> sprites(numSprites);
 
     // Setting fire 
-
     for (int i = 0; i < numSprites; i++)
     {
         sprites[i].setTexture(frames[0]);
@@ -2510,7 +2508,6 @@ void GamePlay3(RenderWindow& window, bool& level3isfinished) {
     scoreimage[2].setTextureRect(IntRect(88, 0, 10, 25));
 
     //declaring sonic
-
     Texture sonictexture;
     sonictexture.loadFromFile("Textures/approvedsonic.png");
     player sonic;
@@ -2586,16 +2583,6 @@ void GamePlay3(RenderWindow& window, bool& level3isfinished) {
     {
         ground1[i].setTexture(ground1texture);
     }
-    // Texture ground1toptexture;
-    // ground1toptexture.loadFromFile("Textures/blocattop.png");
-    // Sprite ground1top[23];
-    //// block(ground1top);
-    // for (int i = 0; i < 23; ++i)
-    // {
-    //     ground1top[i].setTexture(ground1toptexture);
-    // }
-
-   
 
     //Variables
     int coinCount = 0;
@@ -3006,7 +2993,7 @@ void GamePlay3(RenderWindow& window, bool& level3isfinished) {
             sonic.sprite.move(10, 0);
 
         if (sonic.sprite.getPosition().x > 15400) {
-            level1isfinished = true;
+            level3isfinished = true;
             soundtrackMusic.pause();
             soundManager.playSound(5);
         }
@@ -3066,11 +3053,10 @@ void GamePlay3(RenderWindow& window, bool& level3isfinished) {
 }
 void bossfight(RenderWindow& window)
 {
-    bossfightlevel = true;
-
     srand(static_cast<unsigned>(time(NULL)));
     Clock timerAdd, timerDelete, gametime;
 
+    bossfightlevel = true;
 
     //adding score,time,rings
     Texture scoreimagetexture;
@@ -3087,9 +3073,6 @@ void bossfight(RenderWindow& window)
     scoreimage[1].setPosition(15, 900);
     scoreimage[2].setTextureRect(IntRect(88, 0, 10, 25));
     scoreimage[2].setPosition(165, 885);
-
-
-
 
     Texture bossbg;
     bossbg.loadFromFile("Textures/Bbg.png");
@@ -3118,6 +3101,14 @@ void bossfight(RenderWindow& window)
     {
         ground1[i].setTexture(ground1texture);
     }
+    ground1[0].setPosition(220, 430);
+    ground1[0].setScale(1.5, 1);    //small
+    ground1[1].setPosition(830, 520);
+    ground1[1].setScale(1.5, 1);    //small
+    ground1[2].setPosition(1550, 430);
+    ground1[2].setScale(1.5, 1);    //small
+
+  
 
     //declaring sonic
     Texture sonictexture;
@@ -3126,7 +3117,6 @@ void bossfight(RenderWindow& window)
     sonic.sprite.setTextureRect(IntRect(0, 0, 50, 55));
     sonic.sprite.setScale(sonic.s1, sonic.s2);
     sonic.sp(sonictexture);
-    sonic.groundHeight = 742;
 
     //Variables
     int coinCount = 0;
@@ -3159,7 +3149,6 @@ void bossfight(RenderWindow& window)
     text.setScale(1.45f, 1.45f);
     text2.setScale(1.45f, 1.45f);
 
-
     // Declare a Text object for the timer
     Text timerText("", font, 50);
     timerText.setFillColor(Color::White);
@@ -3168,6 +3157,7 @@ void bossfight(RenderWindow& window)
     timerText.setPosition(171, 80);
     timerText.setCharacterSize(32);
     timerText.setScale(1.45f, 1.45f);
+
     //powerups
     Setdrops();
     SoundManager soundManager;
@@ -3215,7 +3205,6 @@ void bossfight(RenderWindow& window)
     soundtrackMusic.play();
 
 
-
     while (window.isOpen())
     {
         //setting time 
@@ -3253,16 +3242,7 @@ void bossfight(RenderWindow& window)
         }
         soundManager.setVolume(0);
 
-        if (bossfightlevel)
-        {
-            ground1[0].setPosition(220, 430);
-            ground1[0].setScale(1.5, 1);    //small
-            ground1[1].setPosition(830, 520);
-            ground1[1].setScale(1.5, 1);    //small
-            ground1[2].setPosition(1550, 430);
-            ground1[2].setScale(1.5, 1);    //small
-           
-        }
+        
         // Move the player using A,D and space keys
         if (sonic.last_key_pressed == 1) {
             sonic.sprite.setTextureRect(IntRect(0, 0, sonic.w, sonic.h));
@@ -3339,6 +3319,7 @@ void bossfight(RenderWindow& window)
             gameover = true;
             break;
         }
+
         window.clear();
         window.draw(bossbg1S);
         window.draw(bossbgS);
@@ -4474,25 +4455,11 @@ void selectlevel(RenderWindow& window)
                 levelz1.setScale(1.2, 1.2);
 
                 if (Mouse::isButtonPressed(Mouse::Left)) {
-                     chat(window);
-                    GamePlay(window, level1isfinished);
-                    if (level1isfinished)
-                    {
-                        chat2(window);
-                        GamePlay2(window, level2isfinished);
-                    }
-                    if (level2isfinished)
-                    {
-                        chat3(window);
-                        GamePlay3(window, level3isfinished);
-                    }
-                    if (level3isfinished)
-                    {
-                        //chatboss(window);
-                        //bossfight(window);
-                    }
-                    window.close();
-                    return;
+                    RenderWindow game(VideoMode(1920, 1080), "SonicGame");
+                    chat(game);
+                    GamePlay(game, level1isfinished);
+                    game.close();
+                    
                 }
             }
             Vector2i mousePosition1 = sf::Mouse::getPosition(window);
@@ -4505,19 +4472,10 @@ void selectlevel(RenderWindow& window)
                 locks.setScale(1.0, 0.45);
 
                 if (Mouse::isButtonPressed(Mouse::Left)) {
-                    chat2(window);
-                    GamePlay2(window, level2isfinished);
-                    if (level2isfinished)
-                    {
-                        chat3(window);
-                        GamePlay3(window, level3isfinished);
-                    }
-                    if (level3isfinished) {
-                       // chatboss(window);
-                        //bossfight(window);
-                    }
-                    window.close();
-                    return;
+                    RenderWindow game(VideoMode(1920, 1080), "SonicGame");
+                    chat2(game);
+                    GamePlay2(game, level2isfinished);
+                    game.close();
                 }
             }
 
@@ -4530,14 +4488,10 @@ void selectlevel(RenderWindow& window)
                 levelz3.setScale(1.2, 1.2);
                 locks1.setScale(1.0, 0.45);
                 if (Mouse::isButtonPressed(Mouse::Left) && level2isfinished) {
-                    chat3(window);
-                    GamePlay3(window, level3isfinished);
-                    if (level3isfinished) {
-                      //  chatboss(window);
-                      //  bossfight(window);
-                    }
-                    window.close();
-                    return;
+                    RenderWindow game(VideoMode(1920, 1080), "SonicGame");
+                    chat3(game);
+                    GamePlay3(game, level3isfinished);
+                    game.close();
                 }
             }
         }
@@ -5087,9 +5041,25 @@ void main()
                         playername(entername, window, name);
                         playerSelection(window, character);
                         selectlevel(window);
+                        
+                        /*if (level1isfinished)
+                        {
+                            
+                            chat2(bossfight1);
+                            GamePlay2(bossfight1, level2isfinished);
+                        }
+                        if (level2isfinished)
+                        {
+                            
+                            chat3(bossfight1);
+                            GamePlay3(bossfight1, level3isfinished);
+                        }
                         if (level3isfinished)
-                            chatboss(window);
-                            bossfight(window);
+                        {
+                            
+                            chatboss(bossfight1);
+                            bossfight(bossfight1);
+                        }*/
 
                     }
                     if (x == 1)
