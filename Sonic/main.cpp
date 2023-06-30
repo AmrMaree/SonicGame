@@ -359,10 +359,12 @@ struct boss
     float speed;
     bool moveRight = false;
     float currentframe;
+    int health = 100;
+    float maxhealth = 100;
     void sp(Texture& sonicTexture)
     {
         currentframe = 0;
-        bossTexture.loadFromFile("Textures/egmmansprite.png");
+        bossTexture.loadFromFile("Textures/boss1.png");
         sprite.setTexture(bossTexture);
     }
 };
@@ -482,9 +484,9 @@ void chooseDrop(Sprite ground1[], Clock& timerAdd, Clock& timerDelete) {
 
     if (bossfightlevel)
     {
-        if (timerAdd.getElapsedTime().asSeconds() >= 1.9) {
-            int indexDrop = rand() % 4;
-            int indexBlock = rand() % 4;
+        if (timerAdd.getElapsedTime().asSeconds() >= 4) {
+            int indexDrop = 0;
+            int indexBlock = rand() % 3;
             Help help;
             help.dropShape = Drops[indexDrop];
             help.targetShape = ground1[indexBlock];
@@ -3354,6 +3356,16 @@ void bossfight(RenderWindow& window)
     timerText.setCharacterSize(32);
     timerText.setScale(1.45f, 1.45f);
 
+    // Create the background rectangle for the health bar
+    RectangleShape background(Vector2f(200.f, 20.f));
+    background.setFillColor(Color::Red);
+    background.setPosition(500.f, 100.f);
+
+    // Create the fill rectangle for the health bar
+    sf::RectangleShape fill(Vector2f(200.f, 20.f));
+    fill.setFillColor(Color::Green);
+    fill.setPosition(500.f, 100.f);
+
     //powerups
     Setdrops();
     SoundManager soundManager;
@@ -3400,6 +3412,10 @@ void bossfight(RenderWindow& window)
         soundtrackMusic.setVolume(0);
     soundtrackMusic.play();
 
+    //colliosion cooldown
+    Clock cooldowndamage;
+    float cooldownTime = 5.5f;
+    bool candamage = true;
 
     while (window.isOpen())
     {
@@ -3481,16 +3497,14 @@ void bossfight(RenderWindow& window)
 
         //Boss animation
         eggman.currentframe += 0.006 * time;
-        eggman.sprite.setOrigin(78, 0);
-        if (eggman.currentframe > 12) 
+        eggman.sprite.setOrigin(75, 0);
+        if (eggman.currentframe > 14) 
         {
-            eggman.sprite.setTextureRect(IntRect((int(eggman.currentframe) * 157), 0, 157, 180));
+            eggman.currentframe -= 14;
         }
+        eggman.sprite.setTextureRect(IntRect((int(eggman.currentframe) * 149), 0, 149, 197));
        
            
-
-
-        
 
         //Boss movement
         if (eggman.sprite.getPosition().x > 1800)
@@ -3509,6 +3523,45 @@ void bossfight(RenderWindow& window)
             eggman.sprite.setScale(-3, 3);
         }
 
+        //collision between sonic and boss
+        if (sonic.sprite.getGlobalBounds().intersects(eggman.sprite.getGlobalBounds()))
+        {
+            if (candamage && cooldowndamage.getElapsedTime().asSeconds() >= cooldownTime)
+            {
+                sonic.damage++;
+                sonic.sprite.move(-450, -150);
+                cooldowndamage.restart();
+                candamage = false;
+            }
+            if (!candamage && cooldowndamage.getElapsedTime().asSeconds() >= cooldownTime)
+
+            {
+                candamage = true;
+            }
+        }
+        if (!candamage) 
+        {
+            if (int(cooldowndamage.getElapsedTime().asSeconds())%2== 0) {
+                sonic.sprite.setColor(Color(255, 255, 255, 80));
+            }
+            else
+                sonic.sprite.setColor(Color::White);
+        }
+
+
+        //collision between bullets and boss
+        for (int j = 0; j < sonic.bullet.size(); j++)
+        {
+            if (sonic.bullet[j].bulletSprite.getGlobalBounds().intersects(eggman.sprite.getGlobalBounds())) {
+                eggman.health -= 10;
+                sonic.bullet[j].bulletSprite.setScale(0, 0);
+            }
+            if (eggman.health == 0) {
+                
+                text.setString(to_string(score));
+            
+            }
+        }
 
         //Updating sonic
         sonic.update(time, 1.0f / 40.f, ground1);
@@ -3548,7 +3601,7 @@ void bossfight(RenderWindow& window)
             break;
         }
 
-
+        fill.setSize(sf::Vector2f(200.f * (eggman.health / eggman.maxhealth), 20.f));
         window.clear();
         window.draw(bossbg1S);
         window.draw(bossbgS);
@@ -3573,6 +3626,8 @@ void bossfight(RenderWindow& window)
         for (int i = 0; i < 3; i++) {
             window.draw(scoreimage[i]);
         }
+        window.draw(background);
+        window.draw(fill);
         window.draw(sonic.sprite);
         window.draw(eggman.sprite);
         window.display();
