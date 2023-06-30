@@ -29,14 +29,17 @@ string name;
 string timeString;
 int score = 0;
 int rings;
-bool level1isfinished = false;
-bool level2isfinished = false;
-bool level3isfinished = false;
+bool level1isfinished = true;
+bool level2isfinished = true;
+bool level3isfinished = true;
 bool bossfightlevel = false;
 bool soundison = true;
 bool pause = false;
+bool arrowclicked = false;
+bool selectlevelis = false;
 int character = -1;
 bool stopFollowingSonic = false;
+
 
 struct Bullet {
     float speed;
@@ -81,7 +84,7 @@ struct player
         jumpframe = 0;
         waitingframe = 0;
         last_key_pressed = 1;
-        damage = -10;
+        damage = -3;
         index = -1;
         droptype = -1;
         speed = 1;
@@ -358,12 +361,10 @@ struct boss
     float speed;
     bool moveRight = false;
     float currentframe;
-    int health = 100;
-    float maxhealth = 100;
     void sp(Texture& sonicTexture)
     {
         currentframe = 0;
-        bossTexture.loadFromFile("Textures/boss1.png");
+        bossTexture.loadFromFile("Textures/egmmansprite.png");
         sprite.setTexture(bossTexture);
     }
 };
@@ -417,14 +418,14 @@ struct Help {
 vector<Help>dropBag;
 Sprite Drops[4]; // 0 pistol, 1 rifle, 2 health, 3 speed
 Texture DropsTex[6];
-void Setdrops() 
+void Setdrops()
 {
-    if(character==1)
+    if (character == 1)
     {
-    DropsTex[0].loadFromFile("Textures/powerup.png");
-    DropsTex[1].loadFromFile("Textures/powerup.png");
-    DropsTex[4].loadFromFile("Textures/bullet lazer.png");
-    DropsTex[5].loadFromFile("Textures/bullet lazer.png");
+        DropsTex[0].loadFromFile("Textures/powerup.png");
+        DropsTex[1].loadFromFile("Textures/powerup.png");
+        DropsTex[4].loadFromFile("Textures/bullet lazer.png");
+        DropsTex[5].loadFromFile("Textures/bullet lazer.png");
     }
     else if (character == 2)
     {
@@ -483,9 +484,9 @@ void chooseDrop(Sprite ground1[], Clock& timerAdd, Clock& timerDelete) {
 
     if (bossfightlevel)
     {
-        if (timerAdd.getElapsedTime().asSeconds() >= 4) {
-            int indexDrop = 0;
-            int indexBlock = rand() % 3;
+        if (timerAdd.getElapsedTime().asSeconds() >= 1.9) {
+            int indexDrop = rand() % 4;
+            int indexBlock = rand() % 4;
             Help help;
             help.dropShape = Drops[indexDrop];
             help.targetShape = ground1[indexBlock];
@@ -790,6 +791,13 @@ void playername(RenderWindow& window, RenderWindow& gameplay, string& name)
     Text tback;
     Text tnext;
 
+    tnext.setFont(font);
+    tnext.setString("NEXT");
+    tnext.setPosition(1680, 795);
+    tnext.setCharacterSize(50);
+    tnext.setFillColor(Color::White);
+    tnext.setOutlineColor(Color::Black);
+    tnext.setOutlineThickness(5);
 
     tback.setFont(font);
     tback.setString("BACK");
@@ -813,6 +821,11 @@ void playername(RenderWindow& window, RenderWindow& gameplay, string& name)
     t1.setFillColor(Color::White);
     t2.setFillColor(Color::White);
 
+    SoundBuffer clicksound;
+    clicksound.loadFromFile("Sounds/clicksound.wav");
+    Sound soundC;
+    soundC.setBuffer(clicksound);
+
     while (window.isOpen())
     {
         Event event;
@@ -834,11 +847,13 @@ void playername(RenderWindow& window, RenderWindow& gameplay, string& name)
             }
             if (Keyboard::isKeyPressed(Keyboard::Return) && name.size() > 1)
             {
+                soundC.play();
                 window.close();
                 return;
             }
             if (Keyboard::isKeyPressed(Keyboard::Escape))
             {
+                soundC.play();
                 window.close();
                 gameplay.close();
                 return;
@@ -852,6 +867,7 @@ void playername(RenderWindow& window, RenderWindow& gameplay, string& name)
                 tback.setScale(1.2, 1.2);
 
                 if (Mouse::isButtonPressed(Mouse::Left)) {
+                    soundC.play();
                     window.close();
                     gameplay.close();
                     return;
@@ -885,7 +901,7 @@ void History(RenderWindow& window) {
 
     Font font1;
     font1.loadFromFile("Fonts/NiseSegaSonic.TTF");
-
+    Text tback;
     Text text[100];
     for (int i = 0; i < 90; i++)
     {
@@ -893,12 +909,27 @@ void History(RenderWindow& window) {
         text[i].setCharacterSize(50);
         text[i].setFillColor(Color::White);
     }
+    tback.setFont(font1);
+    tback.setString("BACK");
+    tback.setPosition(1680, 920);
+    tback.setCharacterSize(50);
+    tback.setFillColor(Color::White);
+    tback.setOutlineColor(Color::Black);
+    tback.setOutlineThickness(5);
+
 
     ifstream infile;
     infile.open("History.txt", ios::in);
 
     vector<string> lines;
     string line;
+
+    SoundBuffer clicksound;
+    clicksound.loadFromFile("Sounds/clicksound.wav");
+    Sound soundC;
+    soundC.setBuffer(clicksound);
+
+
     while (getline(infile, line, '*')) {
         lines.push_back(line);
     }
@@ -929,6 +960,21 @@ void History(RenderWindow& window) {
                     for (int i = 0; i < lines.size() + 10; i++) {
                         text[i].move(0, -20);
                     }
+                }
+            }
+
+            Vector2i mousePositiontback = Mouse::getPosition(window);
+            FloatRect spriteBoundstback = tback.getGlobalBounds();
+            tback.setScale(1, 1);
+
+            if (spriteBoundstback.contains(mousePositiontback.x, mousePositiontback.y))
+            {
+                tback.setScale(1.2, 1.2);
+
+                if (Mouse::isButtonPressed(Mouse::Left)) {
+                    soundC.play();
+                    window.close();
+                    return;
                 }
             }
             //cout << lines.size() << endl;
@@ -1017,6 +1063,10 @@ void gameOver(RenderWindow& window, int score, int rings, string timeString) {
     Gameovertime.setOutlineColor(Color::Black);
     Gameovertime.setOutlineThickness(4);
 
+    SoundBuffer clicksound;
+    clicksound.loadFromFile("Sounds/clicksound.wav");
+    Sound soundC;
+    soundC.setBuffer(clicksound);
 
     while (window.isOpen()) {
         Event event;
@@ -1026,19 +1076,18 @@ void gameOver(RenderWindow& window, int score, int rings, string timeString) {
 
             }
             if (Keyboard::isKeyPressed(Keyboard::Escape)) {
-
+                soundC.play();
                 return;
             }
             Vector2i mousePositiontnext = Mouse::getPosition(window);
             FloatRect spriteBoundstnext = GameoverF.getGlobalBounds();
-            GameoverF.setScale(1, 1);
+            GameoverF.setScale(1.2, 1.2);
 
             if (spriteBoundstnext.contains(mousePositiontnext.x, mousePositiontnext.y))
             {
-                GameoverF.setScale(1.2, 1.2);
-
+                soundC.play();
+                GameoverF.setScale(1.3, 1.3);
                 if (Mouse::isButtonPressed(Mouse::Left)) {
-                    window.close();
                     return;
                 }
             }
@@ -1117,6 +1166,20 @@ void pressEnter(RenderWindow& window)
     sf::RenderTexture renderTexture;
     renderTexture.create(window.getSize().x, window.getSize().y);
 
+    vector<Texture> frames1;
+    for (int i = 0; i < 4; i++) {
+        Texture frame1;
+        frame1.loadFromFile("Textures/levelM" + to_string(i + 1) + ".jpg");
+        // exit the program if a frame fails to load
+        frames1.push_back(frame1);
+    }
+    Sprite sprite2;
+    
+    int currentFrame1 = 0;
+    float animationDuration1 = 2; // duration of each frame in seconds
+    sf::Clock animationClock1;
+    animationClock1.restart();
+    bool firstLoop1 = true;
 
 
     while (window.isOpen())
@@ -1156,16 +1219,26 @@ void pressEnter(RenderWindow& window)
             {
                 renderTexture.draw(t1);
             }
-            renderTexture.display();
+
+            if (animationClock1.getElapsedTime().asSeconds() > animationDuration1) {
+                currentFrame1 = (currentFrame1 + 1) % frames1.size();
+                if (currentFrame1 == 0 && !firstLoop1) {
+                    currentFrame1 =4;
+                }
+
+                sprite2.setTexture(frames1[currentFrame1]);
+                animationClock1.restart();
+                if (currentFrame1 == 4) {
+                    firstLoop1 = false;
+                }
+
+            }
 
             // Clear the window and draw the render texture and other sprites
             window.clear(sf::Color::Black);
-            Sprite sprite(renderTexture.getTexture());
-            window.draw(sprite);
-            window.draw(bg);
             window.draw(titlescreenCoverS);
             window.draw(t1);
-
+            window.draw(sprite2);
             window.draw(sprite1);
             window.draw(tieS);
             window.display();
@@ -1174,110 +1247,93 @@ void pressEnter(RenderWindow& window)
 
     }
 }
-void levelup(RenderWindow& window, int score, int rings, string timeString) {
-    Texture HistoryTex;
-    HistoryTex.loadFromFile("Textures/gameover.jpg");
-    Sprite HistorySprit;
-    HistorySprit.setTexture(HistoryTex);
-    HistorySprit.setPosition(0, 0);
+void levelup(RenderWindow& window)
+{
+    Texture backbg;
+    backbg.loadFromFile("Textures/main2.jpg");
+    Sprite main(backbg);
 
-    Texture Button;
-    Button.loadFromFile("Textures/Button.png");
-    Sprite Button1;
-    Button1.setTexture(Button);
-    Button1.setPosition(175, 485);
-    Button1.setScale(5, 5);
+    Font font;
+    font.loadFromFile("Fonts/NiseSegaSonic.TTF");
 
-    Font font1;
-    font1.loadFromFile("Fonts/NiseSegaSonic.TTF");
-    Text GameoverF;
-    GameoverF.setFont(font1);
-    GameoverF.setString("Next level ");
-    GameoverF.setPosition(250, 500);
-    GameoverF.setScale(1.2, 1.2);
-    GameoverF.setFillColor(Color::White);
-    GameoverF.setOutlineColor(Color::Black);
-    GameoverF.setOutlineThickness(2);
+    // Create the text objects
+    Text t1("restart", font, 28);
+    t1.setPosition(100, 835);
+    t1.setOutlineColor(Color::Black);
+    t1.setOutlineThickness(6);
 
+    Text t2("next level", font, 28);
+    t2.setPosition(600, 835);
+    t2.setOutlineColor(Color::Black);
+    t2.setOutlineThickness(6);
 
-    Text Gameover;
-    Gameover.setFont(font1);
-    Gameover.setString("level finished ");
-    Gameover.setPosition(100, 100);
-    Gameover.setScale(2.5, 2.5);
-    Gameover.setFillColor(Color::White);
-    Gameover.setOutlineColor(Color::Black);
-    Gameover.setOutlineThickness(4);
+    Text t3("Main menu", font, 28);
+    t3.setPosition(1200, 835);
+    t3.setOutlineColor(Color::Black);
+    t3.setOutlineThickness(6);
 
-
-    Text GameoverScore;
-    string ScoreString = to_string(score);
-    GameoverScore.setFont(font1);
-    GameoverScore.setString("Score : " + ScoreString);
-    GameoverScore.setPosition(200, 235);
-    GameoverScore.setScale(1.7, 1.7);
-    GameoverScore.setFillColor(Color::White);
-    GameoverScore.setOutlineColor(Color::Black);
-    GameoverScore.setOutlineThickness(4);
-
-
-    Text Gameovercoins;
-    string RingString = to_string(rings);
-    Gameovercoins.setFont(font1);
-    Gameovercoins.setString("Rings : " + RingString);
-    Gameovercoins.setPosition(200, 395);
-    Gameovercoins.setScale(1.7, 1.7);
-    Gameovercoins.setFillColor(Color::White);
-    Gameovercoins.setOutlineColor(Color::Black);
-    Gameovercoins.setOutlineThickness(4);
-
-
-    Text Gameovertime;
-    Gameovertime.setFont(font1);
-    Gameovertime.setString("Time : " + timeString);
-    Gameovertime.setPosition(200, 315);
-    Gameovertime.setScale(1.7, 1.7);
-    Gameovertime.setFillColor(Color::White);
-    Gameovertime.setOutlineColor(Color::Black);
-    Gameovertime.setOutlineThickness(4);
-
-
-    while (window.isOpen()) {
+    while (window.isOpen())
+    {
         Event event;
-        while (window.pollEvent(event)) {
-            if (event.type == Event::Closed()) {
+        while (window.pollEvent(event))
+        {
+            if (Keyboard::isKeyPressed(Keyboard::Escape))
+            {
                 window.close();
-
-            }
-            if (Keyboard::isKeyPressed(Keyboard::Escape)) {
-
                 return;
             }
-            Vector2i mousePositiontnext = Mouse::getPosition(window);
-            FloatRect spriteBoundstnext = GameoverF.getGlobalBounds();
-            GameoverF.setScale(1, 1);
-
-            if (spriteBoundstnext.contains(mousePositiontnext.x, mousePositiontnext.y))
-            {
-                GameoverF.setScale(1.2, 1.2);
-
-                if (Mouse::isButtonPressed(Mouse::Left)) {
-                    window.close();
-                    return;
-                }
+            if (event.type == Event::Closed) {
+                window.close();
             }
-
         }
-        window.clear();
-        window.draw(HistorySprit);
-        window.draw(GameoverScore);
-        window.draw(Gameovercoins);
-        window.draw(Gameovertime);
-        window.draw(Gameover);
-        window.draw(Button1);
-        window.draw(GameoverF);
-        window.display();
+        Vector2i mousePosition = Mouse::getPosition(window);
+        FloatRect spriteBounds = t1.getGlobalBounds();
+        t1.setScale(1, 1);
+
+        if (spriteBounds.contains(mousePosition.x, mousePosition.y))
+        {
+            t1.setScale(1.2, 1.2);
+
+            if (Mouse::isButtonPressed(Mouse::Left))
+            {
+
+            }
+        }
+        Vector2i mousePosition1 = Mouse::getPosition(window);
+        FloatRect spriteBounds1 = t2.getGlobalBounds();
+        t2.setScale(1, 1);
+
+        if (spriteBounds1.contains(mousePosition1.x, mousePosition1.y))
+        {
+            t2.setScale(1.2, 1.2);
+
+            if (Mouse::isButtonPressed(Mouse::Left))
+            {
+
+            }
+        }
+
+        Vector2i mousePosition2 = Mouse::getPosition(window);
+        FloatRect spriteBounds2 = t3.getGlobalBounds();
+        t3.setScale(1, 1);
+
+        if (spriteBounds2.contains(mousePosition2.x, mousePosition2.y))
+        {
+            t3.setScale(1.2, 1.2);
+
+            if (Mouse::isButtonPressed(Mouse::Left))
+            {
+
+            }
+        }
     }
+    window.clear();
+    window.draw(main);
+    window.draw(t1);
+    window.draw(t2);
+    window.draw(t3);
+    window.display();
+
 }
 void GamePlay(RenderWindow& window, bool& level1isfinished) {
     srand(static_cast<unsigned>(time(NULL)));
@@ -1285,6 +1341,7 @@ void GamePlay(RenderWindow& window, bool& level1isfinished) {
     SoundManager soundManager;
     level1isfinished = false;
     pause = false;
+
 
     Texture pauseT;
     pauseT.loadFromFile("Textures/arrow.png");
@@ -1395,7 +1452,7 @@ void GamePlay(RenderWindow& window, bool& level1isfinished) {
 
     //setting ground
     Texture groundtexture;
-    groundtexture.loadFromFile("Textures/BlockOne.png");
+    groundtexture.loadFromFile("Textures/map.png");
     Sprite ground[6];
     for (int i = 0; i < 2; i++)
     {
@@ -1854,10 +1911,7 @@ void GamePlay(RenderWindow& window, bool& level1isfinished) {
             soundManager.playSound(5);
         }
         if (level1isfinished)
-        {
-            window.close();
             return;
-        }
         window.clear();
         window.setView(view);
         for (int i = 0; i < 18; ++i)
@@ -1901,7 +1955,7 @@ void GamePlay(RenderWindow& window, bool& level1isfinished) {
         for (int i = 0; i < 3; i++) {
             window.draw(scoreimage[i]);
         }
-        window.draw(pauseS);
+      //  window.draw(pauseS);
         if (pause)
         {
             window.draw(text1);
@@ -1916,7 +1970,6 @@ void GamePlay2(RenderWindow& window, bool& level2isfinished) {
     level2isfinished = false;
     stopFollowingSonic = false;
     pause = false;
-
     Texture pauseT;
     pauseT.loadFromFile("Textures/arrow.png");
     Sprite pauseS;
@@ -2558,10 +2611,7 @@ void GamePlay2(RenderWindow& window, bool& level2isfinished) {
             soundManager.playSound(5);
         }
         if (level2isfinished)
-        {
-            window.close();
             return;
-        }
         window.clear();
         window.setView(view);
 
@@ -2614,7 +2664,7 @@ void GamePlay2(RenderWindow& window, bool& level2isfinished) {
         for (int i = 0; i < 3; i++) {
             window.draw(scoreimage[i]);
         }
-        window.draw(pauseS);
+       // window.draw(pauseS);
         if (pause)
         {
             window.draw(text1);
@@ -2629,7 +2679,6 @@ void GamePlay3(RenderWindow& window, bool& level3isfinished) {
     level3isfinished = false;
     stopFollowingSonic = false;
     pause = false;
-
     vector<Texture> frames;
     frames.emplace_back();
     frames.back().loadFromFile("Textures/flames1.png");
@@ -2675,7 +2724,7 @@ void GamePlay3(RenderWindow& window, bool& level3isfinished) {
         sprites1[i].setTexture(frames1[0]);
         FloatRect frameBounds1 = sprites1[i].getLocalBounds();
         sprites1[i].setOrigin(frameBounds1.width / 2, frameBounds1.height / 2);
-        sprites1[i].setPosition(i*1920, -50);
+        sprites1[i].setPosition(i * 1920, -50);
         sprites1[i].setScale(1, 1.7);
     }
 
@@ -3200,10 +3249,7 @@ void GamePlay3(RenderWindow& window, bool& level3isfinished) {
             soundManager.playSound(5);
         }
         if (level3isfinished)
-        {
-            window.close();
             return;
-        }
         window.clear();
         window.setView(view);
         for (int i = 0; i < 18; ++i)
@@ -3283,7 +3329,7 @@ void bossfight(RenderWindow& window)
     scoreimage[1].setPosition(15, 900);
     scoreimage[2].setTextureRect(IntRect(88, 0, 10, 25));
     scoreimage[2].setPosition(165, 885);
-    
+
     Texture bosstexture;
     boss eggman;
     eggman.sp(bosstexture);
@@ -3374,16 +3420,6 @@ void bossfight(RenderWindow& window)
     timerText.setCharacterSize(32);
     timerText.setScale(1.45f, 1.45f);
 
-    // Create the background rectangle for the health bar
-    RectangleShape background(Vector2f(200.f, 20.f));
-    background.setFillColor(Color::Red);
-    background.setPosition(500.f, 100.f);
-
-    // Create the fill rectangle for the health bar
-    sf::RectangleShape fill(Vector2f(200.f, 20.f));
-    fill.setFillColor(Color::Green);
-    fill.setPosition(500.f, 100.f);
-
     //powerups
     Setdrops();
     SoundManager soundManager;
@@ -3430,10 +3466,6 @@ void bossfight(RenderWindow& window)
         soundtrackMusic.setVolume(0);
     soundtrackMusic.play();
 
-    //colliosion cooldown
-    Clock cooldowndamage;
-    float cooldownTime = 5.5f;
-    bool candamage = true;
 
     while (window.isOpen())
     {
@@ -3515,14 +3547,16 @@ void bossfight(RenderWindow& window)
 
         //Boss animation
         eggman.currentframe += 0.006 * time;
-        eggman.sprite.setOrigin(75, 0);
-        if (eggman.currentframe > 14) 
+        eggman.sprite.setOrigin(78, 0);
+        if (eggman.currentframe > 12)
         {
-            eggman.currentframe -= 14;
+            eggman.sprite.setTextureRect(IntRect((int(eggman.currentframe) * 157), 0, 157, 180));
         }
-        eggman.sprite.setTextureRect(IntRect((int(eggman.currentframe) * 149), 0, 149, 197));
-       
-           
+
+
+
+
+
 
         //Boss movement
         if (eggman.sprite.getPosition().x > 1800)
@@ -3530,7 +3564,7 @@ void bossfight(RenderWindow& window)
         else if (eggman.sprite.getPosition().x < 200)
             eggman.moveRight = true;
 
-        if(!eggman.moveRight)
+        if (!eggman.moveRight)
         {
             eggman.sprite.move(-4, 0);
             eggman.sprite.setScale(3, 3);
@@ -3541,47 +3575,6 @@ void bossfight(RenderWindow& window)
             eggman.sprite.setScale(-3, 3);
         }
 
-        //collision between sonic and boss
-        if (sonic.sprite.getGlobalBounds().intersects(eggman.sprite.getGlobalBounds()))
-        {
-            if (candamage && cooldowndamage.getElapsedTime().asSeconds() >= cooldownTime)
-            {
-                sonic.damage++;
-                sonic.sprite.move(-450, -150);
-                cooldowndamage.restart();
-                candamage = false;
-            }
-            if (!candamage && cooldowndamage.getElapsedTime().asSeconds() >= cooldownTime)
-
-            {
-                candamage = true;
-            }
-        }
-        if (!candamage) 
-        {
-            if (int(cooldowndamage.getElapsedTime().asSeconds())%2== 0) {
-                sonic.sprite.setColor(Color(255, 255, 255, 80));
-            }
-            else
-                sonic.sprite.setColor(Color::White);
-        }
-
-
-        //collision between bullets and boss
-        for (int j = 0; j < sonic.bullet.size(); j++)
-        {
-            if (sonic.bullet[j].bulletSprite.getGlobalBounds().intersects(eggman.sprite.getGlobalBounds())) {
-                eggman.health -= 5;
-                sonic.bullet[j].bulletSprite.setScale(0, 0);
-            }
-            if (eggman.health <= 0) {
-                //level is finished
-                text.setString(to_string(score));
-            
-            }
-            else
-                fill.setSize(sf::Vector2f(200.f * (eggman.health / eggman.maxhealth), 20.f));
-        }
 
         //Updating sonic
         sonic.update(time, 1.0f / 40.f, ground1);
@@ -3621,7 +3614,7 @@ void bossfight(RenderWindow& window)
             break;
         }
 
-        
+
         window.clear();
         window.draw(bossbg1S);
         window.draw(bossbgS);
@@ -3646,8 +3639,6 @@ void bossfight(RenderWindow& window)
         for (int i = 0; i < 3; i++) {
             window.draw(scoreimage[i]);
         }
-        window.draw(background);
-        window.draw(fill);
         window.draw(sonic.sprite);
         window.draw(eggman.sprite);
         window.display();
@@ -3678,7 +3669,7 @@ void chat(RenderWindow& window)
 
     Texture groundtextureP;
     groundtextureP.loadFromFile("Textures/maplevel1.png");
-    Sprite ground2P[9];
+    Sprite ground2P[18];
     for (int i = 0; i < 9; i++)
     {
         ground2P[i].setTexture(groundtextureP);
@@ -3689,8 +3680,8 @@ void chat(RenderWindow& window)
 
 
     Texture groundtexture;
-    groundtexture.loadFromFile("Textures/BlockOne.png");
-    Sprite ground[2];
+    groundtexture.loadFromFile("Textures/map.png");
+    Sprite ground[5];
     for (int i = 0; i < 2; i++)
     {
         ground[i].setTexture(groundtexture);
@@ -3749,6 +3740,11 @@ void chat(RenderWindow& window)
     playerText.setOutlineColor(Color::Black);
     playerText.setOutlineThickness(3);
 
+    SoundBuffer clicking;
+    clicking.loadFromFile("Sounds/clicking.wav");
+    Sound sound;
+    sound.setBuffer(clicking);
+
 
     // Set the dialogue text
     vector<string> npcDialogue = { "Ah,I see you're still trying to fail my plans.", "(smirks) I've created a robot that's stronger than you", "Let's find out then who will take over the world " };
@@ -3780,13 +3776,17 @@ void chat(RenderWindow& window)
             }
             else if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
             {
+                sound.play();
                 // Check if the mouse click is inside the sprite's bounding box
+                arrow1.setScale(0.4,0.4);
                 if (arrow1.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
                 {
+                    arrow1.setScale(0.49, 0.49);
                     // Check if the dialogue is finished
                     if (currentDialogueIndex >= npcDialogue.size())
                     {
                         isDialogueFinished = true;
+                        sound.stop();
                     }
                     else
                     {
@@ -3861,8 +3861,6 @@ void chat(RenderWindow& window)
         {
             return;
         }
-
-
 
         // Clear the window
         window.clear();
@@ -4003,6 +4001,12 @@ void chat2(RenderWindow& window)
     playerText.setOutlineThickness(3);
 
 
+
+    SoundBuffer clicking;
+    clicking.loadFromFile("Sounds/clicking.wav");
+    Sound sound;
+    sound.setBuffer(clicking);
+
     // Set the dialogue text
     vector<string> npcDialogue = { "Ah,I see you're still trying to fail my plans.", "(smirks) I've created a robot that's stronger than you", "Let's find out then who will take over the world " };
     vector<string> playerDialogue = { "And I see you're still trying to take over the world. How original.", "(determined) Not if I stop you first, Eggman. Let's go!", "(smiling) The world is safe as long as I'm around.(runs off)" };
@@ -4033,13 +4037,17 @@ void chat2(RenderWindow& window)
             }
             else if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
             {
+                sound.play();
                 // Check if the mouse click is inside the sprite's bounding box
+                arrow1.setScale(0.4, 0.4);
                 if (arrow1.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
                 {
+                    arrow1.setScale(0.49, 0.49);
                     // Check if the dialogue is finished
                     if (currentDialogueIndex >= npcDialogue.size())
                     {
                         isDialogueFinished = true;
+                        sound.stop();
                     }
                     else
                     {
@@ -4256,6 +4264,11 @@ void chat3(RenderWindow& window)
     playerText.setOutlineThickness(3);
 
 
+    SoundBuffer clicking;
+    clicking.loadFromFile("Sounds/clicking.wav");
+    Sound sound;
+    sound.setBuffer(clicking);
+
     // Set the dialogue text
     vector<string> npcDialogue = { "Ah,I see you're still trying to fail my plans.", "(smirks) I've created a robot that's stronger than you", "Let's find out then who will take over the world " };
     vector<string> playerDialogue = { "And I see you're still trying to take over the world. How original.", "(determined) Not if I stop you first, Eggman. Let's go!", "(smiling) The world is safe as long as I'm around.(runs off)" };
@@ -4286,13 +4299,17 @@ void chat3(RenderWindow& window)
             }
             else if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
             {
+                sound.play();
                 // Check if the mouse click is inside the sprite's bounding box
+                arrow1.setScale(0.4, 0.4);
                 if (arrow1.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
                 {
+                    arrow1.setScale(0.49, 0.49);
                     // Check if the dialogue is finished
                     if (currentDialogueIndex >= npcDialogue.size())
                     {
                         isDialogueFinished = true;
+                        sound.stop();
                     }
                     else
                     {
@@ -4492,6 +4509,12 @@ void chatboss(RenderWindow& window)
     playerText.setOutlineThickness(3);
 
 
+    SoundBuffer clicking;
+    clicking.loadFromFile("Sounds/clicking.wav");
+    Sound sound;
+    sound.setBuffer(clicking);
+
+
     // Set the dialogue text
     vector<string> npcDialogue = { "Ah,I see you're still trying to fail my plans.", "(smirks) I've created a robot that's stronger than you", "Let's find out then who will take over the world " };
     vector<string> playerDialogue = { "And I see you're still trying to take over the world. How original.", "(determined) Not if I stop you first, Eggman. Let's go!", "(smiling) The world is safe as long as I'm around.(runs off)" };
@@ -4522,13 +4545,17 @@ void chatboss(RenderWindow& window)
             }
             else if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
             {
+                sound.play();
                 // Check if the mouse click is inside the sprite's bounding box
+                arrow1.setScale(0.4, 0.4);
                 if (arrow1.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
                 {
+                    arrow1.setScale(0.49, 0.49);
                     // Check if the dialogue is finished
                     if (currentDialogueIndex >= npcDialogue.size())
                     {
                         isDialogueFinished = true;
+                        sound.stop();
                     }
                     else
                     {
@@ -4629,7 +4656,8 @@ void chatboss(RenderWindow& window)
     }
 }
 void selectlevel(RenderWindow& window)
-{
+{ 
+    selectlevelis = true;
     Texture level;
     level.loadFromFile("Textures/main2.jpg");
     Sprite levelz;
@@ -4734,6 +4762,11 @@ void selectlevel(RenderWindow& window)
     Gameover.setOutlineColor(Color::Black);
     Gameover.setOutlineThickness(3);
 
+    SoundBuffer clicksound;
+    clicksound.loadFromFile("Sounds/clicksound.wav");
+    Sound soundC;
+    soundC.setBuffer(clicksound);
+
     while (window.isOpen())
     {
         Event event;
@@ -4758,22 +4791,12 @@ void selectlevel(RenderWindow& window)
                 levelz1.setScale(1.2, 1.2);
 
                 if (Mouse::isButtonPressed(Mouse::Left)) {
-                    //RenderWindow game(VideoMode(1920, 1080), "SonicGame");
-                    //bossfight(window);
-                    chat(window);
-                    GamePlay(window, level1isfinished);
-                    if (level1isfinished)
-                    {
-                        RenderWindow Levelup(VideoMode(1920, 1080), "Level Up");
-                        levelup(Levelup, score, rings, timeString);
-                    }
-                    if (gameover) {
-                        window.close();
-                        RenderWindow gameover(VideoMode(1920, 1080), "Game Over");
-                        gameOver(gameover, score, rings, timeString);
-                    }
-                    gameover = false;
-                    //game.close();
+                    soundC.play();
+                    RenderWindow game(VideoMode(1920, 1080), "SonicGame");
+                   bossfight(game);
+                    chat(game);
+                    GamePlay(game, level1isfinished);
+                    game.close();
 
                 }
             }
@@ -4787,21 +4810,11 @@ void selectlevel(RenderWindow& window)
                 locks.setScale(1.0, 0.45);
 
                 if (Mouse::isButtonPressed(Mouse::Left)) {
-                    //RenderWindow game(VideoMode(1920, 1080), "SonicGame");
-                    chat2(window);
-                    GamePlay2(window, level2isfinished);
-                    if (level2isfinished)
-                    {
-                        RenderWindow Levelup(VideoMode(1920, 1080), "Level Up");
-                        levelup(Levelup, score, rings, timeString);
-                    }
-                    if (gameover) {
-                        window.close();
-                        RenderWindow gameover(VideoMode(1920, 1080), "Game Over");
-                        gameOver(gameover, score, rings, timeString);
-                    }
-                    gameover = false;
-                    //game.close();
+                    soundC.play();
+                    RenderWindow game(VideoMode(1920, 1080), "SonicGame");
+                    chat2(game);
+                    GamePlay2(game, level2isfinished);
+                    game.close();
                 }
             }
 
@@ -4814,21 +4827,11 @@ void selectlevel(RenderWindow& window)
                 levelz3.setScale(1.2, 1.2);
                 locks1.setScale(1.0, 0.45);
                 if (Mouse::isButtonPressed(Mouse::Left) && level2isfinished) {
-                    //RenderWindow game(VideoMode(1920, 1080), "SonicGame");
-                    chat3(window);
-                    GamePlay3(window, level3isfinished);
-                    if (level3isfinished)
-                    {
-                        RenderWindow Levelup(VideoMode(1920, 1080), "Level Up");
-                        levelup(Levelup, score, rings, timeString);
-                    }
-                    if (gameover) {
-                        window.close();
-                        RenderWindow gameover(VideoMode(1920, 1080), "Game Over");
-                        gameOver(gameover, score, rings, timeString);
-                    }
-                    gameover = false;
-                    //game.close();
+                    soundC.play();
+                    RenderWindow game(VideoMode(1920, 1080), "SonicGame");
+                    chat3(game);
+                    GamePlay3(game, level3isfinished);
+                    game.close();
                 }
             }
         }
@@ -4928,6 +4931,11 @@ void playerSelection(RenderWindow& window, int& character)
     int currentCharacterIndex = 0;
     Sprite* characters[] = { &sonicS, &knuclesS, &talesS };
 
+    SoundBuffer clicksound;
+    clicksound.loadFromFile("Sounds/clicksound.wav");
+    Sound soundC;
+    soundC.setBuffer(clicksound);
+
     while (window.isOpen())
     {
         Event event;
@@ -4957,7 +4965,7 @@ void playerSelection(RenderWindow& window, int& character)
 
             if (spriteBoundsL.contains(mousePositionL.x, mousePositionL.y))
             {
-                arrow1.setScale(-0.5,0.5);
+                arrow1.setScale(-0.5, 0.5);
 
                 if (Mouse::isButtonPressed(Mouse::Left)) {
                     currentCharacterIndex = (currentCharacterIndex + 2) % 3;
@@ -4973,11 +4981,12 @@ void playerSelection(RenderWindow& window, int& character)
                 chooseS.setScale(0.94, 0.94);
 
                 if (Mouse::isButtonPressed(Mouse::Left)) {
+                    soundC.play();
                     character = currentCharacterIndex + 1;
                     selectlevel(window);
                 }
             }
-        
+
             Vector2i mousePositiontback = Mouse::getPosition(window);
             FloatRect spriteBoundstback = tback.getGlobalBounds();
             tback.setScale(1, 1);
@@ -4987,11 +4996,11 @@ void playerSelection(RenderWindow& window, int& character)
                 tback.setScale(1.2, 1.2);
                 if (Mouse::isButtonPressed(Mouse::Left)) {
                     RenderWindow entername(VideoMode(1920, 1080), "Enter Name");
-                    playername(entername, window,name);
+                    playername(entername, window, name);
                     return;
                 }
             }
-        
+
         }
         window.clear();
         window.draw(levelz);
@@ -5089,7 +5098,10 @@ void Controls()
     keysblock2.setPosition(575, 520);
     keysblock2.setScale(0.5, 0.3);
 
-
+    SoundBuffer clicksound;
+    clicksound.loadFromFile("Sounds/clicksound.wav");
+    Sound soundC;
+    soundC.setBuffer(clicksound);
 
     while (window.isOpen())
     {
@@ -5115,6 +5127,7 @@ void Controls()
                 texit.setScale(1.2, 1.2);
 
                 if (Mouse::isButtonPressed(Mouse::Left)) {
+                    soundC.play();
                     window.close();
                 }
             }
@@ -5217,7 +5230,7 @@ void Controls()
 
     }
 }
-void SoundOption()
+void SoundOption(bool& soundison)
 {
     RenderWindow window(sf::VideoMode(1920, 1080), "Sounds");
 
@@ -5225,7 +5238,7 @@ void SoundOption()
     font1.loadFromFile("Fonts/NiseSegaSonic.TTF");
     Text text1, t, t1;
 
-   Text texit;
+    Text texit;
 
     texit.setFont(font1);
     texit.setString("EXIT");
@@ -5288,6 +5301,10 @@ void SoundOption()
     tieS.setPosition(692, 248);
     tieS.setScale(2, 2);
 
+    SoundBuffer clicksound;
+    clicksound.loadFromFile("Sounds/clicksound.wav");
+    Sound soundC;
+    soundC.setBuffer(clicksound);
 
     while (window.isOpen())
     {
@@ -5308,6 +5325,7 @@ void SoundOption()
 
                 if (Mouse::isButtonPressed(Mouse::Left))
                 {
+                    soundC.play();
                     soundison = false;
                 }
             }
@@ -5320,6 +5338,7 @@ void SoundOption()
                 SonS.setScale(3.5, 3.5);
                 if (Mouse::isButtonPressed(Mouse::Left))
                 {
+                    soundC.play();
                     soundison = true;
                 }
             }
@@ -5333,6 +5352,7 @@ void SoundOption()
                 texit.setScale(1.2, 1.2);
 
                 if (Mouse::isButtonPressed(Mouse::Left)) {
+                    soundC.play();
                     window.close();
                 }
             }
@@ -5347,8 +5367,6 @@ void SoundOption()
         window.draw(SoffS);
         window.draw(texit);
         window.display();
-
-
     }
 }
 void main()
@@ -5426,6 +5444,18 @@ void main()
     tP.setOutlineColor(Color::Black);
     tP.setOutlineThickness(6);
 
+
+ 
+    SoundBuffer gameoversound;
+    gameoversound.loadFromFile("Sounds/gameover.wav");
+    Sound soundG;
+    soundG.setBuffer(gameoversound);
+
+    SoundBuffer clicksound;
+    clicksound.loadFromFile("Sounds/clicksound.wav");
+    Sound soundC;
+    soundC.setBuffer(clicksound);
+
     while (MainMenu.isOpen())
     {
         Event event;
@@ -5451,6 +5481,7 @@ void main()
 
                 if (event.key.code == Keyboard::Return)
                 {
+                    soundC.play();
                     RenderWindow window(sf::VideoMode(1920, 1080), "Sonic Game");
                     window.setFramerateLimit(60);
                     RenderWindow entername(VideoMode(1920, 1080), "Enter Name");
@@ -5461,38 +5492,42 @@ void main()
                     int x = mainmenu.pressed();
                     if (x == 0)
                     {
-                        Options.close();
-                        About.close();
-                        playername(entername, window, name);
-                        playerSelection(window, character);
-                        RenderWindow selectwindow(sf::VideoMode(1920, 1080), "Sonic Game");
-                        selectlevel(selectwindow);
+                            Options.close();
+                            About.close();
+                            playername(entername, window, name);
+                            playerSelection(window, character);
+                            selectlevel(window);
+                            if (selectlevelis) {
+                            }
+                        
 
-                        if (level1isfinished)
+                        /*if (level1isfinished)
                         {
-                            RenderWindow window2(sf::VideoMode(1920, 1080), "Sonic Game");
-                            chat2(window2);
-                            GamePlay2(window2, level2isfinished);
+
+                            chat2(bossfight1);
+                            GamePlay2(bossfight1, level2isfinished);
                         }
                         if (level2isfinished)
                         {
-                            RenderWindow window3(sf::VideoMode(1920, 1080), "Sonic Game");
-                            chat3(window3);
-                            GamePlay3(window3, level3isfinished);
+
+                            chat3(bossfight1);
+                            GamePlay3(bossfight1, level3isfinished);
                         }
                         if (level3isfinished)
                         {
-                            RenderWindow window4(sf::VideoMode(1920, 1080), "Sonic Game");
-                            chatboss(window4);
-                            bossfight(window4);
-                        }
+
+                            chatboss(bossfight1);
+                            bossfight(bossfight1);
+                        }*/
 
                     }
+
+
+
                     if (x == 1)
                     {
                         int j = 0;
                         int i = 0;
-
                         //setting time 
                         Clock clock, cooldown;
                         window.setFramerateLimit(60);
@@ -5564,8 +5599,9 @@ void main()
                         backbg.loadFromFile("Textures/main2.jpg");
                         Sprite main(backbg);
 
+
                         while (Options.isOpen())
-                        {
+                        {                        
                             Event aevent;
                             while (Options.pollEvent(aevent))
                             {
@@ -5589,6 +5625,7 @@ void main()
                                     text1.setScale(1.2, 1.2);
 
                                     if (Mouse::isButtonPressed(Mouse::Left)) {
+                                        soundC.play();
                                         Controls();
                                     }
 
@@ -5602,7 +5639,8 @@ void main()
                                     tS.setScale(1.2, 1.2);
 
                                     if (Mouse::isButtonPressed(Mouse::Left)) {
-                                        SoundOption();
+                                        soundC.play();
+                                        SoundOption(soundison);
                                     }
                                 }
                                 Vector2i mousePosition2 = Mouse::getPosition(Options);
@@ -5614,13 +5652,11 @@ void main()
                                     texit.setScale(1.2, 1.2);
 
                                     if (Mouse::isButtonPressed(Mouse::Left)) {
+                                        soundC.play();
                                         Options.close();
                                     }
                                 }
-
                             }
-
-
                             window.close();
                             About.close();
                             entername.close();
@@ -5647,7 +5683,15 @@ void main()
                         MainMenu.close();
                         break;
                     }
-                    
+                    if (gameover) {
+                        if (soundison)
+                            soundG.play();
+                        else if (!soundison)
+                            soundG.stop();
+                        RenderWindow gameover(VideoMode(1920, 1080), "Game Over");
+                        gameOver(gameover, score, rings, timeString);
+                    }
+                    gameover = false;
                 }
             }
         }
