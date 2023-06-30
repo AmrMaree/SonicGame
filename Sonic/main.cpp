@@ -29,15 +29,14 @@ string name;
 string timeString;
 int score = 0;
 int rings;
-bool level1isfinished = true;
-bool level2isfinished = true;
-bool level3isfinished = true;
+bool level1isfinished = false;
+bool level2isfinished = false;
+bool level3isfinished = false;
 bool bossfightlevel = false;
 bool soundison = true;
 bool pause = false;
 int character = -1;
 bool stopFollowingSonic = false;
-
 
 struct Bullet {
     float speed;
@@ -82,7 +81,7 @@ struct player
         jumpframe = 0;
         waitingframe = 0;
         last_key_pressed = 1;
-        damage = -30;
+        damage = -10;
         index = -1;
         droptype = -1;
         speed = 1;
@@ -791,13 +790,6 @@ void playername(RenderWindow& window, RenderWindow& gameplay, string& name)
     Text tback;
     Text tnext;
 
-    tnext.setFont(font);
-    tnext.setString("NEXT");
-    tnext.setPosition(1680, 795);
-    tnext.setCharacterSize(50);
-    tnext.setFillColor(Color::White);
-    tnext.setOutlineColor(Color::Black);
-    tnext.setOutlineThickness(5);
 
     tback.setFont(font);
     tback.setString("BACK");
@@ -872,7 +864,6 @@ void playername(RenderWindow& window, RenderWindow& gameplay, string& name)
         window.draw(t1);
         window.draw(t2);
         window.draw(tback);
-        window.draw(tnext);
         window.display();
 
     }
@@ -1047,6 +1038,7 @@ void gameOver(RenderWindow& window, int score, int rings, string timeString) {
                 GameoverF.setScale(1.2, 1.2);
 
                 if (Mouse::isButtonPressed(Mouse::Left)) {
+                    window.close();
                     return;
                 }
             }
@@ -1182,93 +1174,110 @@ void pressEnter(RenderWindow& window)
 
     }
 }
-void levelup(RenderWindow& window)
-{
-    Texture backbg;
-    backbg.loadFromFile("Textures/main2.jpg");
-    Sprite main(backbg);
+void levelup(RenderWindow& window, int score, int rings, string timeString) {
+    Texture HistoryTex;
+    HistoryTex.loadFromFile("Textures/gameover.jpg");
+    Sprite HistorySprit;
+    HistorySprit.setTexture(HistoryTex);
+    HistorySprit.setPosition(0, 0);
 
-    Font font;
-    font.loadFromFile("Fonts/NiseSegaSonic.TTF");
+    Texture Button;
+    Button.loadFromFile("Textures/Button.png");
+    Sprite Button1;
+    Button1.setTexture(Button);
+    Button1.setPosition(175, 485);
+    Button1.setScale(5, 5);
 
-    // Create the text objects
-    Text t1("restart", font, 28);
-    t1.setPosition(100, 835);
-    t1.setOutlineColor(Color::Black);
-    t1.setOutlineThickness(6);
+    Font font1;
+    font1.loadFromFile("Fonts/NiseSegaSonic.TTF");
+    Text GameoverF;
+    GameoverF.setFont(font1);
+    GameoverF.setString("Next level ");
+    GameoverF.setPosition(250, 500);
+    GameoverF.setScale(1.2, 1.2);
+    GameoverF.setFillColor(Color::White);
+    GameoverF.setOutlineColor(Color::Black);
+    GameoverF.setOutlineThickness(2);
 
-    Text t2("next level", font, 28);
-    t2.setPosition(600, 835);
-    t2.setOutlineColor(Color::Black);
-    t2.setOutlineThickness(6);
 
-    Text t3("Main menu", font, 28);
-    t3.setPosition(1200, 835);
-    t3.setOutlineColor(Color::Black);
-    t3.setOutlineThickness(6);
+    Text Gameover;
+    Gameover.setFont(font1);
+    Gameover.setString("level finished ");
+    Gameover.setPosition(100, 100);
+    Gameover.setScale(2.5, 2.5);
+    Gameover.setFillColor(Color::White);
+    Gameover.setOutlineColor(Color::Black);
+    Gameover.setOutlineThickness(4);
 
-    while (window.isOpen())
-    {
+
+    Text GameoverScore;
+    string ScoreString = to_string(score);
+    GameoverScore.setFont(font1);
+    GameoverScore.setString("Score : " + ScoreString);
+    GameoverScore.setPosition(200, 235);
+    GameoverScore.setScale(1.7, 1.7);
+    GameoverScore.setFillColor(Color::White);
+    GameoverScore.setOutlineColor(Color::Black);
+    GameoverScore.setOutlineThickness(4);
+
+
+    Text Gameovercoins;
+    string RingString = to_string(rings);
+    Gameovercoins.setFont(font1);
+    Gameovercoins.setString("Rings : " + RingString);
+    Gameovercoins.setPosition(200, 395);
+    Gameovercoins.setScale(1.7, 1.7);
+    Gameovercoins.setFillColor(Color::White);
+    Gameovercoins.setOutlineColor(Color::Black);
+    Gameovercoins.setOutlineThickness(4);
+
+
+    Text Gameovertime;
+    Gameovertime.setFont(font1);
+    Gameovertime.setString("Time : " + timeString);
+    Gameovertime.setPosition(200, 315);
+    Gameovertime.setScale(1.7, 1.7);
+    Gameovertime.setFillColor(Color::White);
+    Gameovertime.setOutlineColor(Color::Black);
+    Gameovertime.setOutlineThickness(4);
+
+
+    while (window.isOpen()) {
         Event event;
-        while (window.pollEvent(event))
-        {
-            if (Keyboard::isKeyPressed(Keyboard::Escape))
-            {
+        while (window.pollEvent(event)) {
+            if (event.type == Event::Closed()) {
                 window.close();
+
+            }
+            if (Keyboard::isKeyPressed(Keyboard::Escape)) {
+
                 return;
             }
-            if (event.type == Event::Closed) {
-                window.close();
-            }
-        }
-        Vector2i mousePosition = Mouse::getPosition(window);
-        FloatRect spriteBounds = t1.getGlobalBounds();
-        t1.setScale(1, 1);
+            Vector2i mousePositiontnext = Mouse::getPosition(window);
+            FloatRect spriteBoundstnext = GameoverF.getGlobalBounds();
+            GameoverF.setScale(1, 1);
 
-        if (spriteBounds.contains(mousePosition.x, mousePosition.y))
-        {
-            t1.setScale(1.2, 1.2);
-
-            if (Mouse::isButtonPressed(Mouse::Left))
+            if (spriteBoundstnext.contains(mousePositiontnext.x, mousePositiontnext.y))
             {
+                GameoverF.setScale(1.2, 1.2);
 
+                if (Mouse::isButtonPressed(Mouse::Left)) {
+                    window.close();
+                    return;
+                }
             }
+
         }
-        Vector2i mousePosition1 = Mouse::getPosition(window);
-        FloatRect spriteBounds1 = t2.getGlobalBounds();
-        t2.setScale(1, 1);
-
-        if (spriteBounds1.contains(mousePosition1.x, mousePosition1.y))
-        {
-            t2.setScale(1.2, 1.2);
-
-            if (Mouse::isButtonPressed(Mouse::Left))
-            {
-
-            }
-        }
-
-        Vector2i mousePosition2 = Mouse::getPosition(window);
-        FloatRect spriteBounds2 = t3.getGlobalBounds();
-        t3.setScale(1, 1);
-
-        if (spriteBounds2.contains(mousePosition2.x, mousePosition2.y))
-        {
-            t3.setScale(1.2, 1.2);
-
-            if (Mouse::isButtonPressed(Mouse::Left))
-            {
-
-            }
-        }
+        window.clear();
+        window.draw(HistorySprit);
+        window.draw(GameoverScore);
+        window.draw(Gameovercoins);
+        window.draw(Gameovertime);
+        window.draw(Gameover);
+        window.draw(Button1);
+        window.draw(GameoverF);
+        window.display();
     }
-    window.clear();
-    window.draw(main);
-    window.draw(t1);
-    window.draw(t2);
-    window.draw(t3);
-    window.display();
-
 }
 void GamePlay(RenderWindow& window, bool& level1isfinished) {
     srand(static_cast<unsigned>(time(NULL)));
@@ -1386,7 +1395,7 @@ void GamePlay(RenderWindow& window, bool& level1isfinished) {
 
     //setting ground
     Texture groundtexture;
-    groundtexture.loadFromFile("Textures/map.png");
+    groundtexture.loadFromFile("Textures/BlockOne.png");
     Sprite ground[6];
     for (int i = 0; i < 2; i++)
     {
@@ -1845,7 +1854,10 @@ void GamePlay(RenderWindow& window, bool& level1isfinished) {
             soundManager.playSound(5);
         }
         if (level1isfinished)
+        {
+            window.close();
             return;
+        }
         window.clear();
         window.setView(view);
         for (int i = 0; i < 18; ++i)
@@ -2546,7 +2558,10 @@ void GamePlay2(RenderWindow& window, bool& level2isfinished) {
             soundManager.playSound(5);
         }
         if (level2isfinished)
+        {
+            window.close();
             return;
+        }
         window.clear();
         window.setView(view);
 
@@ -3185,7 +3200,10 @@ void GamePlay3(RenderWindow& window, bool& level3isfinished) {
             soundManager.playSound(5);
         }
         if (level3isfinished)
+        {
+            window.close();
             return;
+        }
         window.clear();
         window.setView(view);
         for (int i = 0; i < 18; ++i)
@@ -3660,7 +3678,7 @@ void chat(RenderWindow& window)
 
     Texture groundtextureP;
     groundtextureP.loadFromFile("Textures/maplevel1.png");
-    Sprite ground2P[18];
+    Sprite ground2P[9];
     for (int i = 0; i < 9; i++)
     {
         ground2P[i].setTexture(groundtextureP);
@@ -3671,8 +3689,8 @@ void chat(RenderWindow& window)
 
 
     Texture groundtexture;
-    groundtexture.loadFromFile("Textures/map.png");
-    Sprite ground[5];
+    groundtexture.loadFromFile("Textures/BlockOne.png");
+    Sprite ground[2];
     for (int i = 0; i < 2; i++)
     {
         ground[i].setTexture(groundtexture);
@@ -4716,8 +4734,6 @@ void selectlevel(RenderWindow& window)
     Gameover.setOutlineColor(Color::Black);
     Gameover.setOutlineThickness(3);
 
-
-
     while (window.isOpen())
     {
         Event event;
@@ -4742,11 +4758,22 @@ void selectlevel(RenderWindow& window)
                 levelz1.setScale(1.2, 1.2);
 
                 if (Mouse::isButtonPressed(Mouse::Left)) {
-                    RenderWindow game(VideoMode(1920, 1080), "SonicGame");
-                    bossfight(game);
-                    chat(game);
-                    GamePlay(game, level1isfinished);
-                    game.close();
+                    //RenderWindow game(VideoMode(1920, 1080), "SonicGame");
+                    //bossfight(window);
+                    chat(window);
+                    GamePlay(window, level1isfinished);
+                    if (level1isfinished)
+                    {
+                        RenderWindow Levelup(VideoMode(1920, 1080), "Level Up");
+                        levelup(Levelup, score, rings, timeString);
+                    }
+                    if (gameover) {
+                        window.close();
+                        RenderWindow gameover(VideoMode(1920, 1080), "Game Over");
+                        gameOver(gameover, score, rings, timeString);
+                    }
+                    gameover = false;
+                    //game.close();
 
                 }
             }
@@ -4760,10 +4787,21 @@ void selectlevel(RenderWindow& window)
                 locks.setScale(1.0, 0.45);
 
                 if (Mouse::isButtonPressed(Mouse::Left)) {
-                    RenderWindow game(VideoMode(1920, 1080), "SonicGame");
-                    chat2(game);
-                    GamePlay2(game, level2isfinished);
-                    game.close();
+                    //RenderWindow game(VideoMode(1920, 1080), "SonicGame");
+                    chat2(window);
+                    GamePlay2(window, level2isfinished);
+                    if (level2isfinished)
+                    {
+                        RenderWindow Levelup(VideoMode(1920, 1080), "Level Up");
+                        levelup(Levelup, score, rings, timeString);
+                    }
+                    if (gameover) {
+                        window.close();
+                        RenderWindow gameover(VideoMode(1920, 1080), "Game Over");
+                        gameOver(gameover, score, rings, timeString);
+                    }
+                    gameover = false;
+                    //game.close();
                 }
             }
 
@@ -4776,10 +4814,21 @@ void selectlevel(RenderWindow& window)
                 levelz3.setScale(1.2, 1.2);
                 locks1.setScale(1.0, 0.45);
                 if (Mouse::isButtonPressed(Mouse::Left) && level2isfinished) {
-                    RenderWindow game(VideoMode(1920, 1080), "SonicGame");
-                    chat3(game);
-                    GamePlay3(game, level3isfinished);
-                    game.close();
+                    //RenderWindow game(VideoMode(1920, 1080), "SonicGame");
+                    chat3(window);
+                    GamePlay3(window, level3isfinished);
+                    if (level3isfinished)
+                    {
+                        RenderWindow Levelup(VideoMode(1920, 1080), "Level Up");
+                        levelup(Levelup, score, rings, timeString);
+                    }
+                    if (gameover) {
+                        window.close();
+                        RenderWindow gameover(VideoMode(1920, 1080), "Game Over");
+                        gameOver(gameover, score, rings, timeString);
+                    }
+                    gameover = false;
+                    //game.close();
                 }
             }
         }
@@ -5390,18 +5439,13 @@ void main()
             {
                 if (event.key.code == Keyboard::Up)
                 {
-
-
                     mainmenu.moveup();
-
                     break;
                 }
 
                 if (event.key.code == Keyboard::Down)
                 {
-
                     mainmenu.movedown();
-
                     break;
                 }
 
@@ -5421,31 +5465,29 @@ void main()
                         About.close();
                         playername(entername, window, name);
                         playerSelection(window, character);
-                        selectlevel(window);
+                        RenderWindow selectwindow(sf::VideoMode(1920, 1080), "Sonic Game");
+                        selectlevel(selectwindow);
 
-                        /*if (level1isfinished)
+                        if (level1isfinished)
                         {
-
-                            chat2(bossfight1);
-                            GamePlay2(bossfight1, level2isfinished);
+                            RenderWindow window2(sf::VideoMode(1920, 1080), "Sonic Game");
+                            chat2(window2);
+                            GamePlay2(window2, level2isfinished);
                         }
                         if (level2isfinished)
                         {
-
-                            chat3(bossfight1);
-                            GamePlay3(bossfight1, level3isfinished);
+                            RenderWindow window3(sf::VideoMode(1920, 1080), "Sonic Game");
+                            chat3(window3);
+                            GamePlay3(window3, level3isfinished);
                         }
                         if (level3isfinished)
                         {
-
-                            chatboss(bossfight1);
-                            bossfight(bossfight1);
-                        }*/
+                            RenderWindow window4(sf::VideoMode(1920, 1080), "Sonic Game");
+                            chatboss(window4);
+                            bossfight(window4);
+                        }
 
                     }
-
-
-
                     if (x == 1)
                     {
                         int j = 0;
@@ -5605,11 +5647,7 @@ void main()
                         MainMenu.close();
                         break;
                     }
-                    if (gameover) {
-                        RenderWindow gameover(VideoMode(1920, 1080), "Game Over");
-                        gameOver(gameover, score, rings, timeString);
-                    }
-                    gameover = false;
+                    
                 }
             }
         }
