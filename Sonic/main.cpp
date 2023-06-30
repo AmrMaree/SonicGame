@@ -355,8 +355,16 @@ struct player
 struct boss
 {
     Sprite sprite;
+    Texture bossTexture;
     float speed;
-    float x;
+    bool moveRight = false;
+    float currentframe;
+    void sp(Texture& sonicTexture)
+    {
+        currentframe = 0;
+        bossTexture.loadFromFile("Textures/egmmansprite.png");
+        sprite.setTexture(bossTexture);
+    }
 };
 struct SoundManager {
     std::vector<sf::Sound> sounds;
@@ -3073,6 +3081,12 @@ void bossfight(RenderWindow& window)
     scoreimage[1].setPosition(15, 900);
     scoreimage[2].setTextureRect(IntRect(88, 0, 10, 25));
     scoreimage[2].setPosition(165, 885);
+    
+    Texture bosstexture;
+    boss eggman;
+    eggman.sp(bosstexture);
+    eggman.sprite.setPosition(2000, 100);
+    eggman.sprite.setScale(-2, 2);
 
     Texture bossbg;
     bossbg.loadFromFile("Textures/Bbg.png");
@@ -3107,8 +3121,6 @@ void bossfight(RenderWindow& window)
     ground1[1].setScale(1.5, 1);    //small
     ground1[2].setPosition(1550, 430);
     ground1[2].setScale(1.5, 1);    //small
-
-  
 
     //declaring sonic
     Texture sonictexture;
@@ -3282,6 +3294,38 @@ void bossfight(RenderWindow& window)
             sonic.sprite.setPosition(1880, sonic.sprite.getPosition().y);
         }
 
+
+        //Boss animation
+        eggman.currentframe += 0.006 * time;
+        eggman.sprite.setOrigin(78, 0);
+        if (eggman.currentframe > 12) 
+        {
+            eggman.sprite.setTextureRect(IntRect((int(eggman.currentframe) * 157), 0, 157, 180));
+        }
+       
+           
+
+
+        
+
+        //Boss movement
+        if (eggman.sprite.getPosition().x > 1800)
+            eggman.moveRight = false;
+        else if (eggman.sprite.getPosition().x < 200)
+            eggman.moveRight = true;
+
+        if(!eggman.moveRight)
+        {
+            eggman.sprite.move(-4, 0);
+            eggman.sprite.setScale(3, 3);
+        }
+        else
+        {
+            eggman.sprite.move(4, 0);
+            eggman.sprite.setScale(-3, 3);
+        }
+
+
         //Updating sonic
         sonic.update(time, 1.0f / 40.f, ground1);
         if (character == 1)
@@ -3320,6 +3364,7 @@ void bossfight(RenderWindow& window)
             break;
         }
 
+
         window.clear();
         window.draw(bossbg1S);
         window.draw(bossbgS);
@@ -3345,6 +3390,7 @@ void bossfight(RenderWindow& window)
             window.draw(scoreimage[i]);
         }
         window.draw(sonic.sprite);
+        window.draw(eggman.sprite);
         window.display();
     }
 }
@@ -4456,6 +4502,7 @@ void selectlevel(RenderWindow& window)
 
                 if (Mouse::isButtonPressed(Mouse::Left)) {
                     RenderWindow game(VideoMode(1920, 1080), "SonicGame");
+                    bossfight(game);
                     chat(game);
                     GamePlay(game, level1isfinished);
                     game.close();
