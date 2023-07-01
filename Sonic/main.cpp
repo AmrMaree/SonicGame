@@ -3186,7 +3186,7 @@ void GamePlay3(RenderWindow& window, bool& level3isfinished) {
 
         //checking if the level is finished
         if (sonic.sprite.getPosition().x > 13700)
-            stopFollowingSonic = true;
+            stopFollowingSonic = true;  
 
         if (sonic.sprite.getPosition().x < 13700 && stopFollowingSonic)
             sonic.sprite.setPosition(13700, sonic.sprite.getPosition().y);
@@ -3194,7 +3194,8 @@ void GamePlay3(RenderWindow& window, bool& level3isfinished) {
         if (sonic.sprite.getPosition().x > 14750)
             sonic.sprite.move(10, 0);
 
-        if (sonic.sprite.getPosition().x > 15400) {
+        if (sonic.sprite.getPosition().x > 15400) 
+        {
             level3isfinished = true;
             soundtrackMusic.pause();
             soundManager.playSound(5);
@@ -4223,8 +4224,6 @@ void chat3(RenderWindow& window)
     eggmanS.setTexture(eggman);
     eggmanS.setPosition(1480, 550);
     eggmanS.setScale(0.3, 0.3);
-
-
 
     Texture chat;
     chat.loadFromFile("Textures/chatbox.png");
@@ -5351,7 +5350,7 @@ void main()
     RenderWindow pressenter(VideoMode(1920, 1080), "enter game", Style::Fullscreen);
     pressEnter(pressenter);
     // make a Main window
-    RenderWindow MainMenu(VideoMode(1920, 1080), "game");
+    RenderWindow MainMenu(VideoMode(1920, 1080), "game", Style::Fullscreen);
     Menu mainmenu(MainMenu.getSize().x, MainMenu.getSize().y);
 
     Texture duos;
