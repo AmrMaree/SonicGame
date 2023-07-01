@@ -5461,6 +5461,7 @@ void main()
                     currentFrame1 = 0;
                 }
 
+
                 sprite2.setTexture(frames1[currentFrame1]);
                 animationClock1.restart();
                 if (currentFrame1 == 4) {

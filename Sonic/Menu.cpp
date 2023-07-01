@@ -65,6 +65,7 @@ void Menu::draw(RenderWindow& window)
 	}
 }
 
+
 //Move up 
 
 void Menu::moveup()
