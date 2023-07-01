@@ -264,7 +264,7 @@ struct player
             fullsonictexture.loadFromFile("Textures/fastrunningknuckles.png");
             sprite.setTexture(fullsonictexture);
             sprite.setTextureRect(IntRect(0, 0, 42, 44));
-            groundHeight = 721;
+            groundHeight = 670;
             //sprite.setPosition(sprite.getPosition().x, sprite.getPosition().y);
             if (acceleration.x != 0)
                 sprite.setTextureRect(IntRect((int(runcurrentframe) * 42), 0, 42, 44));
@@ -889,7 +889,7 @@ void playername(RenderWindow& window, RenderWindow& gameplay, string& name)
 void History(RenderWindow& window) {
 
     Texture HistoryTex;
-    HistoryTex.loadFromFile("Textures/history.png");
+    HistoryTex.loadFromFile("Textures/history.jpg");
     Sprite HistorySprite[5];
     for (int i = 0; i < 5; ++i)
     {
@@ -988,6 +988,7 @@ void History(RenderWindow& window) {
         for (int i = 0; i < lines.size(); i++) {
             window.draw(text[i]);
         }
+        window.draw(tback);
 
         window.display();
     }
@@ -1127,20 +1128,20 @@ void pressEnter(RenderWindow& window)
     titlescreenCoverT.loadFromFile("Textures/titlescreenCover.png");
     sf::Sprite titlescreenCoverS;
     titlescreenCoverS.setTexture(titlescreenCoverT);
-    titlescreenCoverS.setPosition(650, 300);
-    titlescreenCoverS.setScale(2, 2);
+    titlescreenCoverS.setPosition(620, 260);
+    titlescreenCoverS.setScale(2.5, 2.5);
 
     sf::Texture tieT;
     tieT.loadFromFile("Textures/tie.png");
     sf::Sprite tieS;
     tieS.setTexture(tieT);
-    tieS.setPosition(692, 448);
-    tieS.setScale(2, 2);
+    tieS.setPosition(680, 448);
+    tieS.setScale(2.5, 2.5);
 
     // create a sprite object
     Sprite sprite1;
-    sprite1.setPosition(845.f, 336.f);
-    sprite1.setScale(1.7, 1.7);
+    sprite1.setPosition(865.f, 304.f);
+    sprite1.setScale(2.1, 2.1);
 
     // set up the animation properties
     int currentFrame = 0;
@@ -1158,7 +1159,7 @@ void pressEnter(RenderWindow& window)
     t1.setCharacterSize(40);
     t1.setOutlineColor(Color::Black);
     t1.setOutlineThickness(4);
-    t1.setPosition(750, 750);
+    t1.setPosition(790, 750);
 
     sf::Clock timer;
     bool visible = true;
@@ -1236,9 +1237,9 @@ void pressEnter(RenderWindow& window)
 
             // Clear the window and draw the render texture and other sprites
             window.clear(sf::Color::Black);
+            window.draw(sprite2);
             window.draw(titlescreenCoverS);
             window.draw(t1);
-            window.draw(sprite2);
             window.draw(sprite1);
             window.draw(tieS);
             window.display();
@@ -5377,18 +5378,17 @@ void main()
     RenderWindow MainMenu(VideoMode(1920, 1080), "game");
     Menu mainmenu(MainMenu.getSize().x, MainMenu.getSize().y);
 
-    Texture duos;
-    duos.loadFromFile("Textures/duo.png");
-    Sprite duo;
-    duo.setTexture(duos);
-    duo.setPosition(850, 110);
+    Font font1;
+    font1.loadFromFile("Fonts/NiseSegaSonic.TTF");
+    Text textM;
+    textM.setFont(font1);
+    textM.setString("MAIN MENU");
+    textM.setPosition(690, 170);
+    textM.setCharacterSize(70);
+    textM.setFillColor(Color::White);
+    textM.setOutlineColor(Color::Black);
+    textM.setOutlineThickness(5);
 
-    Texture hedge;
-    hedge.loadFromFile("Textures/headgehog.png");
-    Sprite hog;
-    hog.setTexture(hedge);
-    hog.setPosition(1050, 590);
-    hog.setScale(0.55, 0.55);
 
     Texture mainbutton;
     mainbutton.loadFromFile("Textures/mainmenubutton.png");
@@ -5397,55 +5397,21 @@ void main()
     mainbutton1.setPosition(665, 70);
     mainbutton1.setScale(2.4, 2.4);
 
+    vector<Texture> frames1;
+    for (int i = 0; i < 4; i++) {
+        Texture frame1;
+        frame1.loadFromFile("Textures/levelM" + to_string(i + 1) + ".jpg");
+        // exit the program if a frame fails to load
+        frames1.push_back(frame1);
+    }
+    Sprite sprite2;
 
-    Texture mainbg;
-    mainbg.loadFromFile("Textures/main1.jpg");
-    Sprite bg;
-    bg.setTexture(mainbg);
+    int currentFrame1 = 0;
+    float animationDuration1 = 2; // duration of each frame in seconds
+    Clock animationClock1;
+    animationClock1.restart();
+    bool firstLoop1 = true;
 
-
-    Texture box;
-    box.loadFromFile("Textures/parallelogram.png");
-    Sprite box1;
-    box1.setTexture(box);
-    box1.setPosition(641, 125);
-    box1.setScale(-0.8, 0.46);
-
-    Texture box2;
-    box2.loadFromFile("Textures/parallelogram.png");
-    Sprite box3;
-    box3.setTexture(box2);
-    box3.setPosition(799, 325);
-    box3.setScale(-1.18, 0.5);
-
-    Texture box4;
-    box4.loadFromFile("Textures/parallelogram.png");
-    Sprite box5;
-    box5.setTexture(box4);
-    box5.setPosition(805, 500);
-    box5.setScale(-1.18, 0.55);
-
-    Texture box6;
-    box6.loadFromFile("Textures/parallelogram.png");
-    Sprite box7;
-    box7.setTexture(box6);
-    box7.setPosition(718, 780);
-    box7.setScale(-0.7, 0.3);
-
-    Font fontmain;
-    fontmain.loadFromFile("Fonts/NiseSegaSonic.TTF");
-    Text tP, tO, tH, tE;
-
-    tP.setFont(fontmain);
-    tP.setFillColor(Color::White);
-    tP.setString("Play");
-    tP.setCharacterSize(50);
-    tP.setPosition(360, 200);
-    tP.setOutlineColor(Color::Black);
-    tP.setOutlineThickness(6);
-
-
- 
     SoundBuffer gameoversound;
     gameoversound.loadFromFile("Sounds/gameover.wav");
     Sound soundG;
@@ -5465,6 +5431,21 @@ void main()
             {
                 MainMenu.close();
             }
+
+            if (animationClock1.getElapsedTime().asSeconds() > animationDuration1) {
+                currentFrame1 = (currentFrame1 + 1) % frames1.size();
+                if (currentFrame1 == 0 && !firstLoop1) {
+                    currentFrame1 = 0;
+                }
+
+                sprite2.setTexture(frames1[currentFrame1]);
+                animationClock1.restart();
+                if (currentFrame1 == 4) {
+                    firstLoop1 = false;
+                }
+
+            }
+
             if (event.type == Event::KeyReleased)
             {
                 if (event.key.code == Keyboard::Up)
@@ -5478,6 +5459,7 @@ void main()
                     mainmenu.movedown();
                     break;
                 }
+
 
                 if (event.key.code == Keyboard::Return)
                 {
@@ -5696,14 +5678,8 @@ void main()
             }
         }
         MainMenu.clear();
-        MainMenu.draw(bg);
-        MainMenu.draw(mainbutton1);
-        MainMenu.draw(duo);
-        MainMenu.draw(hog);
-        MainMenu.draw(box1);
-        MainMenu.draw(box3);
-        MainMenu.draw(box5);
-        MainMenu.draw(box7);
+        MainMenu.draw(sprite2);
+        MainMenu.draw(textM);
         mainmenu.draw(MainMenu);
         MainMenu.display();
     }
