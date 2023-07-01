@@ -3,4 +3,5 @@ Name   Score   Time   Rings
 
 
 
-a   5   0'39   9*
+a
+   5   0'39   9*
