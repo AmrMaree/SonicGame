@@ -5,3 +5,8 @@ Name   Score   Time   Rings
 
 a
    5   0'39   9*
+a
+   0   0'44   5*
+a
+   0   1'4   22*
+amr   0   0'23   5*
