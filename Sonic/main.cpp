@@ -4758,23 +4758,19 @@ void selectlevel(RenderWindow& window)
                 levelz1.setScale(1.2, 1.2);
 
                 if (Mouse::isButtonPressed(Mouse::Left)) {
-                    //RenderWindow game(VideoMode(1920, 1080), "SonicGame");
-                    //bossfight(window);
                     chat(window);
                     GamePlay(window, level1isfinished);
                     if (level1isfinished)
                     {
-                        RenderWindow Levelup(VideoMode(1920, 1080), "Level Up");
+                        RenderWindow Levelup(VideoMode(1920, 1080), "Level Up",Style::Fullscreen);
                         levelup(Levelup, score, rings, timeString);
                     }
                     if (gameover) {
                         window.close();
-                        RenderWindow gameover(VideoMode(1920, 1080), "Game Over");
+                        RenderWindow gameover(VideoMode(1920, 1080), "Game Over", Style::Fullscreen);
                         gameOver(gameover, score, rings, timeString);
                     }
                     gameover = false;
-                    //game.close();
-
                 }
             }
             Vector2i mousePosition1 = sf::Mouse::getPosition(window);
@@ -4787,21 +4783,19 @@ void selectlevel(RenderWindow& window)
                 locks.setScale(1.0, 0.45);
 
                 if (Mouse::isButtonPressed(Mouse::Left)) {
-                    //RenderWindow game(VideoMode(1920, 1080), "SonicGame");
                     chat2(window);
                     GamePlay2(window, level2isfinished);
                     if (level2isfinished)
                     {
-                        RenderWindow Levelup(VideoMode(1920, 1080), "Level Up");
+                        RenderWindow Levelup(VideoMode(1920, 1080), "Level Up", Style::Fullscreen);
                         levelup(Levelup, score, rings, timeString);
                     }
                     if (gameover) {
                         window.close();
-                        RenderWindow gameover(VideoMode(1920, 1080), "Game Over");
+                        RenderWindow gameover(VideoMode(1920, 1080), "Game Over", Style::Fullscreen);
                         gameOver(gameover, score, rings, timeString);
                     }
                     gameover = false;
-                    //game.close();
                 }
             }
 
@@ -4814,17 +4808,18 @@ void selectlevel(RenderWindow& window)
                 levelz3.setScale(1.2, 1.2);
                 locks1.setScale(1.0, 0.45);
                 if (Mouse::isButtonPressed(Mouse::Left) && level2isfinished) {
-                    //RenderWindow game(VideoMode(1920, 1080), "SonicGame");
                     chat3(window);
                     GamePlay3(window, level3isfinished);
                     if (level3isfinished)
                     {
-                        RenderWindow Levelup(VideoMode(1920, 1080), "Level Up");
+                        //return;
+                        RenderWindow Levelup(VideoMode(1920, 1080), "Level Up", Style::Fullscreen);
                         levelup(Levelup, score, rings, timeString);
+
                     }
                     if (gameover) {
                         window.close();
-                        RenderWindow gameover(VideoMode(1920, 1080), "Game Over");
+                        RenderWindow gameover(VideoMode(1920, 1080), "Game Over", Style::Fullscreen);
                         gameOver(gameover, score, rings, timeString);
                     }
                     gameover = false;
@@ -4974,7 +4969,8 @@ void playerSelection(RenderWindow& window, int& character)
 
                 if (Mouse::isButtonPressed(Mouse::Left)) {
                     character = currentCharacterIndex + 1;
-                    selectlevel(window);
+                    //selectlevel(window);
+                    return;
                 }
             }
         
@@ -4986,9 +4982,8 @@ void playerSelection(RenderWindow& window, int& character)
             {
                 tback.setScale(1.2, 1.2);
                 if (Mouse::isButtonPressed(Mouse::Left)) {
-                    RenderWindow entername(VideoMode(1920, 1080), "Enter Name");
+                    RenderWindow entername(VideoMode(1920, 1080), "Enter Name", Style::Fullscreen);
                     playername(entername, window,name);
-                    return;
                 }
             }
         
@@ -5006,7 +5001,7 @@ void playerSelection(RenderWindow& window, int& character)
 }
 void Controls()
 {
-    RenderWindow window(sf::VideoMode(1920, 1080), "Controls");
+    RenderWindow window(sf::VideoMode(1920, 1080), "Controls", Style::Fullscreen);
     int j = 0;
     int i = 0;
 
@@ -5219,7 +5214,7 @@ void Controls()
 }
 void SoundOption()
 {
-    RenderWindow window(sf::VideoMode(1920, 1080), "Sounds");
+    RenderWindow window(sf::VideoMode(1920, 1080), "Sounds", Style::Fullscreen);
 
     Font font1;
     font1.loadFromFile("Fonts/NiseSegaSonic.TTF");
@@ -5353,7 +5348,7 @@ void SoundOption()
 }
 void main()
 {
-    RenderWindow pressenter(VideoMode(1920, 1080), "enter game");
+    RenderWindow pressenter(VideoMode(1920, 1080), "enter game", Style::Fullscreen);
     pressEnter(pressenter);
     // make a Main window
     RenderWindow MainMenu(VideoMode(1920, 1080), "game");
@@ -5451,11 +5446,11 @@ void main()
 
                 if (event.key.code == Keyboard::Return)
                 {
-                    RenderWindow window(sf::VideoMode(1920, 1080), "Sonic Game");
+                    RenderWindow window(sf::VideoMode(1920, 1080), "Sonic Game", Style::Fullscreen);
                     window.setFramerateLimit(60);
-                    RenderWindow entername(VideoMode(1920, 1080), "Enter Name");
-                    RenderWindow Options(VideoMode(1920, 1080), "Options");
-                    RenderWindow About(VideoMode(1920, 1080), "History");
+                    RenderWindow entername(VideoMode(1920, 1080), "Enter Name", Style::Fullscreen);
+                    RenderWindow Options(VideoMode(1920, 1080), "Options", Style::Fullscreen);
+                    RenderWindow About(VideoMode(1920, 1080), "History", Style::Fullscreen);
 
 
                     int x = mainmenu.pressed();
@@ -5465,26 +5460,26 @@ void main()
                         About.close();
                         playername(entername, window, name);
                         playerSelection(window, character);
-                        RenderWindow selectwindow(sf::VideoMode(1920, 1080), "Sonic Game");
+                        window.close();
+                        RenderWindow selectwindow(sf::VideoMode(1920, 1080), "Sonic Game", Style::Fullscreen);
                         selectlevel(selectwindow);
-
                         if (level1isfinished)
                         {
-                            RenderWindow window2(sf::VideoMode(1920, 1080), "Sonic Game");
-                            chat2(window2);
-                            GamePlay2(window2, level2isfinished);
+                            RenderWindow selectwindow(sf::VideoMode(1920, 1080), "Sonic Game", Style::Fullscreen);
+                            chat2(selectwindow);
+                            GamePlay2(selectwindow,level2isfinished);
                         }
                         if (level2isfinished)
                         {
-                            RenderWindow window3(sf::VideoMode(1920, 1080), "Sonic Game");
-                            chat3(window3);
-                            GamePlay3(window3, level3isfinished);
+                            RenderWindow selectwindow(sf::VideoMode(1920, 1080), "Sonic Game", Style::Fullscreen);
+                            chat3(selectwindow);
+                            GamePlay3(selectwindow, level3isfinished);
                         }
                         if (level3isfinished)
                         {
-                            RenderWindow window4(sf::VideoMode(1920, 1080), "Sonic Game");
-                            chatboss(window4);
-                            bossfight(window4);
+                            RenderWindow selectwindow(sf::VideoMode(1920, 1080), "Sonic Game", Style::Fullscreen);
+                            chatboss(selectwindow);
+                            bossfight(selectwindow);
                         }
 
                     }
