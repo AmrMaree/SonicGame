@@ -2013,7 +2013,7 @@ void GamePlay2(RenderWindow& window, bool& level2isfinished) {
         sprites[i].setTexture(frames[0]);
         sf::FloatRect frameBounds = sprites[i].getLocalBounds();
         sprites[i].setOrigin(frameBounds.width / 2, frameBounds.height / 2);
-        sprites[i].setPosition((i + 1) * window.getSize().x + 30 / (numSprites + 1), 690);
+        sprites[i].setPosition((i + 1) * window.getSize().x -500 / (numSprites + 1), 690);
         sprites[i].setScale(3.5f, 7);
     }
 
@@ -2697,7 +2697,7 @@ void GamePlay3(RenderWindow& window, bool& level3isfinished) {
         sprites[i].setTexture(frames[0]);
         sf::FloatRect frameBounds = sprites[i].getLocalBounds();
         sprites[i].setOrigin(frameBounds.width / 2, frameBounds.height / 2);
-        sprites[i].setPosition((i + 1) * window.getSize().x + 30 / (numSprites + 1), 678);
+        sprites[i].setPosition((i + 1) * window.getSize().x - 500 / (numSprites + 1), 690);
         sprites[i].setScale(3.5f, 7);
     }
 
