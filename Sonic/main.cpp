@@ -1621,10 +1621,6 @@ void GamePlay(RenderWindow& window, bool& level1isfinished) {
     //powerups
     Setdrops();
 
-    SoundBuffer jumpB;
-    jumpB.loadFromFile("Sounds/jump.wav");
-    Sound jump(jumpB);
-
     // load coin sound 
     SoundBuffer coinBuffer;
     coinBuffer.loadFromFile("Sounds/soundcoin.wav");
@@ -1654,6 +1650,14 @@ void GamePlay(RenderWindow& window, bool& level1isfinished) {
     SoundBuffer levelupBuffer;
     levelupBuffer.loadFromFile("Sounds/levelup.wav");
     soundManager.addSound(levelupBuffer);
+
+    SoundBuffer jumpB;
+    jumpB.loadFromFile("Sounds/jump.wav");
+    Sound jump(jumpB);
+
+    SoundBuffer damageB;
+    damageB.loadFromFile("Sounds/damage.wav");
+    Sound damage(damageB);
 
 
     // load soundtrack and loop it
@@ -1819,6 +1823,12 @@ void GamePlay(RenderWindow& window, bool& level1isfinished) {
                 if (candamage && cooldowndamage.getElapsedTime().asSeconds() >= cooldownTime)
                 {
                     sonic.damage++;
+                    if (soundison)
+                        damage.play();
+                    else if (!soundison)
+                    {
+                        damage.pause();
+                    }
                     sonic.sprite.move(-450, -150);
 
                     cooldowndamage.restart();
@@ -1850,6 +1860,12 @@ void GamePlay(RenderWindow& window, bool& level1isfinished) {
             {
 
                 sonic.damage++;
+                if (soundison)
+                    damage.play();
+                else if (!soundison)
+                {
+                    damage.pause();
+                }
                 sonic.sprite.move(-450, -150);
                 cooldowndamage.restart();
                 candamage = false;
@@ -1884,6 +1900,12 @@ void GamePlay(RenderWindow& window, bool& level1isfinished) {
             {
                 enemy2[0].sprite.setPosition(sonic.sprite.getPosition().x + 2500, 80); // Respawn the enemy2 on the right side of the window
                 sonic.damage++;
+                if (soundison)
+                    damage.play();
+                else if (!soundison)
+                {
+                    damage.pause();
+                }
                 cooldowndamage.restart();
                 candamage = false;
             }
@@ -1911,6 +1933,12 @@ void GamePlay(RenderWindow& window, bool& level1isfinished) {
             {
                 enemy2[1].sprite.setPosition(sonic.sprite.getPosition().x + 2500, 120); // Respawn the enemy2 on the right side of the window
                 sonic.damage++;
+                if (soundison)
+                    damage.play();
+                else if (!soundison)
+                {
+                    damage.pause();
+                }
                 cooldowndamage.restart();
                 candamage = false;
             }
@@ -1980,7 +2008,7 @@ void GamePlay(RenderWindow& window, bool& level1isfinished) {
         //Updating sonic
         if (!pause)
         {
-            sonic.update(time, 1.0f / 40.f, ground1,jump);
+            sonic.update(time, 1.0f / 40.f, ground1, jump);
         }
         if (character == 1)
         {
@@ -1994,7 +2022,7 @@ void GamePlay(RenderWindow& window, bool& level1isfinished) {
         else if (character == 3)
         {
             sonic.tails_animation(time);
-            if(sonic.position == 2)
+            if (sonic.position == 2)
                 sonic.groundHeight = 712;
             else if (sonic.position == 1)
                 sonic.groundHeight = 693;
@@ -2366,9 +2394,7 @@ void GamePlay2(RenderWindow& window, bool& level2isfinished) {
     Setdrops();
     SoundManager soundManager;
 
-    SoundBuffer jumpB;
-    jumpB.loadFromFile("Sounds/jump.wav");
-    Sound jump(jumpB);
+
 
 
     // load coin sound 
@@ -2401,8 +2427,16 @@ void GamePlay2(RenderWindow& window, bool& level2isfinished) {
     //levelupBuffer.loadFromFile("Sounds/levelup.wav");
     //soundManager.addSound(levelupBuffer);
 
+    SoundBuffer jumpB;
+    jumpB.loadFromFile("Sounds/jump.wav");
+    Sound jump(jumpB);
 
- // load soundtrack and loop it
+    SoundBuffer damageB;
+    damageB.loadFromFile("Sounds/damage.wav");
+    Sound damage(damageB);
+
+
+    // load soundtrack and loop it
     Music soundtrackMusic;
     if (soundtrackMusic.openFromFile("Sounds/level2.wav"))
 
@@ -2582,6 +2616,12 @@ void GamePlay2(RenderWindow& window, bool& level2isfinished) {
                 if (candamage && cooldowndamage.getElapsedTime().asSeconds() >= cooldownTime)
                 {
                     sonic.damage++;
+                    if (soundison)
+                        damage.play();
+                    else if (!soundison)
+                    {
+                        damage.pause();
+                    }
                     sonic.sprite.move(-450, -150);
                     cooldowndamage.restart();
                     candamage = false;
@@ -2615,6 +2655,12 @@ void GamePlay2(RenderWindow& window, bool& level2isfinished) {
                     if (candamage && cooldowndamage.getElapsedTime().asSeconds() >= cooldownTime)
                     {
                         sonic.damage++;
+                        if (soundison)
+                            damage.play();
+                        else if (!soundison)
+                        {
+                            damage.pause();
+                        }
                         sonic.sprite.move(-100, -150);
 
                         cooldowndamage.restart();
@@ -2650,6 +2696,12 @@ void GamePlay2(RenderWindow& window, bool& level2isfinished) {
             {
                 enemy2[0].sprite.setPosition(sonic.sprite.getPosition().x + 2500, 80); // Respawn the enemy2 on the right side of the window
                 sonic.damage++;
+                if (soundison)
+                    damage.play();
+                else if (!soundison)
+                {
+                    damage.pause();
+                }
                 cooldowndamage.restart();
                 candamage = false;
             }
@@ -2677,6 +2729,12 @@ void GamePlay2(RenderWindow& window, bool& level2isfinished) {
             {
                 enemy2[1].sprite.setPosition(sonic.sprite.getPosition().x + 2500, 120); // Respawn the enemy2 on the right side of the window
                 sonic.damage++;
+                if (soundison)
+                    damage.play();
+                else if (!soundison)
+                {
+                    damage.pause();
+                }
                 cooldowndamage.restart();
                 candamage = false;
             }
@@ -2749,7 +2807,7 @@ void GamePlay2(RenderWindow& window, bool& level2isfinished) {
         //Updating sonic
         if (!pause)
         {
-            sonic.update(time, 1.0f / 40.f, ground1,jump);
+            sonic.update(time, 1.0f / 40.f, ground1, jump);
         }
         if (character == 1)
         {
@@ -3200,9 +3258,7 @@ void GamePlay3(RenderWindow& window, bool& level3isfinished) {
     Setdrops();
     SoundManager soundManager;
 
-    SoundBuffer jumpB;
-    jumpB.loadFromFile("Sounds/jump.wav");
-    Sound jump(jumpB);
+
 
     // load coin sound 
     SoundBuffer coinBuffer;
@@ -3234,8 +3290,15 @@ void GamePlay3(RenderWindow& window, bool& level3isfinished) {
     //levelupBuffer.loadFromFile("Sounds/levelup.wav");
     //soundManager.addSound(levelupBuffer);
 
+    SoundBuffer jumpB;
+    jumpB.loadFromFile("Sounds/jump.wav");
+    Sound jump(jumpB);
 
-   // load soundtrack and loop it
+    SoundBuffer damageB;
+    damageB.loadFromFile("Sounds/damage.wav");
+    Sound damage(damageB);
+
+    // load soundtrack and loop it
     Music soundtrackMusic;
     if (soundtrackMusic.openFromFile("Sounds/level3.wav"))
 
@@ -3335,7 +3398,7 @@ void GamePlay3(RenderWindow& window, bool& level3isfinished) {
                 window.close();
             }
         }
-        
+
 
 
         soundManager.setVolume(20);
@@ -3416,6 +3479,12 @@ void GamePlay3(RenderWindow& window, bool& level3isfinished) {
                 if (candamage && cooldowndamage.getElapsedTime().asSeconds() >= cooldownTime)
                 {
                     sonic.damage++;
+                    if (soundison)
+                        damage.play();
+                    else if (!soundison)
+                    {
+                        damage.pause();
+                    }
                     sonic.sprite.move(-450, -150);
                     cooldowndamage.restart();
                     candamage = false;
@@ -3451,6 +3520,12 @@ void GamePlay3(RenderWindow& window, bool& level3isfinished) {
             {
 
                 sonic.damage++;
+                if (soundison)
+                    damage.play();
+                else if (!soundison)
+                {
+                    damage.pause();
+                }
                 sonic.sprite.move(-450, -150);
                 cooldowndamage.restart();
                 candamage = false;
@@ -3485,6 +3560,12 @@ void GamePlay3(RenderWindow& window, bool& level3isfinished) {
             {
                 enemy2[0].sprite.setPosition(sonic.sprite.getPosition().x + 2500, 80); // Respawn the enemy2 on the right side of the window
                 sonic.damage++;
+                if (soundison)
+                    damage.play();
+                else if (!soundison)
+                {
+                    damage.pause();
+                }
                 cooldowndamage.restart();
                 candamage = false;
             }
@@ -3512,6 +3593,12 @@ void GamePlay3(RenderWindow& window, bool& level3isfinished) {
             {
                 enemy2[1].sprite.setPosition(sonic.sprite.getPosition().x + 2500, 120); // Respawn the enemy2 on the right side of the window
                 sonic.damage++;
+                if (soundison)
+                    damage.play();
+                else if (!soundison)
+                {
+                    damage.pause();
+                }
                 cooldowndamage.restart();
                 candamage = false;
             }
@@ -3583,7 +3670,7 @@ void GamePlay3(RenderWindow& window, bool& level3isfinished) {
 
         //Updating sonic
         if (!pause)
-            sonic.update(time, 1.0f / 40.f, ground1,jump);
+            sonic.update(time, 1.0f / 40.f, ground1, jump);
         if (character == 1)
         {
             sonic.sonic_animation(time);
@@ -3928,9 +4015,6 @@ void bossfight(RenderWindow& window)
     Setdrops();
     SoundManager soundManager;
 
-    SoundBuffer jumpB;
-    jumpB.loadFromFile("Sounds/jump.wav");
-    Sound jump(jumpB);
 
     // load coin sound 
     SoundBuffer coinBuffer;
@@ -3956,6 +4040,14 @@ void bossfight(RenderWindow& window)
     SoundBuffer gotthegBuffer;
     gotthegBuffer.loadFromFile("Sounds/gotthegun.wav");
     Sound getthegunSound(gotthegBuffer);
+
+    SoundBuffer jumpB;
+    jumpB.loadFromFile("Sounds/jump.wav");
+    Sound jump(jumpB);
+
+    SoundBuffer explosionB;
+    explosionB.loadFromFile("Sounds/jump.wav");
+    Sound explosion(explosionB);
 
     //load sound of level up
     //SoundBuffer levelupBuffer;
@@ -4195,6 +4287,7 @@ void bossfight(RenderWindow& window)
             eggman.sprite.setScale(8, 8);
             if (eggman.dieframe > 11)
             {
+                explosion.play();
                 i++;
                 eggman.dieframe -= 11;
               
@@ -5319,7 +5412,7 @@ void chatboss(RenderWindow& window)
         window.display();
     }
 }
-void selectlevel(RenderWindow& window)
+void selectlevel(RenderWindow& window, Music& soundM)
 {
     Texture level;
     level.loadFromFile("Textures/main2.jpg");
@@ -5482,6 +5575,7 @@ void selectlevel(RenderWindow& window)
                 levelz1.setScale(1.2, 1.2);
 
                 if (Mouse::isButtonPressed(Mouse::Left)) {
+                    soundM.pause();
                     soundC.play();
                     chat(window);
                     GamePlay(window, level1isfinished);
@@ -5490,6 +5584,7 @@ void selectlevel(RenderWindow& window)
                         RenderWindow Levelup(VideoMode(1920, 1080), "Level Up");
                         levelup(Levelup, score, rings, timeString);
                     }
+                 
                     if (gameover) {
                         window.close();
                         if (soundison)
@@ -5500,6 +5595,7 @@ void selectlevel(RenderWindow& window)
                         gameOver(gameover, score, rings, timeString);
                     }
                     gameover = false;
+                    soundM.play();
                 }
             }
             Vector2i mousePosition1 = sf::Mouse::getPosition(window);
@@ -5513,6 +5609,7 @@ void selectlevel(RenderWindow& window)
                 locks.setScale(1.0, 0.45);
 
                 if (Mouse::isButtonPressed(Mouse::Left) && level1isfinished) {
+                    soundM.pause();
                     soundC.play();
                     chat2(window);
                     GamePlay2(window, level2isfinished);
@@ -5531,6 +5628,7 @@ void selectlevel(RenderWindow& window)
                         gameOver(gameover, score, rings, timeString);
                     }
                     gameover = false;
+                    soundM.play();
                 }
             }
 
@@ -5544,6 +5642,7 @@ void selectlevel(RenderWindow& window)
                 levelz3.setScale(1.2, 1.2);
                 locks1.setScale(1.0, 0.45);
                 if (Mouse::isButtonPressed(Mouse::Left) && level2isfinished) {
+                    soundM.pause();
                     soundC.play();
                     chat3(window);
                     GamePlay3(window, level3isfinished);
@@ -5563,6 +5662,7 @@ void selectlevel(RenderWindow& window)
                         gameOver(gameover, score, rings, timeString);
                     }
                     gameover = false;
+                    soundM.play();
                 }
             }
 
@@ -5574,6 +5674,7 @@ void selectlevel(RenderWindow& window)
             {
                 levelz4.setScale(1.2, 1.2);
                 if (Mouse::isButtonPressed(Mouse::Left) && level3isfinished) {
+                    soundM.pause();
                     soundC.play();
                     chatboss(window);
                     bossfight(window);
@@ -5587,6 +5688,7 @@ void selectlevel(RenderWindow& window)
                         gameOver(gameover, score, rings, timeString);
                     }
                     gameover = false;
+                    soundM.play();
                 }
             }
 
@@ -5634,7 +5736,7 @@ void selectlevel(RenderWindow& window)
         window.display();
     }
 }
-void playerSelection(RenderWindow& window, int& character)
+void playerSelection(RenderWindow& window, int& character, Music& soundM)
 {
     bool sonicC = true;
     bool knuclesC = false;
@@ -5713,6 +5815,7 @@ void playerSelection(RenderWindow& window, int& character)
     int currentCharacterIndex = 0;
     Sprite* characters[] = { &sonicS, &knuclesS, &talesS };
 
+
     while (window.isOpen())
     {
         Event event;
@@ -5765,7 +5868,7 @@ void playerSelection(RenderWindow& window, int& character)
                     soundC.play();
                     character = currentCharacterIndex + 1;
                     RenderWindow selectwindow(sf::VideoMode(1920, 1080), "Sonic Game");
-                    selectlevel(selectwindow);
+                    selectlevel(selectwindow,soundM);
                     return;
                 }
             }
@@ -6214,8 +6317,14 @@ void victory(RenderWindow& window)
     Gameovertime.setOutlineColor(Color::Black);
     Gameovertime.setOutlineThickness(4);
 
+    SoundBuffer victoryB;
+    victoryB.loadFromFile("Sounds/jump.wav");
+    Sound victory1(victoryB);
+    victory1.play();
+
     while (window.isOpen())
     {
+        
         Event event;
         while (window.pollEvent(event))
         {
@@ -6450,23 +6559,22 @@ void main()
                         Options.close();
                         About.close();
                         playername(entername, window, name);
-                        playerSelection(window, character);
+                        playerSelection(window, character,soundM);
                         window.close();
-                        soundM.setVolume(0);
                         if (level1isfinished && !gameover)
                         {
                             RenderWindow selectwindow(sf::VideoMode(1920, 1080), "Sonic Game");
-                            selectlevel(selectwindow);
+                            selectlevel(selectwindow,soundM);
                         }
                         if (level2isfinished && !gameover)
                         {
                             RenderWindow selectwindow(sf::VideoMode(1920, 1080), "Sonic Game");
-                            selectlevel(selectwindow);
+                            selectlevel(selectwindow,soundM);
                         }
                         if (level3isfinished && !gameover)
                         {
                             RenderWindow selectwindow(sf::VideoMode(1920, 1080), "Sonic Game");
-                            selectlevel(selectwindow);
+                            selectlevel(selectwindow,soundM);
                         }
                         if (bosslevelisfinished)
                         {
