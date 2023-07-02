@@ -4087,7 +4087,7 @@ void bossfight(RenderWindow& window)
         window.clear();
         window.draw(bossbg1S);
         window.draw(bossbgS);
-        for (int i = 1; i < sonic.bullet.size(); i++)
+        for (int i = 0; i < sonic.bullet.size(); i++)
         {
             window.draw(sonic.bullet[i].bulletSprite);
         }
