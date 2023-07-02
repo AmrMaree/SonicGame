@@ -3986,11 +3986,6 @@ void bossfight(RenderWindow& window)
                 eggman.sprite.setTextureRect(IntRect((int(eggman.dieframe) * 32), 0, 32, 32));
             
         }
-     
-
-       
-        
-
 
         //Updating sonic
         if(!pause)
