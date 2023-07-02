@@ -774,6 +774,65 @@ void block(Sprite ground1[])
     ground1[22].setPosition(13700, 300);
     ground1[22].setScale(1.2f, 1.5f);   //small
 }
+void sega(RenderWindow& window)
+{
+
+    SoundBuffer segasound;
+    segasound.loadFromFile("Sounds/sega.wav");
+    Sound sega;
+    sega.setBuffer(segasound);
+
+    // create a vector of textures for the animation frames
+    vector<Texture> frames;
+    for (int i = 0; i < 25; i++) {
+        Texture frame;
+        frame.loadFromFile("Textures/s" + to_string(i + 1) + ".png");
+        // exit the program if a frame fails to load
+        frames.push_back(frame);
+    }
+
+    Sprite sprite1;
+
+    int currentFrame = 0;
+    float animationDuration = 0.2f; // duration of each frame in seconds
+    sf::Clock animationClock;
+    animationClock.restart();
+
+    while (window.isOpen())
+    {
+        Event event;
+        while (window.pollEvent(event))
+        {
+            if (event.type == Event::Closed)
+            {
+                window.close();
+            }
+        }
+
+        if (currentFrame == frames.size() - 1)
+        {
+            if (animationClock.getElapsedTime().asSeconds() > 3.0f)
+            {
+                sega.play();
+                window.close();
+            }
+        }
+        else
+        {
+            if (animationClock.getElapsedTime().asSeconds() > animationDuration)
+            {
+                currentFrame = (currentFrame + 1) % frames.size();
+                sprite1.setTexture(frames[currentFrame]);
+                animationClock.restart();
+            }
+        }
+
+        window.clear();
+        window.draw(sprite1);
+        window.display();
+    }
+
+}
 void playername(RenderWindow& window, RenderWindow& gameplay, string& name)
 {
     if (!name.empty())
@@ -983,8 +1042,6 @@ void History(RenderWindow& window) {
 
 }
 void gameOver(RenderWindow& window, int score, int rings, string timeString) {
-
-
     Texture HistoryTex;
     HistoryTex.loadFromFile("Textures/gameover(2).jpg");
     Sprite HistorySprit;
@@ -1633,8 +1690,6 @@ void GamePlay(RenderWindow& window, bool& level1isfinished) {
         {
             soundManager.setVolume(0);
             soundManager.stopSound(0);
-            //soundManager.stopSound(1);
-            //soundManager.stopSound(2);
             soundManager.stopSound(5);
         }
 
@@ -1941,10 +1996,6 @@ void GamePlay(RenderWindow& window, bool& level1isfinished) {
         //checking if the level is finished
         if (sonic.sprite.getPosition().x > 13700)
             stopFollowingSonic = true;
-
-
-        if (sonic.sprite.getPosition().x < 13700 && stopFollowingSonic)
-            sonic.sprite.setPosition(13700, sonic.sprite.getPosition().y);
 
         if (sonic.sprite.getPosition().x > 14750)
             sonic.sprite.move(10, 0);
@@ -3630,6 +3681,13 @@ void bossfight(RenderWindow& window)
     bossgroundS.setPosition(0, 726);
     bossgroundS.setScale(1, 1);
 
+    Texture health;
+    health.loadFromFile("Textures/healthabr.png");
+    Sprite bar;
+    bar.setTexture(health);
+    bar.setScale(0.5, 0.5);
+    bar.setPosition(600, 100);
+
     //setting blocks
     Texture ground1texture;
     ground1texture.loadFromFile("Textures/bossfightblock.png");
@@ -3696,15 +3754,17 @@ void bossfight(RenderWindow& window)
     timerText.setCharacterSize(32);
     timerText.setScale(1.45f, 1.45f);
 
-    // Create the background rectangle for the health bar
-    RectangleShape background(Vector2f(200.f, 20.f));
-    background.setFillColor(Color::Red);
-    background.setPosition(500.f, 100.f);
+    //Create the background rectangle for the health bar
+    RectangleShape background(Vector2f(1062.f, 92.f));
+    background.setFillColor(Color(178, 190, 181));
+    background.setPosition(640.f, 125.f);
+    background.setScale(0.5, 0.5);
 
     // Create the fill rectangle for the health bar
-    sf::RectangleShape fill(Vector2f(200.f, 20.f));
-    fill.setFillColor(Color::Green);
-    fill.setPosition(500.f, 100.f);
+    RectangleShape fill(Vector2f(1062.f, 92.f));
+    fill.setFillColor(Color(136, 8, 8));
+    fill.setPosition(640.f, 125.f);
+    fill.setScale(0.5, 0.5);
 
     //powerups
     Setdrops();
@@ -3840,8 +3900,6 @@ void bossfight(RenderWindow& window)
         {
             soundManager.setVolume(0);
             soundManager.stopSound(0);
-            //soundManager.stopSound(1);
-            //soundManager.stopSound(2);
             soundManager.stopSound(5);
         }
 
@@ -3863,12 +3921,9 @@ void bossfight(RenderWindow& window)
             sonic.sprite.setScale(sonic.s1, sonic.s2);
             sonic.last_key_pressed = 1;
         }
-        if (!pause)
-        {
+        if (!pause) {
             if (Mouse::isButtonPressed(Mouse::Left) && sonic.index >= 0 && sonic.canShoot) {
-                for (auto& sound : soundManager.sounds) {
-                    sound.play();
-                }
+                soundManager.playSound(1);
                 sonic.bullet[sonic.index].bulletSprite.setPosition(sonic.sprite.getPosition().x, sonic.sprite.getPosition().y);
                 sonic.shootCooldown = sonic.bullet[sonic.index].cooldownUse;
                 sonic.bullet[sonic.index].moveTo = sonic.last_key_pressed;
@@ -3948,10 +4003,11 @@ void bossfight(RenderWindow& window)
             }
             if (eggman.health < 0) {
                 //level is finished
+                eggman.isdead = true;
                 text.setString(to_string(score));
             }
             else
-                fill.setSize(sf::Vector2f(200.f * (eggman.health / eggman.maxhealth), 20.f));
+                fill.setSize(sf::Vector2f(1050.f * (eggman.health / eggman.maxhealth), 92.f));
         }
 
         //Boss animation
@@ -3965,15 +4021,10 @@ void bossfight(RenderWindow& window)
             }
             eggman.sprite.setTextureRect(IntRect((int(eggman.currentframe) * 165), 0, 165, 155));
         }
-        if (eggman.health < 0)
-        {
-            eggman.isdead = true;
-        }
 
         if (eggman.isdead) {
             eggman.bossTexture.loadFromFile("Textures/spritesheet.png");
             eggman.dieframe += 0.01 * time;
-            eggman.sprite.setOrigin(82, 0);
             eggman.sprite.setScale(6, 6);
             Clock dead;
             if (eggman.dieframe > 11)
@@ -3986,11 +4037,6 @@ void bossfight(RenderWindow& window)
                 eggman.sprite.setTextureRect(IntRect((int(eggman.dieframe) * 32), 0, 32, 32));
 
         }
-
-
-
-
-
 
         //Updating sonic
         if (!pause)
@@ -5428,7 +5474,7 @@ void playerSelection(RenderWindow& window, int& character)
     choose.loadFromFile("Textures/choose.png");
     Sprite chooseS;
     chooseS.setTexture(choose);
-    chooseS.setPosition(707 + 178, 800 + 70);
+    chooseS.setPosition(800 + 178, 800 + 70);
     chooseS.setScale(0.8, 0.8);
 
     SoundBuffer clicksound;
@@ -5877,6 +5923,8 @@ void SoundOption()
 }
 void main()
 {
+    RenderWindow segaa(VideoMode(1920, 1080), "", Style::Fullscreen);
+    sega(segaa);
     RenderWindow pressenter(VideoMode(1920, 1080), "enter game");
     pressEnter(pressenter);
 
