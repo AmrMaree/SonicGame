@@ -103,12 +103,17 @@ struct player
             s1 = 2.3, s2 = 2.3;
         }
     }
-    void update(float time, float deltaTime, Sprite block[])
+    void update(float time, float deltaTime, Sprite block[], Sound& jump)
     {
         acceleration = Vector2f(0.0f, 0.0f);
 
         // Update velocity and acceleration based on player input
         if (Keyboard::isKeyPressed(Keyboard::Space) && onground) {
+            if (soundison)
+                jump.play();
+            else if (!soundison)
+                jump.setVolume(0);
+
             velocity.y = -sqrtf(2.0f * jumpHeight * gravity);
             onground = false;
         }
@@ -149,6 +154,7 @@ struct player
             }
 
         }
+
         // cout << velocity.x << "   " << velocity.y << endl;
          // Apply gravity to the character
         velocity.y += gravity * deltaTime;
@@ -797,7 +803,6 @@ void block(Sprite ground1[])
 }
 void sega(RenderWindow& window)
 {
-
     SoundBuffer segasound;
     segasound.loadFromFile("Sounds/sega.wav");
     Sound sega;
@@ -815,7 +820,7 @@ void sega(RenderWindow& window)
     Sprite sprite1;
 
     int currentFrame = 0;
-    float animationDuration = 0.2f; // duration of each frame in seconds
+    float animationDuration = 0.1f; // duration of each frame in seconds
     sf::Clock animationClock;
     animationClock.restart();
 
@@ -832,27 +837,23 @@ void sega(RenderWindow& window)
 
         if (currentFrame == frames.size() - 1)
         {
-            if (animationClock.getElapsedTime().asSeconds() > 3.0f)
-            {
-                sega.play();
-                window.close();
-            }
+            sega.play();
+            sega.setVolume(20);
+            sf::sleep(sf::seconds(3.0f)); // delay for 5 seconds
+            window.close();
+
         }
-        else
+        else if (animationClock.getElapsedTime().asSeconds() > animationDuration)
         {
-            if (animationClock.getElapsedTime().asSeconds() > animationDuration)
-            {
-                currentFrame = (currentFrame + 1) % frames.size();
-                sprite1.setTexture(frames[currentFrame]);
-                animationClock.restart();
-            }
+            currentFrame = (currentFrame + 1) % frames.size();
+            sprite1.setTexture(frames[currentFrame]);
+            animationClock.restart();
         }
 
         window.clear();
         window.draw(sprite1);
         window.display();
     }
-
 }
 void playername(RenderWindow& window, RenderWindow& gameplay, string& name)
 {
@@ -1620,6 +1621,10 @@ void GamePlay(RenderWindow& window, bool& level1isfinished) {
     //powerups
     Setdrops();
 
+    SoundBuffer jumpB;
+    jumpB.loadFromFile("Sounds/jump.wav");
+    Sound jump(jumpB);
+
     // load coin sound 
     SoundBuffer coinBuffer;
     coinBuffer.loadFromFile("Sounds/soundcoin.wav");
@@ -1975,7 +1980,7 @@ void GamePlay(RenderWindow& window, bool& level1isfinished) {
         //Updating sonic
         if (!pause)
         {
-            sonic.update(time, 1.0f / 40.f, ground1);
+            sonic.update(time, 1.0f / 40.f, ground1,jump);
         }
         if (character == 1)
         {
@@ -2361,6 +2366,11 @@ void GamePlay2(RenderWindow& window, bool& level2isfinished) {
     Setdrops();
     SoundManager soundManager;
 
+    SoundBuffer jumpB;
+    jumpB.loadFromFile("Sounds/jump.wav");
+    Sound jump(jumpB);
+
+
     // load coin sound 
     SoundBuffer coinBuffer;
     coinBuffer.loadFromFile("Sounds/soundcoin.wav");
@@ -2739,7 +2749,7 @@ void GamePlay2(RenderWindow& window, bool& level2isfinished) {
         //Updating sonic
         if (!pause)
         {
-            sonic.update(time, 1.0f / 40.f, ground1);
+            sonic.update(time, 1.0f / 40.f, ground1,jump);
         }
         if (character == 1)
         {
@@ -3190,6 +3200,10 @@ void GamePlay3(RenderWindow& window, bool& level3isfinished) {
     Setdrops();
     SoundManager soundManager;
 
+    SoundBuffer jumpB;
+    jumpB.loadFromFile("Sounds/jump.wav");
+    Sound jump(jumpB);
+
     // load coin sound 
     SoundBuffer coinBuffer;
     coinBuffer.loadFromFile("Sounds/soundcoin.wav");
@@ -3569,7 +3583,7 @@ void GamePlay3(RenderWindow& window, bool& level3isfinished) {
 
         //Updating sonic
         if (!pause)
-            sonic.update(time, 1.0f / 40.f, ground1);
+            sonic.update(time, 1.0f / 40.f, ground1,jump);
         if (character == 1)
         {
             sonic.sonic_animation(time);
@@ -3914,6 +3928,10 @@ void bossfight(RenderWindow& window)
     Setdrops();
     SoundManager soundManager;
 
+    SoundBuffer jumpB;
+    jumpB.loadFromFile("Sounds/jump.wav");
+    Sound jump(jumpB);
+
     // load coin sound 
     SoundBuffer coinBuffer;
     coinBuffer.loadFromFile("Sounds/soundcoin.wav");
@@ -4195,7 +4213,7 @@ void bossfight(RenderWindow& window)
 
         //Updating sonic
         if (!pause)
-            sonic.update(time, 1.0f / 40.f, ground1);
+            sonic.update(time, 1.0f / 40.f, ground1,jump);
         if (character == 1)
         {
             sonic.sonic_animation(time);
@@ -4647,8 +4665,8 @@ void chat2(RenderWindow& window)
     sound.setBuffer(clicking);
 
     // Set the dialogue text
-    vector<string> npcDialogue = { "Ah,I see you're still trying to fail my plans.", "(smirks) I've created a robot that's stronger than you", "Let's find out then who will take over the world " };
-    vector<string> playerDialogue = { "And I see you're still trying to take over the world. How original.", "(determined) Not if I stop you first, Eggman. Let's go!", "(smiling) The world is safe as long as I'm around.(runs off)" };
+    vector<string> npcDialogue = { "Okay, you managed to get me this time.", "I'm not sure about that!", "You wont get me now ." };
+    vector<string> playerDialogue = { "I will always do Eggman!", " The world is safe as long as I'm around.", "Let's see! (starts running)" };
 
     // Create a variable to keep track of the dialogue state
     int currentDialogueIndex = 0;
@@ -4909,8 +4927,8 @@ void chat3(RenderWindow& window)
     sound.setBuffer(clicking);
 
     // Set the dialogue text
-    vector<string> npcDialogue = { "Ah,I see you're still trying to fail my plans.", "(smirks) I've created a robot that's stronger than you", "Let's find out then who will take over the world " };
-    vector<string> playerDialogue = { "And I see you're still trying to take over the world. How original.", "(determined) Not if I stop you first, Eggman. Let's go!", "(smiling) The world is safe as long as I'm around.(runs off)" };
+    vector<string> npcDialogue = { "pretty impresive ! ", "Is it ?, not from now on ", "It's getting harder from now " };
+    vector<string> playerDialogue = { "That's easy! (but i shall never let my guard down)", "I'm saving the world at all costs", "(smiling) I accept the challenge !" };
 
     // Create a variable to keep track of the dialogue state
     int currentDialogueIndex = 0;
@@ -5160,8 +5178,8 @@ void chatboss(RenderWindow& window)
     soundL.setVolume(15);
 
     // Set the dialogue text
-    vector<string> npcDialogue = { "Ah,I see you're still trying to fail my plans.", "(smirks) I've created a robot that's stronger than you", "Let's find out then who will take over the world " };
-    vector<string> playerDialogue = { "And I see you're still trying to take over the world. How original.", "(determined) Not if I stop you first, Eggman. Let's go!", "(smiling) The world is safe as long as I'm around.(runs off)" };
+    vector<string> npcDialogue = { "Ah,I see you're trying to fail all my plans.", "Now you have to fight me and show me what you got!", "Good luck in that !" };
+    vector<string> playerDialogue = { "I wont let anyone in danger", "I'll give it my all ", "(It's the step to victory i got this...)" };
 
     // Create a variable to keep track of the dialogue state
     int currentDialogueIndex = 0;
@@ -5995,7 +6013,7 @@ void Controls()
 
     }
 }
-void SoundOption()
+void SoundOption(Music& soundM)
 {
     RenderWindow window(sf::VideoMode(1920, 1080), "Sounds");
 
@@ -6093,6 +6111,7 @@ void SoundOption()
                 {
                     soundC.play();
                     soundison = false;
+                    soundM.pause();
                 }
             }
             Vector2i mousePosition1 = Mouse::getPosition(window);
@@ -6106,6 +6125,7 @@ void SoundOption()
                 {
                     soundC.play();
                     soundison = true;
+                    soundM.play();
                 }
             }
 
@@ -6325,6 +6345,16 @@ void main()
     RenderWindow pressenter(VideoMode(1920, 1080), "enter game");
     pressEnter(pressenter);
 
+    Music soundM;
+    if (soundM.openFromFile("Sounds/mainmenu.wav"))
+
+        soundM.setLoop(true);
+    if (soundison)
+        soundM.setVolume(20);
+    else if (soundison == false)
+        soundM.setVolume(0);
+    soundM.play();
+
     // make a Main window
     RenderWindow MainMenu(VideoMode(1920, 1080), "game");
     Menu mainmenu(MainMenu.getSize().x, MainMenu.getSize().y);
@@ -6339,7 +6369,6 @@ void main()
     textM.setFillColor(Color::White);
     textM.setOutlineColor(Color::Black);
     textM.setOutlineThickness(5);
-
 
     Texture mainblue;
     mainblue.loadFromFile("Textures/mainBtton.png");
@@ -6423,6 +6452,7 @@ void main()
                         playername(entername, window, name);
                         playerSelection(window, character);
                         window.close();
+                        soundM.setVolume(0);
                         if (level1isfinished && !gameover)
                         {
                             RenderWindow selectwindow(sf::VideoMode(1920, 1080), "Sonic Game");
@@ -6564,7 +6594,7 @@ void main()
 
                                     if (Mouse::isButtonPressed(Mouse::Left)) {
                                         soundC.play();
-                                        SoundOption();
+                                        SoundOption(soundM);
                                     }
                                 }
                                 Vector2i mousePosition2 = Mouse::getPosition(Options);
