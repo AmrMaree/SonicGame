@@ -465,30 +465,11 @@ void dropADrop() {
     }
 }
 void chooseDrop(Sprite ground1[], Clock& timerAdd, Clock& timerDelete) {
-    if (timerAdd.getElapsedTime().asSeconds() >= 2) {
-        int indexDrop = rand() % 4;
-        int indexBlock = rand() % 22;
-        Help help;
-        help.dropShape = Drops[indexDrop];
-        help.targetShape = ground1[indexBlock];
-        help.dropShape.setPosition(help.targetShape.getPosition().x + help.targetShape.getScale().x * 125 / 2 - 20, -100);
-        help.type = indexDrop;
-        dropBag.push_back(help);
-        timerAdd.restart();
-
-    }
-    if (timerDelete.getElapsedTime().asSeconds() >= 6) {
-        if (!dropBag.empty()) {
-            dropBag.erase(dropBag.begin());
-            timerDelete.restart();
-        }
-    }
-
     if (bossfightlevel)
     {
-        if (timerAdd.getElapsedTime().asSeconds() >= 1.9) {
-            int indexDrop = rand() % 4;
-            int indexBlock = rand() % 4;
+        if (timerAdd.getElapsedTime().asSeconds() >= 3) {
+            int indexDrop = 0;
+            int indexBlock = rand() % 3;
             Help help;
             help.dropShape = Drops[indexDrop];
             help.targetShape = ground1[indexBlock];
@@ -506,6 +487,27 @@ void chooseDrop(Sprite ground1[], Clock& timerAdd, Clock& timerDelete) {
         }
 
     }
+    else
+    {
+        if (timerAdd.getElapsedTime().asSeconds() >= 2) {
+            int indexDrop = (rand() % 3)+1;
+            int indexBlock = rand() % 22;
+            Help help;
+            help.dropShape = Drops[indexDrop];
+            help.targetShape = ground1[indexBlock];
+            help.dropShape.setPosition(help.targetShape.getPosition().x + help.targetShape.getScale().x * 125 / 2 - 20, -100);
+            help.type = indexDrop;
+            dropBag.push_back(help);
+            timerAdd.restart();
+
+        }
+        if (timerDelete.getElapsedTime().asSeconds() >= 6) {
+            if (!dropBag.empty()) {
+                dropBag.erase(dropBag.begin());
+                timerDelete.restart();
+            }
+        }
+    }
 }
 void dropCollision(player& player, Sound& liveSound, Sound& getthegunSound) {
     SoundManager soundManager;
@@ -514,7 +516,8 @@ void dropCollision(player& player, Sound& liveSound, Sound& getthegunSound) {
         if (player.sprite.getGlobalBounds().intersects(dropBag[i].dropShape.getGlobalBounds())) {
             player.droptype = dropBag[i].type;
             if (player.droptype == 0 || player.droptype == 1) {
-                if (soundison) {
+                if (soundison) 
+                {
                     soundManager.playSound(1);
                     soundManager.setVolume(20);
                 }
@@ -543,10 +546,12 @@ void dropCollision(player& player, Sound& liveSound, Sound& getthegunSound) {
 
 }
 void checkDrop(player& player) {
-    if (player.droptype == -1) {
+    if (player.droptype == -1) 
+    {
         return;
     }
-    else {
+    else 
+    {
         if (player.droptype == 0) { //pistol
             Bullet bullet;
             bullet.bulletSprite.setTexture(DropsTex[4]);
@@ -609,10 +614,12 @@ void bulletCooldown(player& player) {
 }
 void moveBullets(vector<Bullet>& bullet) {
     for (int i = 0; i < bullet.size(); i++) {
-        if (bullet[i].moveTo == 2) {
+        if (bullet[i].moveTo == 2) 
+        {
             bullet[i].bulletSprite.move(-1 * bullet[i].speed, 0);
         }
-        if (bullet[i].moveTo == 1) {
+        if (bullet[i].moveTo == 1) 
+        {
             bullet[i].bulletSprite.move(1 * bullet[i].speed, 0);
 
         }
@@ -3692,7 +3699,6 @@ void bossfight(RenderWindow& window)
     Texture ground1texture;
     ground1texture.loadFromFile("Textures/bossfightblock.png");
     Sprite ground1[23];
-    block(ground1);
     for (int i = 0; i < 3; ++i)
     {
         ground1[i].setTexture(ground1texture);
@@ -4081,7 +4087,7 @@ void bossfight(RenderWindow& window)
         window.clear();
         window.draw(bossbg1S);
         window.draw(bossbgS);
-        for (int i = 0; i < sonic.bullet.size(); i++)
+        for (int i = 1; i < sonic.bullet.size(); i++)
         {
             window.draw(sonic.bullet[i].bulletSprite);
         }
