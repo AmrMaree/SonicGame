@@ -6386,6 +6386,10 @@ void credits(RenderWindow& window)
     Credits.setOutlineColor(Color::Black);
     Credits.setOutlineThickness(5);
 
+    SoundBuffer clicksound;
+    clicksound.loadFromFile("Sounds/clicksound.wav");
+    Sound soundC;
+    soundC.setBuffer(clicksound);
 
     // Set the text
     string message = "Youssef Ahmed : 2022170845 \n\n\nAmr Yasser : 2022170831 \n\n\nGeorge Hany : 2022170808 \n\n\nYoussef Kamal : 2022170933\n\n\nShady Joeseph : 2022170906 \n\n\nJoeseph Nader : 2022170896 \n\n\nAbdelrahman Husien : 2022170822 ";
@@ -6426,6 +6430,7 @@ void credits(RenderWindow& window)
                 tback.setScale(1.2, 1.2);
 
                 if (Mouse::isButtonPressed(Mouse::Left)) {
+                    soundC.play();
                     window.close();
                     return;
                 }
