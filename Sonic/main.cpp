@@ -30,8 +30,8 @@ string timeString;
 int score = 0;
 int rings;
 bool level1isfinished = false;
-bool level2isfinished = false;
-bool level3isfinished = false;
+bool level2isfinished = true;
+bool level3isfinished = true;
 bool bossfightlevel = false;
 bool soundison = true;
 bool pause = false;
@@ -774,6 +774,65 @@ void block(Sprite ground1[])
     ground1[22].setPosition(13700, 300);
     ground1[22].setScale(1.2f, 1.5f);   //small
 }
+void sega(RenderWindow& window)
+{
+
+    SoundBuffer segasound;
+    segasound.loadFromFile("Sounds/sega.wav");
+    Sound sega;
+    sega.setBuffer(segasound);
+
+        // create a vector of textures for the animation frames
+        vector<Texture> frames;
+    for (int i = 0; i < 25; i++) {
+        Texture frame;
+        frame.loadFromFile("Textures/s" + to_string(i + 1) + ".png");
+        // exit the program if a frame fails to load
+        frames.push_back(frame);
+    }
+
+    Sprite sprite1;
+
+    int currentFrame = 0;
+    float animationDuration = 0.2f; // duration of each frame in seconds
+    sf::Clock animationClock;
+    animationClock.restart();
+
+    while (window.isOpen())
+    {
+        Event event;
+        while (window.pollEvent(event))
+        {
+            if (event.type == Event::Closed)
+            {
+                window.close();
+            }
+        }
+
+        if (currentFrame == frames.size() - 1)
+        {
+            if (animationClock.getElapsedTime().asSeconds() > 3.0f)
+            {
+                sega.play();
+                window.close();
+            }
+        }
+        else
+        {
+            if (animationClock.getElapsedTime().asSeconds() > animationDuration)
+            {
+                currentFrame = (currentFrame + 1) % frames.size();
+                sprite1.setTexture(frames[currentFrame]);
+                animationClock.restart();
+            }
+        }
+
+        window.clear();
+        window.draw(sprite1);
+        window.display();
+    }
+
+}
 void playername(RenderWindow& window, RenderWindow& gameplay, string& name)
 {
     if (!name.empty())
@@ -1158,8 +1217,8 @@ void pressEnter(RenderWindow& window)
         }
 
         // update the sprite texture based on the elapsed time
-        if (animationClock.getElapsedTime().asSeconds() > animationDuration)
-        {
+          if (animationClock.getElapsedTime().asSeconds() > animationDuration) 
+          {
             currentFrame = (currentFrame + 1) % frames.size();
             if (currentFrame == 0 && !firstLoop) {
                 currentFrame = 6;
@@ -1169,38 +1228,38 @@ void pressEnter(RenderWindow& window)
             if (currentFrame == 6) {
                 firstLoop = false;
             }
-        }
-        if (animationClock1.getElapsedTime().asSeconds() > animationDuration1)
-        {
-            currentFrame1 = (currentFrame1 + 1) % frames1.size();
-            if (currentFrame1 == 0 && !firstLoop1) {
-                currentFrame1 = 4;
+          }
+            if (animationClock1.getElapsedTime().asSeconds() > animationDuration1) 
+            {
+                currentFrame1 = (currentFrame1 + 1) % frames1.size();
+                if (currentFrame1 == 0 && !firstLoop1) {
+                    currentFrame1 = 4;
+                }
+                sprite2.setTexture(frames1[currentFrame1]);
+                animationClock1.restart();
+                if (currentFrame1 == 4) {
+                    firstLoop1 = false;
+                }
             }
-            sprite2.setTexture(frames1[currentFrame1]);
-            animationClock1.restart();
-            if (currentFrame1 == 4) {
-                firstLoop1 = false;
+
+            if (int(timer.getElapsedTime().asSeconds()) % 2 == 0) {
+
+               t1.setFillColor(Color(255, 255, 255, 50));
             }
-        }
-
-        if (int(timer.getElapsedTime().asSeconds()) % 2 == 0) {
-
-            t1.setFillColor(Color(255, 255, 255, 50));
-        }
-        else
-            t1.setFillColor(Color::White);
+            else
+                t1.setFillColor(Color::White);
 
 
-        // Clear the window and draw the render texture and other sprites
-        window.clear();
-        window.draw(sprite2);
-        window.draw(titlescreenCoverS);
-        window.draw(t1);
-        window.draw(sprite1);
-        window.draw(tieS);
-        window.display();
+            // Clear the window and draw the render texture and other sprites
+            window.clear();
+            window.draw(sprite2);
+            window.draw(titlescreenCoverS);
+            window.draw(t1);
+            window.draw(sprite1);
+            window.draw(tieS);
+            window.display();
 
-
+        
 
     }
 }
@@ -2063,7 +2122,7 @@ void GamePlay2(RenderWindow& window, bool& level2isfinished) {
         sprites[i].setTexture(frames[0]);
         sf::FloatRect frameBounds = sprites[i].getLocalBounds();
         sprites[i].setOrigin(frameBounds.width / 2, frameBounds.height / 2);
-        sprites[i].setPosition((i + 1) * window.getSize().x - 600 / (numSprites + 1), 690);
+        sprites[i].setPosition((i + 1) * window.getSize().x -600 / (numSprites + 1), 690);
         sprites[i].setScale(3.5f, 7);
     }
 
@@ -2464,6 +2523,18 @@ void GamePlay2(RenderWindow& window, bool& level2isfinished) {
                 }
                 else  sonic.sprite.setColor(Color::White);
             }
+            if (!candamage)
+            {
+                if (cooldowndamage.getElapsedTime().asSeconds() <= cooldownTime) {
+                    if (int(cooldowndamage.getElapsedTime().asMilliseconds()) % 2 == 0) {
+
+                        sonic.sprite.setColor(Color(255, 255, 255, 50));
+                    }
+                    else
+                        sonic.sprite.setColor(Color::White);
+                }
+                else  sonic.sprite.setColor(Color::White);
+            }
 
         }
 
@@ -2833,7 +2904,7 @@ void GamePlay3(RenderWindow& window, bool& level3isfinished) {
         sprites[i].setTexture(frames[0]);
         sf::FloatRect frameBounds = sprites[i].getLocalBounds();
         sprites[i].setOrigin(frameBounds.width / 2, frameBounds.height / 2);
-        sprites[i].setPosition((i + 1) * window.getSize().x - 600 / (numSprites + 1), 678);
+        sprites[i].setPosition((i + 1) * window.getSize().x -600 / (numSprites + 1), 678);
         sprites[i].setScale(3.5f, 7);
     }
 
@@ -3617,6 +3688,13 @@ void bossfight(RenderWindow& window)
     Sprite bossbgS;
     bossbgS.setTexture(bossbg);
 
+    Texture health;
+    health.loadFromFile("Textures/healthabr.png");
+    Sprite bar;
+    bar.setTexture(health);
+    bar.setScale(0.5, 0.5);
+    bar.setPosition(600, 100);
+
     Texture bossbg1;
     bossbg1.loadFromFile("Textures/Bbg.png");
     Sprite bossbg1S;
@@ -3697,23 +3775,24 @@ void bossfight(RenderWindow& window)
     timerText.setScale(1.45f, 1.45f);
 
     // Create the background rectangle for the health bar
-    RectangleShape background(Vector2f(200.f, 20.f));
-    background.setFillColor(Color::Red);
-    background.setPosition(500.f, 100.f);
+    RectangleShape background(Vector2f(1062.f, 92.f));
+    background.setFillColor(Color(178, 190, 181));
+    background.setPosition(640.f, 125.f);
+    background.setScale(0.5, 0.5);
 
     // Create the fill rectangle for the health bar
-    sf::RectangleShape fill(Vector2f(200.f, 20.f));
-    fill.setFillColor(Color::Green);
-    fill.setPosition(500.f, 100.f);
-
+   RectangleShape fill(Vector2f(1062.f, 92.f));
+    fill.setFillColor(Color(136, 8, 8));
+    fill.setPosition(640.f, 125.f);
+    fill.setScale(0.5, 0.5);
     //powerups
     Setdrops();
     SoundManager soundManager;
 
     // load coin sound 
-    SoundBuffer coinBuffer;
+   /* SoundBuffer coinBuffer;
     coinBuffer.loadFromFile("Sounds/soundcoin.wav");
-    soundManager.addSound(coinBuffer);
+    soundManager.addSound(coinBuffer);*/
 
     // load the bullet sound
     SoundBuffer bulletBuffer;
@@ -3731,7 +3810,7 @@ void bossfight(RenderWindow& window)
     Sound liveSound(liveBuffer);
 
     //load the sound when sonic got the gun
-    SoundBuffer gotthegBuffer;
+   SoundBuffer gotthegBuffer;
     gotthegBuffer.loadFromFile("Sounds/gotthegun.wav");
     Sound getthegunSound(gotthegBuffer);
 
@@ -3951,7 +4030,7 @@ void bossfight(RenderWindow& window)
                 text.setString(to_string(score));
             }
             else
-                fill.setSize(sf::Vector2f(200.f * (eggman.health / eggman.maxhealth), 20.f));
+                fill.setSize(sf::Vector2f(1050.f * (eggman.health / eggman.maxhealth), 92.f));
         }
 
         //Boss animation
@@ -4053,6 +4132,7 @@ void bossfight(RenderWindow& window)
         }
         window.draw(background);
         window.draw(fill);
+        window.draw(bar);
         window.draw(sonic.sprite);
         window.draw(eggman.sprite);
         window.draw(pauseS);
@@ -5330,6 +5410,20 @@ void selectlevel(RenderWindow& window)
                     return;
                 }
             }
+            Vector2i mousePositiontback = Mouse::getPosition(window);
+            FloatRect spriteBoundstback = tback.getGlobalBounds();
+            tback.setScale(1, 1);
+
+            if (spriteBoundstback.contains(mousePositiontback.x, mousePositiontback.y))
+            {
+                tback.setScale(1.2, 1.2);
+
+                if (Mouse::isButtonPressed(Mouse::Left)) {
+                    soundC.play();
+                    window.close();
+                    return;
+                }
+            }
 
         }
         window.clear();
@@ -5872,7 +5966,9 @@ void SoundOption()
 }
 void main()
 {
-    RenderWindow pressenter(VideoMode(1920, 1080), "enter game");
+    RenderWindow segaa(VideoMode(1920, 1080), "", Style::Fullscreen);
+    sega(segaa);
+    RenderWindow pressenter(VideoMode(1920, 1080), "enter game", Style::Fullscreen);
     pressEnter(pressenter);
 
     // make a Main window
