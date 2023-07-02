@@ -31,7 +31,7 @@ int score = 0;
 int rings;
 bool level1isfinished = false;
 bool level2isfinished = false;
-bool level3isfinished = false;
+bool level3isfinished = true;
 bool bossfightlevel = false;
 bool soundison = true;
 bool pause = false;
@@ -4104,6 +4104,7 @@ void bossfight(RenderWindow& window)
         }
         window.draw(background);
         window.draw(fill);
+        window.draw(bar);
         window.draw(sonic.sprite);
         window.draw(eggman.sprite);
         window.draw(pauseS);
