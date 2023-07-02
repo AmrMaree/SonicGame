@@ -22,7 +22,7 @@ Menu::Menu(float width, float height)
 	mainmenu[1].setFillColor(Color::White);
 	mainmenu[1].setString("Options");
 	mainmenu[1].setCharacterSize(50);
-	mainmenu[1].setPosition(790, 521);
+	mainmenu[1].setPosition(790, 561);
 	mainmenu[1].setOutlineColor(Color::Black);
 	mainmenu[1].setOutlineThickness(6);
 
@@ -32,7 +32,7 @@ Menu::Menu(float width, float height)
 	mainmenu[2].setFillColor(Color::White);
 	mainmenu[2].setString("History");
 	mainmenu[2].setCharacterSize(50);
-	mainmenu[2].setPosition(805, 620);
+	mainmenu[2].setPosition(805, 700);
 	mainmenu[2].setOutlineColor(Color::Black);
 	mainmenu[2].setOutlineThickness(6);
 
@@ -41,9 +41,10 @@ Menu::Menu(float width, float height)
 	mainmenu[3].setFillColor(Color::White);
 	mainmenu[3].setString("Exit");
 	mainmenu[3].setCharacterSize(50);
-	mainmenu[3].setPosition(865, 720);
+	mainmenu[3].setPosition(865, 840);
 	mainmenu[3].setOutlineColor(Color::Black);
 	mainmenu[3].setOutlineThickness(6);
+
 
 	selected = -1;
 
@@ -65,7 +66,6 @@ void Menu::draw(RenderWindow& window)
 	}
 }
 
-
 //Move up 
 
 void Menu::moveup()
@@ -79,10 +79,10 @@ void Menu::moveup()
 		if (selected == -1)
 		{
 			selected = 2;
-			mainmenu[selected].setScale(1.3, 1.3);
+			mainmenu[selected].setScale(1, 1);
 		}
-		mainmenu[selected].setFillColor(Color::Yellow);
-		mainmenu[selected].setScale(1.3, 1.3);
+		mainmenu[selected].setFillColor(Color(53, 76, 92, 255));
+		mainmenu[selected].setScale(1, 1);
 	}
 }
 
@@ -97,11 +97,11 @@ void Menu::movedown()
 		if (selected == 4)
 		{
 			selected = 0;
-			mainmenu[selected].setScale(1.3, 1.3);
+			mainmenu[selected].setScale(1, 1);
 
 		}
-		mainmenu[selected].setFillColor(Color::Yellow);
-		mainmenu[selected].setScale(1.3, 1.3);
+		mainmenu[selected].setFillColor(Color(53, 76, 92, 255));
+		mainmenu[selected].setScale(1, 1);
 
 	}
 

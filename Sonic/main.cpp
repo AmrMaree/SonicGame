@@ -28,15 +28,17 @@ bool gameover = false;
 string name;
 string timeString;
 int score = 0;
-int rings;
+int rings = 0;
 bool level1isfinished = false;
 bool level2isfinished = false;
-bool level3isfinished = true;
+bool level3isfinished = false;
+bool bosslevelisfinished = false;
 bool bossfightlevel = false;
 bool soundison = true;
 bool pause = false;
 int character = -1;
 bool stopFollowingSonic = false;
+int i = 0;
 
 struct Bullet {
     float speed;
@@ -72,6 +74,7 @@ struct player
     bool canShoot;
     int w, h;
     float s1, s2;
+    int position;
 
     void sp(Texture& sonicTexture)
     {
@@ -146,7 +149,6 @@ struct player
             }
 
         }
-
         // cout << velocity.x << "   " << velocity.y << endl;
          // Apply gravity to the character
         velocity.y += gravity * deltaTime;
@@ -204,6 +206,7 @@ struct player
         ////Animation of sonic
         if (((velocity.x >= 500) || (velocity.x <= -500)) && onground == true) {
             // Running animation
+            position = 1;
             runcurrentframe += 0.015f * time;
             sprite.setOrigin(27, 0);
             if (runcurrentframe > 4) {
@@ -217,6 +220,7 @@ struct player
                 sprite.setTextureRect(IntRect((int(runcurrentframe) * 54), 0, 54, 39));
         }
         else if (onground && !Keyboard::isKeyPressed(Keyboard::A) && !Keyboard::isKeyPressed(Keyboard::D) && !Keyboard::isKeyPressed(Keyboard::Space)) {
+            position = 2;
             waitingframe += 0.0038f * time;
             fullsonictexture.loadFromFile("Textures/waitingsonic.png");
             sprite.setTexture(fullsonictexture);
@@ -226,6 +230,7 @@ struct player
             sprite.setTextureRect(IntRect(int(waitingframe) * 45, 0, 45, 43));
         }
         else if (velocity.y < 0) {
+            position = 3;
             jumpframe += 0.015f * time;
             fullsonictexture.loadFromFile("Textures/jumpingsonic.png");
             sprite.setTexture(fullsonictexture);
@@ -237,6 +242,7 @@ struct player
         else
         {
             // Idle animation
+            position = 4;
             currentframe += 0.00523f * time;
             sprite.setOrigin(15, 0);
             if (currentframe > 12) {
@@ -253,6 +259,7 @@ struct player
         ////Animation of knucles
         if (((velocity.x >= 500) || (velocity.x <= -500)) && onground == true) {
             // Running animation
+            position = 1;
             runcurrentframe += 0.015f * time;
             sprite.setOrigin(20, 0);
             if (runcurrentframe > 12) {
@@ -267,6 +274,7 @@ struct player
                 sprite.setTextureRect(IntRect((int(runcurrentframe) * 42), 0, 42, 44));
         }
         else if (velocity.y < 0) {
+            position = 3;
             jumpframe += 0.015f * time;
             fullsonictexture.loadFromFile("Textures/jumpingknuckles.png");
             sprite.setTexture(fullsonictexture);
@@ -278,6 +286,7 @@ struct player
         }
         else if (onground && !Keyboard::isKeyPressed(Keyboard::A) && !Keyboard::isKeyPressed(Keyboard::D) && !Keyboard::isKeyPressed(Keyboard::Space))
         {
+            position = 2;
             waitingframe += 0.0054f * time;
             if (waitingframe > 16)
                 waitingframe -= 16;
@@ -289,6 +298,7 @@ struct player
         else
         {
             // Idle animation
+            position = 4;
             currentframe += (0.00523f * time);
             sprite.setOrigin(18, 0);
             if (currentframe > 6) {
@@ -305,6 +315,7 @@ struct player
         //Animation of tails
         if (((velocity.x >= 500) || (velocity.x <= -500)) && onground == true) {
             // Running animation
+            position = 1;
             runcurrentframe += 0.015f * time;
             sprite.setOrigin(29, 0);
             if (runcurrentframe > 8) {
@@ -318,6 +329,7 @@ struct player
                 sprite.setTextureRect(IntRect((int(runcurrentframe) * 58), 0, 58, 48));
         }
         else if (onground && !Keyboard::isKeyPressed(Keyboard::A) && !Keyboard::isKeyPressed(Keyboard::D) && !Keyboard::isKeyPressed(Keyboard::Space)) {
+            position = 2;
             waitingframe += 0.0038f * time;
             fullsonictexture.loadFromFile("Textures/waitingtails.png");
             sprite.setTexture(fullsonictexture);
@@ -327,6 +339,7 @@ struct player
             sprite.setTextureRect(IntRect(int(waitingframe) * 53, 0, 53, 38));
         }
         else if (velocity.y < 0) {
+            position = 3;
             jumpframe += 0.015f * time;
             fullsonictexture.loadFromFile("Textures/jumpingtails.png");
             sprite.setTexture(fullsonictexture);
@@ -338,6 +351,7 @@ struct player
         else
         {
             // Idle animation
+            position = 4;
             currentframe += 0.00523f * time;
             sprite.setOrigin(22, 0);
             if (currentframe > 8) {
@@ -468,7 +482,7 @@ void chooseDrop(Sprite ground1[], Clock& timerAdd, Clock& timerDelete) {
     if (bossfightlevel)
     {
         if (timerAdd.getElapsedTime().asSeconds() >= 3) {
-            int indexDrop = 0;
+            int indexDrop = rand() % 2;
             int indexBlock = rand() % 3;
             Help help;
             help.dropShape = Drops[indexDrop];
@@ -1388,22 +1402,42 @@ void GamePlay(RenderWindow& window, bool& level1isfinished) {
     pauseS.setOrigin(7, 7);
     pauseS.setScale(4.5, 4.5);
 
+    Texture pausebT;
+    pausebT.loadFromFile("Textures/buttonpause.png");
+    Sprite pausebS;
+    pausebS.setTexture(pausebT);
+    pausebS.setPosition(500, 460);
+    pausebS.setOrigin(352, 177);
+    pausebS.setScale(0.3, 0.3);
+
+    Sprite pauseb1S;
+    pauseb1S.setTexture(pausebT);
+    pauseb1S.setPosition(770, 460);
+    pauseb1S.setOrigin(352, 177);
+    pauseb1S.setScale(0.3, 0.3);
+
+    Texture pausewT;
+    pausewT.loadFromFile("Textures/pausewindow.png");
+    Sprite pausewS;
+    pausewS.setTexture(pausewT);
+    pausewS.setPosition(350, 245);
+
     Font font1;
     font1.loadFromFile("Fonts/NiseSegaSonic.TTF");
     Text text1;
     Text tS;
     text1.setFont(font1);
     text1.setString("Continue");
-    text1.setPosition(150, 300);
-    text1.setCharacterSize(70);
+    text1.setPosition(435, 450);
+    text1.setCharacterSize(19);
     text1.setFillColor(Color::White);
     text1.setOutlineColor(Color::Black);
     text1.setOutlineThickness(3);
 
     tS.setFont(font1);
     tS.setString("Main Menu");
-    tS.setPosition(690, 300);
-    tS.setCharacterSize(70);
+    tS.setPosition(700, 450);
+    tS.setCharacterSize(19);
     tS.setFillColor(Color::White);
     tS.setOutlineColor(Color::Black);
     tS.setOutlineThickness(3);
@@ -1700,6 +1734,9 @@ void GamePlay(RenderWindow& window, bool& level1isfinished) {
             soundManager.stopSound(5);
         }
 
+        Vector2i mousePosition333 = sf::Mouse::getPosition(window);
+        cout << mousePosition333.x << "   " << mousePosition333.y << endl;
+
         // Move the player using A,D and space keys
         if (sonic.last_key_pressed == 1) {
             sonic.sprite.setTextureRect(IntRect(0, 0, sonic.w, sonic.h));
@@ -1742,25 +1779,26 @@ void GamePlay(RenderWindow& window, bool& level1isfinished) {
             }
         }
         Vector2i mousePosition1 = Mouse::getPosition(window);
-        FloatRect spriteBounds1 = text1.getGlobalBounds();
+        FloatRect spriteBounds1(text1.getPosition().x + 247, text1.getPosition().y, text1.getGlobalBounds().width, text1.getGlobalBounds().height);
         text1.setScale(1, 1);
-
+        pausebS.setScale(0.3, 0.3);
         if (spriteBounds1.contains(mousePosition1.x, mousePosition1.y))
         {
             text1.setScale(1.2, 1.2);
-
+            pausebS.setScale(0.4, 0.4);
             if (Mouse::isButtonPressed(Mouse::Left))
             {
                 pause = false;
             }
         }
         Vector2i mousePosition2 = Mouse::getPosition(window);
-        FloatRect spriteBounds2 = tS.getGlobalBounds();
+        FloatRect spriteBounds2(tS.getPosition().x + 247, tS.getPosition().y, tS.getGlobalBounds().width, tS.getGlobalBounds().height);
         tS.setScale(1, 1);
-
+        pauseb1S.setScale(0.3, 0.3);
         if (spriteBounds2.contains(mousePosition2.x, mousePosition2.y))
         {
             tS.setScale(1.2, 1.2);
+            pauseb1S.setScale(0.4, 0.4);
 
             if (Mouse::isButtonPressed(Mouse::Left))
             {
@@ -1946,10 +1984,17 @@ void GamePlay(RenderWindow& window, bool& level1isfinished) {
         else if (character == 2)
         {
             sonic.knucles_animation(time);
+            sonic.groundHeight = 710;
         }
         else if (character == 3)
         {
             sonic.tails_animation(time);
+            if(sonic.position == 2)
+                sonic.groundHeight = 712;
+            else if (sonic.position == 1)
+                sonic.groundHeight = 693;
+            else if (sonic.position == 4)
+                sonic.groundHeight = 704;
         }
 
         if (!pause)
@@ -2065,8 +2110,12 @@ void GamePlay(RenderWindow& window, bool& level1isfinished) {
         window.draw(pauseS);
         if (pause)
         {
+            window.draw(pausewS);
+            window.draw(pausebS);
+            window.draw(pauseb1S);
             window.draw(text1);
             window.draw(tS);
+
         }
         window.display();
     }
@@ -2085,22 +2134,42 @@ void GamePlay2(RenderWindow& window, bool& level2isfinished) {
     pauseS.setOrigin(7, 7);
     pauseS.setScale(4.5, 4.5);
 
+    Texture pausebT;
+    pausebT.loadFromFile("Textures/buttonpause.png");
+    Sprite pausebS;
+    pausebS.setTexture(pausebT);
+    pausebS.setPosition(500, 460);
+    pausebS.setOrigin(352, 177);
+    pausebS.setScale(0.3, 0.3);
+
+    Sprite pauseb1S;
+    pauseb1S.setTexture(pausebT);
+    pauseb1S.setPosition(770, 460);
+    pauseb1S.setOrigin(352, 177);
+    pauseb1S.setScale(0.3, 0.3);
+
+    Texture pausewT;
+    pausewT.loadFromFile("Textures/pausewindow.png");
+    Sprite pausewS;
+    pausewS.setTexture(pausewT);
+    pausewS.setPosition(350, 245);
+
     Font font1;
     font1.loadFromFile("Fonts/NiseSegaSonic.TTF");
     Text text1;
     Text tS;
     text1.setFont(font1);
     text1.setString("Continue");
-    text1.setPosition(150, 300);
-    text1.setCharacterSize(70);
+    text1.setPosition(435, 450);
+    text1.setCharacterSize(19);
     text1.setFillColor(Color::White);
     text1.setOutlineColor(Color::Black);
     text1.setOutlineThickness(3);
 
     tS.setFont(font1);
     tS.setString("Main Menu");
-    tS.setPosition(690, 300);
-    tS.setCharacterSize(70);
+    tS.setPosition(700, 450);
+    tS.setCharacterSize(19);
     tS.setFillColor(Color::White);
     tS.setOutlineColor(Color::Black);
     tS.setOutlineThickness(3);
@@ -2153,6 +2222,7 @@ void GamePlay2(RenderWindow& window, bool& level2isfinished) {
     sonic.sprite.setTextureRect(IntRect(0, 0, 50, 55));
     sonic.sprite.setScale(sonic.s1, sonic.s2);
     sonic.sp(sonictexture);
+    sonic.sprite.setPosition(0, 744);
 
 
     //ending sign
@@ -2238,8 +2308,8 @@ void GamePlay2(RenderWindow& window, bool& level2isfinished) {
     bool isCoinVisible = true;
     bool landed = false;
     double velocityY = 0;
-    score = 0;
-    rings = 0;
+    //score = 0;
+    //rings = 0;
 
     //creating coins 
     Texture coinsTextures;
@@ -2408,25 +2478,26 @@ void GamePlay2(RenderWindow& window, bool& level2isfinished) {
             }
         }
         Vector2i mousePosition1 = Mouse::getPosition(window);
-        FloatRect spriteBounds1 = text1.getGlobalBounds();
+        FloatRect spriteBounds1(text1.getPosition().x + 247, text1.getPosition().y, text1.getGlobalBounds().width, text1.getGlobalBounds().height);
         text1.setScale(1, 1);
-
+        pausebS.setScale(0.3, 0.3);
         if (spriteBounds1.contains(mousePosition1.x, mousePosition1.y))
         {
             text1.setScale(1.2, 1.2);
-
+            pausebS.setScale(0.4, 0.4);
             if (Mouse::isButtonPressed(Mouse::Left))
             {
                 pause = false;
             }
         }
         Vector2i mousePosition2 = Mouse::getPosition(window);
-        FloatRect spriteBounds2 = tS.getGlobalBounds();
+        FloatRect spriteBounds2(tS.getPosition().x + 247, tS.getPosition().y, tS.getGlobalBounds().width, tS.getGlobalBounds().height);
         tS.setScale(1, 1);
-
+        pauseb1S.setScale(0.3, 0.3);
         if (spriteBounds2.contains(mousePosition2.x, mousePosition2.y))
         {
             tS.setScale(1.2, 1.2);
+            pauseb1S.setScale(0.4, 0.4);
 
             if (Mouse::isButtonPressed(Mouse::Left))
             {
@@ -2673,14 +2744,23 @@ void GamePlay2(RenderWindow& window, bool& level2isfinished) {
         if (character == 1)
         {
             sonic.sonic_animation(time);
+            sonic.groundHeight = 745;
         }
         else if (character == 2)
         {
             sonic.knucles_animation(time);
+            sonic.groundHeight = 732;
         }
         else if (character == 3)
         {
             sonic.tails_animation(time);
+            if (sonic.position == 2)
+                sonic.groundHeight = 732;
+            else if (sonic.position == 1)
+                sonic.groundHeight = 717;
+            else if (sonic.position == 4)
+                sonic.groundHeight = 730;
+
         }
         if (!pause) {
             //enemy animation
@@ -2749,7 +2829,6 @@ void GamePlay2(RenderWindow& window, bool& level2isfinished) {
             gameover = true;
             break;
         }
-        sonic.groundHeight = 744;
         sonic.moveSpeed = 1;
 
         if (!stopFollowingSonic) {
@@ -2761,10 +2840,6 @@ void GamePlay2(RenderWindow& window, bool& level2isfinished) {
         //checking if the level is finished
         if (sonic.sprite.getPosition().x > 13700)
             stopFollowingSonic = true;
-
-
-        if (sonic.sprite.getPosition().x < 13700 && stopFollowingSonic)
-            sonic.sprite.setPosition(13700, sonic.sprite.getPosition().y);
 
         if (sonic.sprite.getPosition().x > 14750)
             sonic.sprite.move(10, 0);
@@ -2834,8 +2909,12 @@ void GamePlay2(RenderWindow& window, bool& level2isfinished) {
         window.draw(pauseS);
         if (pause)
         {
+            window.draw(pausewS);
+            window.draw(pausebS);
+            window.draw(pauseb1S);
             window.draw(text1);
             window.draw(tS);
+
         }
         window.display();
     }
@@ -2854,22 +2933,42 @@ void GamePlay3(RenderWindow& window, bool& level3isfinished) {
     pauseS.setOrigin(7, 7);
     pauseS.setScale(4.5, 4.5);
 
+    Texture pausebT;
+    pausebT.loadFromFile("Textures/buttonpause.png");
+    Sprite pausebS;
+    pausebS.setTexture(pausebT);
+    pausebS.setPosition(500, 460);
+    pausebS.setOrigin(352, 177);
+    pausebS.setScale(0.3, 0.3);
+
+    Sprite pauseb1S;
+    pauseb1S.setTexture(pausebT);
+    pauseb1S.setPosition(770, 460);
+    pauseb1S.setOrigin(352, 177);
+    pauseb1S.setScale(0.3, 0.3);
+
+    Texture pausewT;
+    pausewT.loadFromFile("Textures/pausewindow.png");
+    Sprite pausewS;
+    pausewS.setTexture(pausewT);
+    pausewS.setPosition(350, 245);
+
     Font font1;
     font1.loadFromFile("Fonts/NiseSegaSonic.TTF");
     Text text1;
     Text tS;
     text1.setFont(font1);
     text1.setString("Continue");
-    text1.setPosition(150, 300);
-    text1.setCharacterSize(70);
+    text1.setPosition(435, 450);
+    text1.setCharacterSize(19);
     text1.setFillColor(Color::White);
     text1.setOutlineColor(Color::Black);
     text1.setOutlineThickness(3);
 
     tS.setFont(font1);
     tS.setString("Main Menu");
-    tS.setPosition(690, 300);
-    tS.setCharacterSize(70);
+    tS.setPosition(700, 450);
+    tS.setCharacterSize(19);
     tS.setFillColor(Color::White);
     tS.setOutlineColor(Color::Black);
     tS.setOutlineThickness(3);
@@ -2949,7 +3048,8 @@ void GamePlay3(RenderWindow& window, bool& level3isfinished) {
     sonic.sprite.setTextureRect(IntRect(0, 0, 50, 55));
     sonic.sprite.setScale(sonic.s1, sonic.s2);
     sonic.sp(sonictexture);
-    sonic.groundHeight = 742;
+    sonic.sprite.setPosition(0, 726);
+
 
 
     //ending sign
@@ -3025,8 +3125,8 @@ void GamePlay3(RenderWindow& window, bool& level3isfinished) {
     bool isCoinVisible = true;
     bool landed = false;
     double velocityY = 0;
-    score = 0;
-    rings = 0;
+    //score = 0;
+    //rings = 0;
 
     //creating coins 
     Texture coinsTextures;
@@ -3194,25 +3294,26 @@ void GamePlay3(RenderWindow& window, bool& level3isfinished) {
             }
         }
         Vector2i mousePosition1 = Mouse::getPosition(window);
-        FloatRect spriteBounds1 = text1.getGlobalBounds();
+        FloatRect spriteBounds1(text1.getPosition().x + 247, text1.getPosition().y, text1.getGlobalBounds().width, text1.getGlobalBounds().height);
         text1.setScale(1, 1);
-
+        pausebS.setScale(0.3, 0.3);
         if (spriteBounds1.contains(mousePosition1.x, mousePosition1.y))
         {
             text1.setScale(1.2, 1.2);
-
+            pausebS.setScale(0.4, 0.4);
             if (Mouse::isButtonPressed(Mouse::Left))
             {
                 pause = false;
             }
         }
         Vector2i mousePosition2 = Mouse::getPosition(window);
-        FloatRect spriteBounds2 = tS.getGlobalBounds();
+        FloatRect spriteBounds2(tS.getPosition().x + 247, tS.getPosition().y, tS.getGlobalBounds().width, tS.getGlobalBounds().height);
         tS.setScale(1, 1);
-
+        pauseb1S.setScale(0.3, 0.3);
         if (spriteBounds2.contains(mousePosition2.x, mousePosition2.y))
         {
             tS.setScale(1.2, 1.2);
+            pauseb1S.setScale(0.4, 0.4);
 
             if (Mouse::isButtonPressed(Mouse::Left))
             {
@@ -3220,6 +3321,7 @@ void GamePlay3(RenderWindow& window, bool& level3isfinished) {
                 window.close();
             }
         }
+        
 
 
         soundManager.setVolume(20);
@@ -3471,14 +3573,23 @@ void GamePlay3(RenderWindow& window, bool& level3isfinished) {
         if (character == 1)
         {
             sonic.sonic_animation(time);
+            sonic.groundHeight = 735;
         }
         else if (character == 2)
         {
             sonic.knucles_animation(time);
+            sonic.groundHeight = 728;
         }
         else if (character == 3)
         {
             sonic.tails_animation(time);
+            if (sonic.position == 2)
+                sonic.groundHeight = 725;
+            else if (sonic.position == 1)
+                sonic.groundHeight = 708;
+            else if (sonic.position == 4)
+                sonic.groundHeight = 722;
+
         }
 
         if (!pause)
@@ -3607,8 +3718,12 @@ void GamePlay3(RenderWindow& window, bool& level3isfinished) {
         }
         if (pause)
         {
+            window.draw(pausewS);
+            window.draw(pausebS);
+            window.draw(pauseb1S);
             window.draw(text1);
             window.draw(tS);
+
         }
         window.display();
     }
@@ -3619,6 +3734,7 @@ void bossfight(RenderWindow& window)
     Clock timerAdd, timerDelete, gametime;
 
     bossfightlevel = true;
+    bosslevelisfinished = false;
 
     Texture pauseT;
     pauseT.loadFromFile("Textures/pause.png");
@@ -3626,7 +3742,27 @@ void bossfight(RenderWindow& window)
     pauseS.setTexture(pauseT);
     pauseS.setOrigin(7, 7);
     pauseS.setScale(4.5, 4.5);
-    pauseS.setPosition(1540, 62);
+    pauseS.setPosition(1850, 62);
+
+    Texture pausebT;
+    pausebT.loadFromFile("Textures/buttonpause.png");
+    Sprite pausebS;
+    pausebS.setTexture(pausebT);
+    pausebS.setPosition(900, 460);
+    pausebS.setOrigin(352, 177);
+    pausebS.setScale(0.3, 0.3);
+
+    Sprite pauseb1S;
+    pauseb1S.setTexture(pausebT);
+    pauseb1S.setPosition(1170, 460);
+    pauseb1S.setOrigin(352, 177);
+    pauseb1S.setScale(0.3, 0.3);
+
+    Texture pausewT;
+    pausewT.loadFromFile("Textures/pausewindow.png");
+    Sprite pausewS;
+    pausewS.setTexture(pausewT);
+    pausewS.setPosition(750, 245);
 
     Font font1;
     font1.loadFromFile("Fonts/NiseSegaSonic.TTF");
@@ -3634,19 +3770,20 @@ void bossfight(RenderWindow& window)
     Text tS;
     text1.setFont(font1);
     text1.setString("Continue");
-    text1.setPosition(150, 300);
-    text1.setCharacterSize(70);
+    text1.setPosition(835, 450);
+    text1.setCharacterSize(19);
     text1.setFillColor(Color::White);
     text1.setOutlineColor(Color::Black);
     text1.setOutlineThickness(3);
 
     tS.setFont(font1);
     tS.setString("Main Menu");
-    tS.setPosition(690, 300);
-    tS.setCharacterSize(70);
+    tS.setPosition(1100, 450);
+    tS.setCharacterSize(19);
     tS.setFillColor(Color::White);
     tS.setOutlineColor(Color::Black);
     tS.setOutlineThickness(3);
+
 
     //adding score,time,rings
     Texture scoreimagetexture;
@@ -3667,7 +3804,7 @@ void bossfight(RenderWindow& window)
     Texture bosstexture;
     boss eggman;
     eggman.sp(bosstexture);
-    eggman.sprite.setPosition(2000, 100);
+    eggman.sprite.setPosition(2000, 150);
     eggman.sprite.setScale(-2, 2);
 
     Texture bossbg;
@@ -3693,7 +3830,7 @@ void bossfight(RenderWindow& window)
     Sprite bar;
     bar.setTexture(health);
     bar.setScale(0.5, 0.5);
-    bar.setPosition(600, 100);
+    bar.setPosition(600, 0);
 
     //setting blocks
     Texture ground1texture;
@@ -3719,6 +3856,7 @@ void bossfight(RenderWindow& window)
     sonic.sprite.setTextureRect(IntRect(0, 0, 50, 55));
     sonic.sprite.setScale(sonic.s1, sonic.s2);
     sonic.sp(sonictexture);
+    sonic.sprite.setPosition(0, 726);
 
     //Variables
     int coinCount = 0;
@@ -3763,13 +3901,13 @@ void bossfight(RenderWindow& window)
     //Create the background rectangle for the health bar
     RectangleShape background(Vector2f(1062.f, 92.f));
     background.setFillColor(Color(178, 190, 181));
-    background.setPosition(640.f, 125.f);
+    background.setPosition(640.f, 25);
     background.setScale(0.5, 0.5);
 
     // Create the fill rectangle for the health bar
     RectangleShape fill(Vector2f(1062.f, 92.f));
     fill.setFillColor(Color(136, 8, 8));
-    fill.setPosition(640.f, 125.f);
+    fill.setPosition(640.f, 25);
     fill.setScale(0.5, 0.5);
 
     //powerups
@@ -3823,10 +3961,11 @@ void bossfight(RenderWindow& window)
     float cooldownTime = 3.f;
     bool candamage = true;
 
+
     while (window.isOpen())
     {
         //setting time 
-        Clock clock, cooldown;
+        Clock clock, cooldown,dead;
         window.setFramerateLimit(60);
         float time = clock.getElapsedTime().asMicroseconds();
         clock.restart();
@@ -3860,7 +3999,7 @@ void bossfight(RenderWindow& window)
         }
 
         Vector2i mousePosition = Mouse::getPosition(window);
-        FloatRect spriteBounds(pauseS.getPosition().x + 247, pauseS.getPosition().y, pauseS.getGlobalBounds().width, pauseS.getGlobalBounds().height);
+        FloatRect spriteBounds(pauseS.getPosition().x, pauseS.getPosition().y, pauseS.getGlobalBounds().width, pauseS.getGlobalBounds().height);
         pauseS.setScale(4.5, 4.5);
 
         if (spriteBounds.contains(mousePosition.x, mousePosition.y) && !pause)
@@ -3874,11 +4013,11 @@ void bossfight(RenderWindow& window)
         Vector2i mousePosition1 = Mouse::getPosition(window);
         FloatRect spriteBounds1 = text1.getGlobalBounds();
         text1.setScale(1, 1);
-
+        pausebS.setScale(0.3, 0.3);
         if (spriteBounds1.contains(mousePosition1.x, mousePosition1.y))
         {
             text1.setScale(1.2, 1.2);
-
+            pausebS.setScale(0.4, 0.4);
             if (Mouse::isButtonPressed(Mouse::Left))
             {
                 pause = false;
@@ -3887,10 +4026,11 @@ void bossfight(RenderWindow& window)
         Vector2i mousePosition2 = Mouse::getPosition(window);
         FloatRect spriteBounds2 = tS.getGlobalBounds();
         tS.setScale(1, 1);
-
+        pauseb1S.setScale(0.3, 0.3);
         if (spriteBounds2.contains(mousePosition2.x, mousePosition2.y))
         {
             tS.setScale(1.2, 1.2);
+            pauseb1S.setScale(0.4, 0.4);
 
             if (Mouse::isButtonPressed(Mouse::Left))
             {
@@ -3950,66 +4090,71 @@ void bossfight(RenderWindow& window)
         }
 
         //Boss movement
-        if (!pause || !eggman.isdead)
+        if (!eggman.isdead)
         {
-            if (eggman.sprite.getPosition().x > 1800)
-                eggman.moveRight = false;
-            else if (eggman.sprite.getPosition().x < 200)
-                eggman.moveRight = true;
+            if (!pause)
+            {
+                if (eggman.sprite.getPosition().x > 1800)
+                    eggman.moveRight = false;
+                else if (eggman.sprite.getPosition().x < 200)
+                    eggman.moveRight = true;
 
-            if (!eggman.moveRight)
-            {
-                eggman.sprite.move(-4, 0);
-                eggman.sprite.setScale(3, 3);
-            }
-            else
-            {
-                eggman.sprite.move(4, 0);
-                eggman.sprite.setScale(-3, 3);
+                if (!eggman.moveRight)
+                {
+                    eggman.sprite.move(-4, 0);
+                    eggman.sprite.setScale(3, 3);
+                }
+                else
+                {
+                    eggman.sprite.move(4, 0);
+                    eggman.sprite.setScale(-3, 3);
+                }
             }
         }
 
         //collision between sonic and boss
-        if (sonic.sprite.getGlobalBounds().intersects(eggman.sprite.getGlobalBounds()))
+        if (!eggman.isdead)
         {
-            if (candamage && cooldowndamage.getElapsedTime().asSeconds() >= cooldownTime)
+            if (sonic.sprite.getGlobalBounds().intersects(eggman.sprite.getGlobalBounds()))
             {
-                sonic.damage++;
-                sonic.sprite.move(-450, -150);
-                cooldowndamage.restart();
-                candamage = false;
-            }
-            if (!candamage && cooldowndamage.getElapsedTime().asSeconds() >= cooldownTime)
-
-            {
-                candamage = true;
-            }
-        }
-        if (!candamage)
-        {
-            if (cooldowndamage.getElapsedTime().asSeconds() <= cooldownTime) {
-                if (int(cooldowndamage.getElapsedTime().asMilliseconds()) % 2 == 0) {
-
-                    sonic.sprite.setColor(Color(255, 255, 255, 50));
+                if (candamage && cooldowndamage.getElapsedTime().asSeconds() >= cooldownTime)
+                {
+                    sonic.damage++;
+                    sonic.sprite.move(-450, -150);
+                    cooldowndamage.restart();
+                    candamage = false;
                 }
-                else
-                    sonic.sprite.setColor(Color::White);
+                if (!candamage && cooldowndamage.getElapsedTime().asSeconds() >= cooldownTime)
+
+                {
+                    candamage = true;
+                }
             }
-            else  sonic.sprite.setColor(Color::White);
+            if (!candamage)
+            {
+                if (cooldowndamage.getElapsedTime().asSeconds() <= cooldownTime) {
+                    if (int(cooldowndamage.getElapsedTime().asMilliseconds()) % 2 == 0) {
+
+                        sonic.sprite.setColor(Color(255, 255, 255, 50));
+                    }
+                    else
+                        sonic.sprite.setColor(Color::White);
+                }
+                else  sonic.sprite.setColor(Color::White);
+            }
         }
-
-
 
         //collision between bullets and boss
         for (int j = 0; j < sonic.bullet.size(); j++)
         {
             if (sonic.bullet[j].bulletSprite.getGlobalBounds().intersects(eggman.sprite.getGlobalBounds())) {
-                eggman.health -= 5;
+                eggman.health -= 2;
                 sonic.bullet[j].bulletSprite.setScale(0, 0);
             }
-            if (eggman.health < 0) {
+            if (eggman.health == 0 && !eggman.isdead) {
                 //level is finished
                 eggman.isdead = true;
+                score += 200;
                 text.setString(to_string(score));
             }
             else
@@ -4017,7 +4162,7 @@ void bossfight(RenderWindow& window)
         }
 
         //Boss animation
-        if (!pause || !eggman.isdead)
+        if (!pause && !eggman.isdead)
         {
             eggman.currentframe += 0.01 * time;
             eggman.sprite.setOrigin(82, 0);
@@ -4027,21 +4172,25 @@ void bossfight(RenderWindow& window)
             }
             eggman.sprite.setTextureRect(IntRect((int(eggman.currentframe) * 165), 0, 165, 155));
         }
-
         if (eggman.isdead) {
             eggman.bossTexture.loadFromFile("Textures/spritesheet.png");
-            eggman.dieframe += 0.01 * time;
-            eggman.sprite.setScale(6, 6);
-            Clock dead;
+            eggman.sprite.setScale(8, 8);
             if (eggman.dieframe > 11)
             {
-                if (dead.getElapsedTime().asSeconds() > 3)
-                    return;
-
+                i++;
+                eggman.dieframe -= 11;
+              
             }
             else
-                eggman.sprite.setTextureRect(IntRect((int(eggman.dieframe) * 32), 0, 32, 32));
-
+                eggman.dieframe += 0.01 * time;
+            eggman.sprite.setTextureRect(IntRect((int(eggman.dieframe) * 32), 0, 32, 32));
+        }
+        if (i >= 3)
+        {
+            eggman.sprite.setPosition(eggman.sprite.getPosition().x, eggman.sprite.getPosition().y + 200);
+            bosslevelisfinished = true;
+            window.close();
+            return;
         }
 
         //Updating sonic
@@ -4050,14 +4199,22 @@ void bossfight(RenderWindow& window)
         if (character == 1)
         {
             sonic.sonic_animation(time);
+            sonic.groundHeight = 750;
         }
         else if (character == 2)
         {
             sonic.knucles_animation(time);
+            sonic.groundHeight = 735;
         }
         else if (character == 3)
         {
             sonic.tails_animation(time);
+            if (sonic.position == 2)
+                sonic.groundHeight = 736;
+            else if (sonic.position == 1)
+                sonic.groundHeight = 719;
+            else if (sonic.position == 4)
+                sonic.groundHeight = 729;
         }
 
         Time elapsedTime = gametime.getElapsedTime();
@@ -4116,8 +4273,12 @@ void bossfight(RenderWindow& window)
         window.draw(pauseS);
         if (pause)
         {
+            window.draw(pausewS);
+            window.draw(pausebS);
+            window.draw(pauseb1S);
             window.draw(text1);
             window.draw(tS);
+
         }
         window.display();
     }
@@ -5152,7 +5313,7 @@ void selectlevel(RenderWindow& window)
     Sprite locks;
     locks.setTexture(lock);
     locks.setOrigin(228, 304);
-    locks.setPosition(690 + 228, 408 + 34);
+    locks.setPosition(690 + 228, 308 + 34);
     locks.setScale(0.85, 0.35);
 
 
@@ -5161,27 +5322,31 @@ void selectlevel(RenderWindow& window)
     Sprite locks1;
     locks1.setTexture(lock1);
     locks1.setOrigin(228, 304);
-    locks1.setPosition(1290 + 228, 140 + 304);
+    locks1.setPosition(1290 + 228, 140 + 204);
     locks1.setScale(0.85, 0.35);
 
     Texture level1;
     level1.loadFromFile("Textures/levels1.png");
     Sprite levelz1;
     levelz1.setTexture(level1);
-    levelz1.setPosition(100 + 213, 320 + 119);
+    levelz1.setPosition(100 + 213, 220 + 119);
 
 
     Texture level2;
     level2.loadFromFile("Textures/level2.png");
     Sprite levelz2;
     levelz2.setTexture(level2);
-    levelz2.setPosition(700 + 213, 320 + 119);
+    levelz2.setPosition(700 + 213, 220 + 119);
 
     Texture level3;
     level3.loadFromFile("Textures/level3m.png");
     Sprite levelz3;
     levelz3.setTexture(level3);
-    levelz3.setPosition(1300 + 213, 320 + 119);
+    levelz3.setPosition(1300 + 213, 220 + 119);
+
+    Sprite levelz4;
+    levelz4.setTexture(level3);
+    levelz4.setPosition(700 + 213, 620 + 119);
 
     Font font;
     font.loadFromFile("Fonts/NiseSegaSonic.TTF"); // load font lel window 
@@ -5191,7 +5356,7 @@ void selectlevel(RenderWindow& window)
     ts.setCharacterSize(30);
     ts.setOutlineColor(Color::Black);
     ts.setOutlineThickness(3);
-    ts.setPosition(200, 661);
+    ts.setPosition(200, 511);
 
 
     Text ts1;
@@ -5200,7 +5365,7 @@ void selectlevel(RenderWindow& window)
     ts1.setCharacterSize(30);
     ts1.setOutlineColor(Color::Black);
     ts1.setOutlineThickness(3);
-    ts1.setPosition(750, 661);
+    ts1.setPosition(750, 511);
 
     Text ts2;
     ts2.setFont(font);
@@ -5208,7 +5373,15 @@ void selectlevel(RenderWindow& window)
     ts2.setCharacterSize(30);
     ts2.setOutlineColor(Color::Black);
     ts2.setOutlineThickness(3);
-    ts2.setPosition(1370, 661);
+    ts2.setPosition(1370, 511);
+
+    Text ts3;
+    ts3.setFont(font);
+    ts3.setString("Boss Fight");
+    ts3.setCharacterSize(30);
+    ts3.setOutlineColor(Color::Black);
+    ts3.setOutlineThickness(3);
+    ts3.setPosition(800, 921);
 
     Text tback;
     tback.setFont(font);
@@ -5223,27 +5396,27 @@ void selectlevel(RenderWindow& window)
     Stars.loadFromFile("Textures/stars.png");
     Sprite star2;
     star2.setTexture(Stars);
-    star2.setPosition(329, 575);
+    star2.setPosition(329, 425);
 
     Sprite star3;
     star3.setTexture(Stars);
-    star3.setPosition(850, 575);
+    star3.setPosition(850, 425);
 
     Sprite star4;
     star4.setTexture(Stars);
-    star4.setPosition(900, 575);
+    star4.setPosition(900, 425);
 
     Sprite star5;
     star5.setTexture(Stars);
-    star5.setPosition(1550, 575);
+    star5.setPosition(1550, 425);
 
     Sprite star6;
     star6.setTexture(Stars);
-    star6.setPosition(1450, 575);
+    star6.setPosition(1450, 425);
 
     Sprite star1;
     star1.setTexture(Stars);
-    star1.setPosition(1500, 575);
+    star1.setPosition(1500, 425);
 
     Font font1;
     font1.loadFromFile("Fonts/NiseSegaSonic.TTF");
@@ -5374,6 +5547,31 @@ void selectlevel(RenderWindow& window)
                     gameover = false;
                 }
             }
+
+            Vector2i mousePosition3 = Mouse::getPosition(window);
+            FloatRect spriteBounds3 = levelz4.getGlobalBounds();
+            levelz4.setOrigin(213, 119);
+            levelz4.setScale(1, 1);
+            if (spriteBounds3.contains(mousePosition3.x, mousePosition3.y))
+            {
+                levelz4.setScale(1.2, 1.2);
+                if (Mouse::isButtonPressed(Mouse::Left) && level3isfinished) {
+                    soundC.play();
+                    chatboss(window);
+                    bossfight(window);
+                    if (gameover) {
+                        window.close();
+                        if (soundison)
+                            soundG.play();
+                        else if (!soundison)
+                            soundG.stop();
+                        RenderWindow gameover(VideoMode(1920, 1080), "Game Over");
+                        gameOver(gameover, score, rings, timeString);
+                    }
+                    gameover = false;
+                }
+            }
+
             Vector2i mousePositiontback = Mouse::getPosition(window);
             FloatRect spriteBoundstback = tback.getGlobalBounds();
             tback.setScale(1, 1);
@@ -5395,6 +5593,11 @@ void selectlevel(RenderWindow& window)
         window.draw(levelz1);
         window.draw(levelz2);
         window.draw(levelz3);
+        if (level3isfinished)
+        {
+            window.draw(levelz4);
+            window.draw(ts3);
+        }
         window.draw(ts);
         window.draw(star1);
         window.draw(ts1);
@@ -5481,7 +5684,7 @@ void playerSelection(RenderWindow& window, int& character)
     choose.loadFromFile("Textures/choose.png");
     Sprite chooseS;
     chooseS.setTexture(choose);
-    chooseS.setPosition(800 + 178, 800 + 70);
+    chooseS.setPosition(750 + 178, 800 + 70);
     chooseS.setScale(0.8, 0.8);
 
     SoundBuffer clicksound;
@@ -5543,6 +5746,8 @@ void playerSelection(RenderWindow& window, int& character)
                 if (Mouse::isButtonPressed(Mouse::Left)) {
                     soundC.play();
                     character = currentCharacterIndex + 1;
+                    RenderWindow selectwindow(sf::VideoMode(1920, 1080), "Sonic Game");
+                    selectlevel(selectwindow);
                     return;
                 }
             }
@@ -5588,6 +5793,7 @@ void Controls()
 
     float currentframe1 = 0;
     currentframe1 += 4 * time;
+    float jumpframe = 0;
 
     Font font1;
     font1.loadFromFile("Fonts/NiseSegaSonic.TTF");
@@ -5643,7 +5849,7 @@ void Controls()
     keysL.setTextureRect(IntRect(0, 0, 50, 55));
 
     Texture keysSmove;
-    keysSmove.loadFromFile("Textures/approvedsonicjump.png");
+    keysSmove.loadFromFile("Textures/jumpingsonic.png");
     Sprite keysS(keysSmove);
     keysS.setPosition(750, 665);
     keysS.setScale(-2, 2);
@@ -5741,7 +5947,10 @@ void Controls()
         keys5.setTextureRect(IntRect(i * 98, 0, 98, 21));
         keysR.setTextureRect(IntRect(int(currentframe1) * 50, 0, 50, 55));
         keysL.setTextureRect(IntRect(int(currentframe1) * 50, 0, 50, 55));
-
+        if (jumpframe > 10)
+            jumpframe -= 10;
+        keysS.setTextureRect(IntRect(int(jumpframe) * 45, 0, 45, 39));
+        jumpframe += 0.0523f * time;
         currentframe1 += 0.0523f * time;
         if (currentframe1 > 12) {
             currentframe1 -= 12;
@@ -5928,10 +6137,191 @@ void SoundOption()
 
     }
 }
+void victory(RenderWindow& window)
+{
+    Texture victory;
+    victory.loadFromFile("Textures/victory.jpg");
+    Sprite victoryS;
+    victoryS.setTexture(victory);
+    victoryS.setPosition(0, 0);
+
+    Texture trio;
+    trio.loadFromFile("Textures/trio.png");
+    Sprite trioS;
+    trioS.setTexture(trio);
+    trioS.setPosition(800, 650);
+    trioS.setScale(0.35, 0.35);
+
+    Font font1;
+    font1.loadFromFile("Fonts/NiseSegaSonic.TTF");
+
+    Text GameoverScore;
+    string ScoreString = to_string(score);
+    GameoverScore.setFont(font1);
+    GameoverScore.setString("Score : " + ScoreString);
+    GameoverScore.setPosition(1230, 475);
+    GameoverScore.setScale(1.3, 1.3);
+    GameoverScore.setFillColor(Color::White);
+    GameoverScore.setOutlineColor(Color::Black);
+    GameoverScore.setOutlineThickness(4);
+
+    Text tback;
+    tback.setFont(font1);
+    tback.setString("NEXT");
+    tback.setPosition(1680, 920);
+    tback.setCharacterSize(50);
+    tback.setFillColor(Color::White);
+    tback.setOutlineColor(Color::Black);
+    tback.setOutlineThickness(5);
+
+    Text Gameovercoins;
+    string RingString = to_string(rings);
+    Gameovercoins.setFont(font1);
+    Gameovercoins.setString("Rings : " + RingString);
+    Gameovercoins.setPosition(830, 475);
+    Gameovercoins.setScale(1.3, 1.3);
+    Gameovercoins.setFillColor(Color::White);
+    Gameovercoins.setOutlineColor(Color::Black);
+    Gameovercoins.setOutlineThickness(4);
+
+
+    Text Gameovertime;
+    Gameovertime.setFont(font1);
+    Gameovertime.setString("Time : " + timeString);
+    Gameovertime.setPosition(430, 475);
+    Gameovertime.setScale(1.3, 1.3);
+    Gameovertime.setFillColor(Color::White);
+    Gameovertime.setOutlineColor(Color::Black);
+    Gameovertime.setOutlineThickness(4);
+
+    while (window.isOpen())
+    {
+        Event event;
+        while (window.pollEvent(event))
+        {
+            if (event.type == Event::Closed)
+            {
+                window.close();
+            }
+            Vector2i mousePositiontback = Mouse::getPosition(window);
+            FloatRect spriteBoundstback = tback.getGlobalBounds();
+            tback.setScale(1, 1);
+
+            if (spriteBoundstback.contains(mousePositiontback.x, mousePositiontback.y))
+            {
+                tback.setScale(1.2, 1.2);
+
+                if (Mouse::isButtonPressed(Mouse::Left)) {
+                    window.close();
+                    return;
+                }
+            }
+
+        }
+        window.clear();
+        window.draw(trioS);
+        window.draw(victoryS);
+        window.draw(GameoverScore);
+        window.draw(Gameovercoins);
+        window.draw(Gameovertime);
+        window.draw(tback);
+        window.display();
+    }
+}
+void credits(RenderWindow& window)
+{
+    Font font;
+    font.loadFromFile("Fonts/NiseSegaSonic.TTF");
+
+    // Create the text object
+    Text text("", font, 28);
+    text.setPosition(700, 250);
+    text.setOutlineColor(Color::Black);
+    text.setOutlineThickness(3);
+
+    Text tback;
+    tback.setFont(font);
+    tback.setString("Main Menu");
+    tback.setPosition(1480, 920);
+    tback.setCharacterSize(30);
+    tback.setFillColor(Color::White);
+    tback.setOutlineColor(Color::Black);
+    tback.setOutlineThickness(5);
+
+    Text Credits;
+    Credits.setFont(font);
+    Credits.setString("CREDITS");
+    Credits.setPosition(735, 80);
+    Credits.setCharacterSize(90);
+    Credits.setFillColor(Color::White);
+    Credits.setOutlineColor(Color::Black);
+    Credits.setOutlineThickness(5);
+
+
+    // Set the text
+    string message = "Youssef Ahmed : 2022170845 \n\n\nAmr Yasser : 2022170831 \n\n\nGeorge Hany : 2022170808 \n\n\nYoussef Kamal : 2022170933\n\n\nShady Joeseph : 2022170906 \n\n\nJoeseph Nader : 2022170896 \n\n\nAbdelrahman Husien : 2022170822 ";
+    string fullText;
+    unsigned int characterIndex = 0;
+
+    // Create a clock to measure the time elapsed
+    Clock clock;
+
+    while (window.isOpen())
+    {
+        // Handle events
+        Event event;
+        while (window.pollEvent(event))
+        {
+            if (event.type == Event::Closed)
+            {
+                window.close();
+            }
+        }
+
+        // Only display the next character if enough time has passed
+        Time elapsed = clock.getElapsedTime();
+        if (elapsed.asMilliseconds() > 50) // Change this value to adjust the delay time
+        {
+            if (characterIndex < message.size())
+            {
+                fullText += message[characterIndex];
+                text.setString(fullText);
+                characterIndex++;
+            }
+            Vector2i mousePositiontback = Mouse::getPosition(window);
+            FloatRect spriteBoundstback = tback.getGlobalBounds();
+            tback.setScale(1, 1);
+
+            if (spriteBoundstback.contains(mousePositiontback.x, mousePositiontback.y))
+            {
+                tback.setScale(1.2, 1.2);
+
+                if (Mouse::isButtonPressed(Mouse::Left)) {
+                    window.close();
+                    return;
+                }
+            }
+
+            // Reset the clock
+            clock.restart();
+        }
+
+        // Clear the window
+        window.clear();
+
+        // Draw the text
+        window.draw(text);
+        window.draw(tback);
+        window.draw(Credits);
+        // Display the window
+        window.display();
+    }
+}
 void main()
 {
     RenderWindow segaa(VideoMode(1920, 1080), "", Style::Fullscreen);
     sega(segaa);
+
     RenderWindow pressenter(VideoMode(1920, 1080), "enter game");
     pressEnter(pressenter);
 
@@ -5951,12 +6341,19 @@ void main()
     textM.setOutlineThickness(5);
 
 
+    Texture mainblue;
+    mainblue.loadFromFile("Textures/mainBtton.png");
+    Sprite mainblueS;
+    mainblueS.setTexture(mainblue);
+    mainblueS.setPosition(675, 300);
+    mainblueS.setScale(1.2, 1.35);
+
     Texture mainbutton;
-    mainbutton.loadFromFile("Textures/mainmenubutton.png");
+    mainbutton.loadFromFile("Textures/Buttonheader.png");
     Sprite mainbutton1;
     mainbutton1.setTexture(mainbutton);
-    mainbutton1.setPosition(665, 70);
-    mainbutton1.setScale(2.4, 2.4);
+    mainbutton1.setPosition(545, 70);
+    mainbutton1.setScale(1.2, 0.7);
 
     vector<Texture> frames1;
     for (int i = 0; i < 4; i++) {
@@ -6026,8 +6423,6 @@ void main()
                         playername(entername, window, name);
                         playerSelection(window, character);
                         window.close();
-                        RenderWindow selectwindow(sf::VideoMode(1920, 1080), "Sonic Game");
-                        selectlevel(selectwindow);
                         if (level1isfinished && !gameover)
                         {
                             RenderWindow selectwindow(sf::VideoMode(1920, 1080), "Sonic Game");
@@ -6041,10 +6436,17 @@ void main()
                         if (level3isfinished && !gameover)
                         {
                             RenderWindow selectwindow(sf::VideoMode(1920, 1080), "Sonic Game");
-                            chatboss(selectwindow);
-                            bossfight(selectwindow);
+                            selectlevel(selectwindow);
                         }
+                        if (bosslevelisfinished)
+                        {
+                            RenderWindow vic(VideoMode(1920, 1080), "", Style::Fullscreen);
+                            victory(vic);
+                            RenderWindow creds(VideoMode(1920, 1080), "", Style::Fullscreen);
+                            credits(creds);
 
+                        }
+                        
                     }
                     if (x == 1)
                     {
@@ -6228,6 +6630,8 @@ void main()
         }
         MainMenu.clear();
         MainMenu.draw(sprite2);
+        MainMenu.draw(mainblueS);
+        MainMenu.draw(mainbutton1);
         MainMenu.draw(textM);
         mainmenu.draw(MainMenu);
         MainMenu.display();
