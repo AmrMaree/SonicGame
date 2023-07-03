@@ -3069,26 +3069,6 @@ void GamePlay3(RenderWindow& window, bool& level3isfinished) {
     int loopCounter = 0;
 
 
-    vector<Texture> frames1;
-    frames1.emplace_back();
-    frames1.back().loadFromFile("Textures/rain1.png");
-    frames1.emplace_back();
-    frames1.back().loadFromFile("Textures/rain2.png");
-    frames1.emplace_back();
-    frames1.back().loadFromFile("Textures/rain3.png");
-    frames1.emplace_back();
-    frames1.back().loadFromFile("Textures/rain4.png");
-
-    const int numSprites1 = 11; // Number of sprite instances to create
-    vector<Sprite> sprites1(numSprites1);
-    for (int i = 0; i < numSprites1; i++)
-    {
-        sprites1[i].setTexture(frames1[0]);
-        FloatRect frameBounds1 = sprites1[i].getLocalBounds();
-        sprites1[i].setOrigin(frameBounds1.width / 2, frameBounds1.height / 2);
-        sprites1[i].setPosition(i * 1920, -50);
-        sprites1[i].setScale(1, 1.7);
-    }
 
     int currentFrame1 = 0;
     Clock frameClock1;
@@ -3193,8 +3173,7 @@ void GamePlay3(RenderWindow& window, bool& level3isfinished) {
     bool isCoinVisible = true;
     bool landed = false;
     double velocityY = 0;
-    //score = 0;
-    //rings = 0;
+
 
     //creating coins 
     Texture coinsTextures;
@@ -3257,7 +3236,6 @@ void GamePlay3(RenderWindow& window, bool& level3isfinished) {
     //powerups
     Setdrops();
     SoundManager soundManager;
-
 
 
     // load coin sound 
@@ -3427,19 +3405,7 @@ void GamePlay3(RenderWindow& window, bool& level3isfinished) {
         }
 
 
-        if (frameClock1.getElapsedTime().asSeconds() > 0.1f)
-        {
-            currentFrame1 = (currentFrame1 + 1) % frames1.size();
-            for (int i = 0; i < numSprites1; i++)
-            {
-                sprites1[i].setTexture(frames1[currentFrame1]);
-            }
-            frameClock1.restart();
 
-            if (currentFrame1 == 0) {
-                loopCounter1++;
-            }
-        }
 
 
         // Move the player using A,D and space keys
@@ -3770,11 +3736,6 @@ void GamePlay3(RenderWindow& window, bool& level3isfinished) {
             window.draw(background[i]);
         }
 
-        for (int i = 0; i < numSprites1 - 1; i++)
-        {
-            window.draw(sprites1[i]);
-        }
-
         for (int i = 0; i < 6; i++)
         {
             window.draw(ground[i]);
@@ -3833,7 +3794,7 @@ void bossfight(RenderWindow& window)
 {
     srand(static_cast<unsigned>(time(NULL)));
     Clock timerAdd, timerDelete, gametime;
-
+    i = 0;
     bossfightlevel = true;
     bosslevelisfinished = false;
 
@@ -3965,8 +3926,6 @@ void bossfight(RenderWindow& window)
     bool isCoinVisible = true;
     bool landed = false;
     double velocityY = 0;
-    score = 0;
-    rings = 0;
 
     //Score
     Font font;
@@ -4296,7 +4255,7 @@ void bossfight(RenderWindow& window)
                 eggman.dieframe += 0.01 * time;
             eggman.sprite.setTextureRect(IntRect((int(eggman.dieframe) * 32), 0, 32, 32));
         }
-        if (i >= 3)
+        if (i >= 10)
         {
             eggman.sprite.setPosition(eggman.sprite.getPosition().x, eggman.sprite.getPosition().y + 200);
             bosslevelisfinished = true;
@@ -4380,7 +4339,8 @@ void bossfight(RenderWindow& window)
         window.draw(fill);
         window.draw(bar);
         window.draw(sonic.sprite);
-        window.draw(eggman.sprite);
+        if(i <= 3)
+            window.draw(eggman.sprite);
         window.draw(pauseS);
         if (pause)
         {
@@ -4569,7 +4529,7 @@ void chat(RenderWindow& window)
             Time elapsed = clock.getElapsedTime();
 
             // Only display the next character if enough time has passed
-            if (elapsed.asMilliseconds() > 10) // Change this value to adjust the delay time
+            if (elapsed.asMilliseconds() > 40) // Change this value to adjust the delay time
             {
                 // Display the next character in the dialogue
                 if (isNpcSpeaking == true)
@@ -4830,7 +4790,7 @@ void chat2(RenderWindow& window)
             Time elapsed = clock.getElapsedTime();
 
             // Only display the next character if enough time has passed
-            if (elapsed.asMilliseconds() > 10) // Change this value to adjust the delay time
+            if (elapsed.asMilliseconds() > 40) // Change this value to adjust the delay time
             {
                 // Display the next character in the dialogue
                 if (isNpcSpeaking == true)
@@ -5092,7 +5052,7 @@ void chat3(RenderWindow& window)
             Time elapsed = clock.getElapsedTime();
 
             // Only display the next character if enough time has passed
-            if (elapsed.asMilliseconds() > 10) // Change this value to adjust the delay time
+            if (elapsed.asMilliseconds() > 40) // Change this value to adjust the delay time
             {
                 // Display the next character in the dialogue
                 if (isNpcSpeaking == true)
@@ -5345,7 +5305,7 @@ void chatboss(RenderWindow& window)
             Time elapsed = clock.getElapsedTime();
 
             // Only display the next character if enough time has passed
-            if (elapsed.asMilliseconds() > 10) // Change this value to adjust the delay time
+            if (elapsed.asMilliseconds() > 40) // Change this value to adjust the delay time
             {
                 // Display the next character in the dialogue
                 if (isNpcSpeaking == true)
@@ -6318,13 +6278,16 @@ void victory(RenderWindow& window)
     Gameovertime.setOutlineThickness(4);
 
     SoundBuffer victoryB;
-    victoryB.loadFromFile("Sounds/jump.wav");
+    victoryB.loadFromFile("Sounds/victory.wav");
     Sound victory1(victoryB);
-    victory1.play();
 
+    SoundBuffer clicksound;
+    clicksound.loadFromFile("Sounds/clicksound.wav");
+    Sound soundC;
+    soundC.setBuffer(clicksound);
+    victory1.play();
     while (window.isOpen())
     {
-        
         Event event;
         while (window.pollEvent(event))
         {
@@ -6341,11 +6304,12 @@ void victory(RenderWindow& window)
                 tback.setScale(1.2, 1.2);
 
                 if (Mouse::isButtonPressed(Mouse::Left)) {
+
+                    soundC.play();
                     window.close();
                     return;
                 }
             }
-
         }
         window.clear();
         window.draw(trioS);
