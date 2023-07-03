@@ -4005,7 +4005,7 @@ void bossfight(RenderWindow& window)
     Sound jump(jumpB);
 
     SoundBuffer explosionB;
-    explosionB.loadFromFile("Sounds/jump.wav");
+    explosionB.loadFromFile("Sounds/explosion.wav");
     Sound explosion(explosionB);
 
     //load sound of level up
